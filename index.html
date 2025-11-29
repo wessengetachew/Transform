@@ -2187,92 +2187,289 @@
             info.innerHTML = html;
         }
 
-        // Export function
+        // Comprehensive export function with detailed legend
         function exportVisualization() {
             const resolution = parseFloat(document.getElementById('exportRes').value);
             const includeLegend = document.getElementById('exportLegend').checked;
             
+            const baseCanvasSize = 800;
+            const canvasSize = baseCanvasSize * resolution;
+            const legendWidth = includeLegend ? 400 * resolution : 0;
+            
             const exportCanvas = document.createElement('canvas');
             const exportCtx = exportCanvas.getContext('2d');
-            const legendWidth = includeLegend ? 350 : 0;
-            const baseSize = 800 * resolution;
             
-            exportCanvas.width = baseSize + legendWidth;
-            exportCanvas.height = baseSize;
-
-            // Scale context
-            exportCtx.scale(resolution, resolution);
-
-            // Draw background
+            exportCanvas.width = canvasSize + legendWidth;
+            exportCanvas.height = canvasSize;
+            
+            // Black background
             exportCtx.fillStyle = '#000000';
-            exportCtx.fillRect(0, 0, exportCanvas.width / resolution, exportCanvas.height / resolution);
+            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
             
-            // Draw main visualization (scaled)
+            // Draw main visualization scaled
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 800;
-            tempCanvas.height = 800;
+            tempCanvas.width = canvasSize;
+            tempCanvas.height = canvasSize;
             const tempCtx = tempCanvas.getContext('2d');
             
-            // Redraw on temp canvas
-            const originalCanvas = canvas;
-            canvas.width = 800;
-            canvas.height = 800;
-            draw();
-            tempCtx.drawImage(canvas, 0, 0);
+            tempCtx.scale(resolution, resolution);
             
-            exportCtx.drawImage(tempCanvas, 0, 0);
+            // Redraw visualization on temp canvas
+            const w = baseCanvasSize;
+            const h = baseCanvasSize;
+            const cx = w / 2;
+            const cy = h / 2;
 
-            // Draw legend
-            if (includeLegend) {
-                exportCtx.fillStyle = 'rgba(45, 55, 72, 0.95)';
-                exportCtx.fillRect(800, 0, legendWidth / resolution, exportCanvas.height / resolution);
+            tempCtx.fillStyle = '#000000';
+            tempCtx.fillRect(0, 0, w, h);
 
-                let y = 30;
-                exportCtx.fillStyle = '#FFD700';
-                exportCtx.font = 'bold 16px Arial';
-                exportCtx.fillText('Configuration', 820, y);
-                
-                y += 30;
-                exportCtx.font = '12px Arial';
-                exportCtx.fillStyle = '#FFFFFF';
+            const rings = Array.from(selectedRings).map(key => ({
+                key: key,
+                mod: configs[key].mod,
+                coprimes: getCoprimes(configs[key].mod)
+            })).sort((a, b) => a.mod - b.mod);
 
-                const rings = Array.from(selectedRings).map(key => configs[key]);
-                exportCtx.fillText('Rings:', 820, y);
-                y += 20;
-                rings.forEach(r => {
-                    const phi = eulerPhi(r.mod);
-                    exportCtx.fillText(`M=${r.mod}, φ=${phi}`, 830, y);
-                    y += 18;
+            const colorMode = document.getElementById('colorMode').value;
+            const pointSizePx = parseFloat(document.getElementById('pointSizeSlider')?.value || 0.78) * 10;
+            const showDirichlet = document.getElementById('showDirichlet')?.checked;
+
+            // Draw rings on temp canvas
+            rings.forEach((ring, ringIdx) => {
+                const baseRadius = 50 + ringIdx * 40;
+                const numPoints = ring.coprimes.length;
+
+                ring.coprimes.forEach((r, idx) => {
+                    const angle = (2 * Math.PI * idx) / numPoints;
+                    const x = cx + baseRadius * Math.cos(angle);
+                    const y = cy + baseRadius * Math.sin(angle);
+
+                    let color;
+                    const isGcdOne = gcd(r, ring.mod) === 1;
+                    
+                    if (showDirichlet) {
+                        color = isGcdOne ? '#00FFFF' : '#FF1493';
+                    } else if (colorMode === 'angular') {
+                        const hue = ((angle + Math.PI) / (2 * Math.PI)) * 360;
+                        color = `hsl(${hue}, 70%, 60%)`;
+                    } else {
+                        color = isGcdOne ? '#00FFFF' : '#FF1493';
+                    }
+
+                    tempCtx.fillStyle = color;
+                    tempCtx.beginPath();
+                    tempCtx.arc(x, y, pointSizePx, 0, 2 * Math.PI);
+                    tempCtx.fill();
                 });
 
-                const gaps = Array.from(selectedGaps);
-                if (gaps.length > 0) {
-                    y += 10;
-                    exportCtx.fillStyle = '#FFD700';
-                    exportCtx.fillText('Gaps:', 820, y);
-                    y += 20;
-                    exportCtx.fillStyle = '#FFFFFF';
-                    exportCtx.fillText(`[${gaps.join(', ')}]`, 830, y);
-                    y += 25;
-                }
+                // Ring circle
+                const ringThick = parseFloat(document.getElementById('ringThicknessSlider')?.value || 0.61);
+                tempCtx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
+                tempCtx.lineWidth = ringThick;
+                tempCtx.beginPath();
+                tempCtx.arc(cx, cy, baseRadius, 0, 2 * Math.PI);
+                tempCtx.stroke();
+            });
 
-                // Watermark
-                y = (exportCanvas.height / resolution) - 30;
-                exportCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                exportCtx.font = '10px Arial';
-                exportCtx.fillText('Interactive Modular Rings', 820, y);
-                exportCtx.fillText(`${new Date().toISOString().split('T')[0]}`, 820, y + 15);
+            // Draw temp canvas to export canvas
+            exportCtx.drawImage(tempCanvas, 0, 0);
+
+            if (includeLegend) {
+                // Calculate statistics
+                const totalModuli = rings.length;
+                const minMod = rings.length > 0 ? rings[0].mod : 0;
+                const maxMod = rings.length > 0 ? rings[rings.length - 1].mod : 0;
+                const totalPoints = rings.reduce((sum, r) => sum + r.coprimes.length, 0);
+                const coprimePoints = rings.reduce((sum, r) => {
+                    return sum + r.coprimes.filter(cp => gcd(cp, r.mod) === 1).length;
+                }, 0);
+                const avgDensity = totalPoints > 0 ? (coprimePoints / totalPoints * 100).toFixed(1) : 0;
+                
+                const gaps = Array.from(selectedGaps);
+                const smithEnabled = document.getElementById('enableSmith')?.checked || false;
+                const showDirectLifts = document.getElementById('showDirectLifts')?.checked || false;
+                const showDyadicLifts = document.getElementById('showDyadicLifts')?.checked || false;
+
+                // Legend background
+                exportCtx.fillStyle = '#1a1f2e';
+                exportCtx.fillRect(canvasSize, 0, legendWidth, exportCanvas.height);
+
+                let y = 60 * resolution;
+                const leftMargin = canvasSize + 30 * resolution;
+                const fontSize = 14 * resolution;
+                const titleSize = 20 * resolution;
+                const sectionSize = 16 * resolution;
+                const lineHeight = 22 * resolution;
+
+                // Title
+                exportCtx.fillStyle = '#FFFFFF';
+                exportCtx.font = `bold ${titleSize}px Arial`;
+                exportCtx.fillText('Multi-Modulus Projection Explorer', leftMargin, y);
+                
+                // Timestamp
+                y += 25 * resolution;
+                exportCtx.font = `${11 * resolution}px Arial`;
+                exportCtx.fillStyle = '#888888';
+                const now = new Date();
+                exportCtx.fillText(now.toLocaleString(), leftMargin, y);
+
+                // CONFIGURATION Section
+                y += 50 * resolution;
+                exportCtx.fillStyle = '#4ECDC4';
+                exportCtx.font = `bold ${sectionSize}px Arial`;
+                exportCtx.fillText('CONFIGURATION', leftMargin, y);
+
+                y += 30 * resolution;
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.font = `${fontSize}px Arial`;
+                exportCtx.fillText(`Modulus Range: ${minMod} to ${maxMod}`, leftMargin, y);
+                
+                y += lineHeight;
+                exportCtx.fillText(`Total Moduli: ${totalModuli}`, leftMargin, y);
+                
+                y += lineHeight;
+                const ringSpacing = 1.0; // Could get from controls
+                exportCtx.fillText(`Ring Spacing: ${ringSpacing}×`, leftMargin, y);
+                
+                y += lineHeight;
+                const invertMode = 'Disabled'; // Could get from controls
+                exportCtx.fillText(`Invert Mode: ${invertMode}`, leftMargin, y);
+
+                // CONNECTIONS Section
+                y += 40 * resolution;
+                exportCtx.fillStyle = '#4ECDC4';
+                exportCtx.font = `bold ${sectionSize}px Arial`;
+                exportCtx.fillText('CONNECTIONS', leftMargin, y);
+
+                y += 30 * resolution;
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.font = `${fontSize}px Arial`;
+                const rToRStatus = showDirectLifts ? 'Enabled' : 'Disabled';
+                exportCtx.fillText(`r-to-r Connections: ${rToRStatus}`, leftMargin, y);
+                
+                y += lineHeight;
+                const gapStatus = gaps.length > 0 ? 'Enabled' : 'Disabled';
+                exportCtx.fillText(`Gap Connections: ${gapStatus}`, leftMargin, y);
+                
+                y += lineHeight;
+                const connectionColor = showDirichlet ? 'gcd' : 'bygap';
+                exportCtx.fillText(`Connection Color: ${connectionColor}`, leftMargin, y);
+
+                // ANALYSIS Section
+                y += 40 * resolution;
+                exportCtx.fillStyle = '#4ECDC4';
+                exportCtx.font = `bold ${sectionSize}px Arial`;
+                exportCtx.fillText('ANALYSIS', leftMargin, y);
+
+                y += 30 * resolution;
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.font = `${fontSize}px Arial`;
+                exportCtx.fillText(`Total Points: ${totalPoints}`, leftMargin, y);
+                
+                y += lineHeight;
+                exportCtx.fillText(`Coprime Points: ${coprimePoints}`, leftMargin, y);
+                
+                y += lineHeight;
+                exportCtx.fillText(`Average Density: ${avgDensity}%`, leftMargin, y);
+
+                // COLOR KEY Section
+                y += 40 * resolution;
+                exportCtx.fillStyle = '#4ECDC4';
+                exportCtx.font = `bold ${sectionSize}px Arial`;
+                exportCtx.fillText('COLOR KEY', leftMargin, y);
+
+                y += 30 * resolution;
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.font = `${fontSize}px Arial`;
+                
+                // Cyan color box
+                exportCtx.fillStyle = '#00FFFF';
+                exportCtx.fillRect(leftMargin, y - 12 * resolution, 15 * resolution, 15 * resolution);
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.fillText('  Cyan = Coprime (gcd=1)', leftMargin + 20 * resolution, y);
+                
+                y += lineHeight;
+                // Red/Magenta color box
+                exportCtx.fillStyle = '#FF1493';
+                exportCtx.fillRect(leftMargin, y - 12 * resolution, 15 * resolution, 15 * resolution);
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.fillText('  Red = Non-coprime (gcd>1)', leftMargin + 20 * resolution, y);
+                
+                y += lineHeight;
+                // Gold color box
+                exportCtx.fillStyle = '#FFD700';
+                exportCtx.fillRect(leftMargin, y - 12 * resolution, 15 * resolution, 15 * resolution);
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.fillText('  Gold = Modulus Rings', leftMargin + 20 * resolution, y);
+
+                // KEY RESULT Section (optional)
+                y += 40 * resolution;
+                exportCtx.fillStyle = '#4ECDC4';
+                exportCtx.font = `bold ${sectionSize}px Arial`;
+                exportCtx.fillText('KEY RESULT', leftMargin, y);
+
+                y += 30 * resolution;
+                exportCtx.fillStyle = '#CCCCCC';
+                exportCtx.font = `${11 * resolution}px Arial`;
+                exportCtx.fillText('Visualization shows modular', leftMargin, y);
+                y += 18 * resolution;
+                exportCtx.fillText('arithmetic structure across', leftMargin, y);
+                y += 18 * resolution;
+                exportCtx.fillText(`${totalModuli} rings with coprime`, leftMargin, y);
+                y += 18 * resolution;
+                exportCtx.fillText('residue distribution.', leftMargin, y);
+
+                // METADATA Section
+                y = exportCanvas.height - 120 * resolution;
+                exportCtx.fillStyle = '#4ECDC4';
+                exportCtx.font = `bold ${sectionSize}px Arial`;
+                exportCtx.fillText('METADATA', leftMargin, y);
+
+                y += 25 * resolution;
+                exportCtx.fillStyle = '#888888';
+                exportCtx.font = `${11 * resolution}px Arial`;
+                exportCtx.fillText(`Generated: ${now.toLocaleString()}`, leftMargin, y);
+                
+                y += 18 * resolution;
+                exportCtx.fillText('Author: Wessen Getachew', leftMargin, y);
+                
+                y += 18 * resolution;
+                exportCtx.fillText('Tool: Modular Reduction Projection Explorer', leftMargin, y);
+                
+                y += 18 * resolution;
+                exportCtx.fillText(`Resolution: ${canvasSize}×${canvasSize}`, leftMargin, y);
             }
 
+            // Add title and subtitle above the main image
+            const headerHeight = 80 * resolution;
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = exportCanvas.width;
+            finalCanvas.height = exportCanvas.height + headerHeight;
+            const finalCtx = finalCanvas.getContext('2d');
+
+            // Black background for header
+            finalCtx.fillStyle = '#000000';
+            finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+            // Title
+            finalCtx.fillStyle = '#FFFFFF';
+            finalCtx.font = `bold ${28 * resolution}px Arial`;
+            finalCtx.textAlign = 'center';
+            finalCtx.fillText('Multi-Modulus Projection Explorer', finalCanvas.width / 2, 40 * resolution);
+
+            // Subtitle with moduli info
+            finalCtx.fillStyle = '#4ECDC4';
+            finalCtx.font = `${18 * resolution}px Arial`;
+            const subtitle = `Moduli: M = ${minMod} to ${maxMod}`;
+            finalCtx.fillText(subtitle, finalCanvas.width / 2, 70 * resolution);
+
+            // Draw main content below header
+            finalCtx.drawImage(exportCanvas, 0, headerHeight);
+
             // Download
-            exportCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset scale
             const link = document.createElement('a');
-            link.download = `modular_rings_${resolution}x.png`;
-            link.href = exportCanvas.toDataURL();
+            link.download = `modular_rings_M${minMod}_to_M${maxMod}_${Date.now()}.png`;
+            link.href = finalCanvas.toDataURL('image/png');
             link.click();
-            
-            // Restore original
-            draw();
         }
 
         // Initialize and draw
