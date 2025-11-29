@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -2046,6 +2046,7 @@
             }
 
             // Draw dyadic lift connections (r in M to r+M×2^n in M×2^(n+1))
+            // ONLY for consecutive moduli: M to M×2
             if (document.getElementById('showDyadicLifts')?.checked) {
                 ctx.save();
                 const liftThickness = parseFloat(document.getElementById('liftThickness').value);
@@ -2057,45 +2058,46 @@
                 ctx.lineWidth = liftThickness;
                 if (liftDashed) ctx.setLineDash([3, 3]);
                 
-                for (let level = 1; level <= maxLevel; level++) {
-                    rings.forEach(ring1 => {
-                        const targetMod = ring1.mod * Math.pow(2, level);
-                        const ring2 = rings.find(r => r.mod === targetMod);
-                        
-                        if (ring2) {
-                            ring1.coprimes.forEach(r => {
-                                const targetR = r + ring1.mod * Math.pow(2, level - 1);
+                // Only connect consecutive pairs: M to M×2
+                rings.forEach(ring1 => {
+                    const targetMod = ring1.mod * 2;
+                    const ring2 = rings.find(r => r.mod === targetMod);
+                    
+                    if (ring2) {
+                        // For dyadic lift: r in M maps to r+M in M×2
+                        ring1.coprimes.forEach(r => {
+                            const targetR = r + ring1.mod; // r + M
+                            
+                            // Check if targetR is coprime to M×2
+                            if (targetR < targetMod && gcd(targetR, targetMod) === 1) {
+                                const pos1 = pointPositions.get(`${ring1.mod}_${r}`);
+                                const pos2 = pointPositions.get(`${targetMod}_${targetR}`);
                                 
-                                if (targetR < targetMod && gcd(targetR, targetMod) === 1) {
-                                    const pos1 = pointPositions.get(`${ring1.mod}_${r}`);
-                                    const pos2 = pointPositions.get(`${targetMod}_${targetR}`);
-                                    
-                                    if (pos1 && pos2) {
-                                        let lineColor;
-                                        if (liftColorMode === 'byLevel') {
-                                            const hue = (level * 60) % 360;
-                                            lineColor = `hsla(${hue}, 80%, 60%, ${liftOpacity * 0.7})`;
-                                        } else if (liftColorMode === 'white') {
-                                            lineColor = `rgba(255, 255, 255, ${liftOpacity * 0.6})`;
-                                        } else if (liftColorMode === 'cyan') {
-                                            lineColor = `rgba(78, 205, 196, ${liftOpacity * 0.6})`;
-                                        } else if (liftColorMode === 'yellow') {
-                                            lineColor = `rgba(255, 215, 0, ${liftOpacity * 0.6})`;
-                                        } else if (liftColorMode === 'green') {
-                                            lineColor = `rgba(72, 187, 120, ${liftOpacity * 0.6})`;
-                                        }
-                                        
-                                        ctx.strokeStyle = lineColor;
-                                        ctx.beginPath();
-                                        ctx.moveTo(pos1.x, pos1.y);
-                                        ctx.lineTo(pos2.x, pos2.y);
-                                        ctx.stroke();
+                                if (pos1 && pos2) {
+                                    let lineColor;
+                                    if (liftColorMode === 'byLevel') {
+                                        const hue = 60; // Single color since only one level
+                                        lineColor = `hsla(${hue}, 80%, 60%, ${liftOpacity * 0.7})`;
+                                    } else if (liftColorMode === 'white') {
+                                        lineColor = `rgba(255, 255, 255, ${liftOpacity * 0.6})`;
+                                    } else if (liftColorMode === 'cyan') {
+                                        lineColor = `rgba(78, 205, 196, ${liftOpacity * 0.6})`;
+                                    } else if (liftColorMode === 'yellow') {
+                                        lineColor = `rgba(255, 215, 0, ${liftOpacity * 0.6})`;
+                                    } else if (liftColorMode === 'green') {
+                                        lineColor = `rgba(72, 187, 120, ${liftOpacity * 0.6})`;
                                     }
+                                    
+                                    ctx.strokeStyle = lineColor;
+                                    ctx.beginPath();
+                                    ctx.moveTo(pos1.x, pos1.y);
+                                    ctx.lineTo(pos2.x, pos2.y);
+                                    ctx.stroke();
                                 }
-                            });
-                        }
-                    });
-                }
+                            }
+                        });
+                    }
+                });
                 
                 ctx.setLineDash([]);
                 ctx.restore();
@@ -2302,17 +2304,17 @@
             // Draw temp canvas to export canvas
             exportCtx.drawImage(tempCanvas, 0, 0);
 
+            // Calculate statistics (needed for both legend and filename)
+            const totalModuli = rings.length;
+            const minMod = rings.length > 0 ? rings[0].mod : 1;
+            const maxMod = rings.length > 0 ? rings[rings.length - 1].mod : 1;
+            const totalPoints = rings.reduce((sum, r) => sum + r.coprimes.length, 0);
+            const coprimePoints = rings.reduce((sum, r) => {
+                return sum + r.coprimes.filter(cp => gcd(cp, r.mod) === 1).length;
+            }, 0);
+            const avgDensity = totalPoints > 0 ? (coprimePoints / totalPoints * 100).toFixed(1) : 0;
+
             if (includeLegend) {
-                // Calculate statistics
-                const totalModuli = rings.length;
-                const minMod = rings.length > 0 ? rings[0].mod : 0;
-                const maxMod = rings.length > 0 ? rings[rings.length - 1].mod : 0;
-                const totalPoints = rings.reduce((sum, r) => sum + r.coprimes.length, 0);
-                const coprimePoints = rings.reduce((sum, r) => {
-                    return sum + r.coprimes.filter(cp => gcd(cp, r.mod) === 1).length;
-                }, 0);
-                const avgDensity = totalPoints > 0 ? (coprimePoints / totalPoints * 100).toFixed(1) : 0;
-                
                 const gaps = Array.from(selectedGaps);
                 const smithEnabled = document.getElementById('enableSmith')?.checked || false;
                 const showDirectLifts = document.getElementById('showDirectLifts')?.checked || false;
