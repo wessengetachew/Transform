@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -283,10 +283,46 @@
                         <span><span class="collapse-icon">▼</span> Modular Ring System</span>
                     </h3>
                     <div class="section-content">
+                        <!-- Quick Actions -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;">
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px;" onclick="selectAllRings()">Select All</button>
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px;" onclick="deselectAllRings()">Deselect All</button>
+                        </div>
+                        
+                        <!-- Range Selection -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;">Select Range:</label>
+                            <div class="input-row" style="margin-bottom: 5px;">
+                                <input type="number" id="rangeStart" min="1" max="1000" placeholder="From" style="width: 70px;">
+                                <span style="padding: 0 5px;">to</span>
+                                <input type="number" id="rangeEnd" min="1" max="1000" placeholder="To" style="width: 70px;">
+                            </div>
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="selectRange()">Add Range</button>
+                        </div>
+                        
+                        <!-- Quick Presets -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;">Quick Presets:</label>
+                            <select id="quickPreset" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #e2e8f0; font-size: 0.85em; margin-bottom: 5px;">
+                                <option value="">-- Select Preset --</option>
+                                <option value="small">Small (M1-M12)</option>
+                                <option value="medium">Medium (M1-M30)</option>
+                                <option value="default">Default (M1-M60)</option>
+                                <option value="large">Large (M1-M100)</option>
+                                <option value="primes">Primes only (≤60)</option>
+                                <option value="powers2">Powers of 2</option>
+                                <option value="fibonacci">Fibonacci numbers</option>
+                            </select>
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="applyPreset()">Apply Preset</button>
+                        </div>
+                        
+                        <!-- Add Single -->
                         <div class="input-row">
                             <input type="number" id="customMod" min="1" max="1000" placeholder="Add M">
                             <button class="btn btn-secondary" onclick="addCustomRing()">Add</button>
                         </div>
+                        
+                        <!-- Ring List -->
                         <div class="checkbox-group" id="ringControls"></div>
                         <div class="help-text">Select moduli to visualize Z/MZ rings</div>
                     </div>
@@ -317,11 +353,57 @@
                         <span><span class="collapse-icon">▼</span> Gap Analysis</span>
                     </h3>
                     <div class="section-content">
+                        <!-- Quick Actions for Gaps -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;">
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="selectAllGaps()">All</button>
+                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="deselectAllGaps()">None</button>
+                        </div>
+                        
+                        <!-- Gap Presets -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;">Quick Presets:</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectEvenGaps()">Even</button>
+                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectOddGaps()">Odd</button>
+                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectTwinPrimes()">Twin (2)</button>
+                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectSmallGaps()">2,4,6</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Add Custom Gap -->
                         <div class="input-row">
                             <input type="number" id="customGap" min="1" max="100" placeholder="Gap">
                             <button class="btn btn-secondary" onclick="addCustomGap()">Add</button>
                         </div>
+                        
+                        <!-- Gap List -->
                         <div class="checkbox-group" id="gapControls"></div>
+                        
+                        <!-- Gap Line Controls -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 10px;">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="showGapLines" checked onchange="draw()">
+                                <label for="showGapLines">Show Gap Connection Lines</label>
+                            </div>
+                            <div class="slider-group">
+                                <label>Line Thickness: <span id="gapLineThickness">1.5</span>px</label>
+                                <input type="range" id="gapThickness" min="0.5" max="5" step="0.5" value="1.5" oninput="updateGapThickness()">
+                            </div>
+                            <div class="slider-group">
+                                <label>Line Color:</label>
+                                <select id="gapLineColor" onchange="draw()">
+                                    <option value="gold">Gold</option>
+                                    <option value="cyan">Cyan</option>
+                                    <option value="magenta">Magenta</option>
+                                    <option value="byGap">Color by Gap</option>
+                                </select>
+                            </div>
+                            <div class="slider-group">
+                                <label>Line Opacity: <span id="gapOpacityValue">0.6</span></label>
+                                <input type="range" id="gapOpacity" min="0.1" max="1" step="0.1" value="0.6" oninput="updateGapOpacity()">
+                            </div>
+                        </div>
+                        
                         <div class="slider-group">
                             <label>Gap Coloring:</label>
                             <select id="gapColorMode" onchange="draw()">
@@ -331,6 +413,61 @@
                             </select>
                         </div>
                         <div class="help-text">Highlight residue pairs (r₁, r₂) where |r₁ - r₂| = g</div>
+                    </div>
+                </div>
+
+                <!-- Lift Connections -->
+                <div class="section-card">
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Lift Connections</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showDirectLifts" onchange="draw()">
+                            <label for="showDirectLifts">Direct Lifts (r → r, M → M+1)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showDyadicLifts" onchange="draw()">
+                            <label for="showDyadicLifts">Dyadic Lifts (r → r+M×2ⁿ)</label>
+                        </div>
+                        
+                        <!-- Dyadic Parameters -->
+                        <div id="dyadicControls" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; display: none;">
+                            <div class="slider-group">
+                                <label>Max Dyadic Level n: <span id="maxDyadicLevel">3</span></label>
+                                <input type="range" id="dyadicLevel" min="1" max="8" value="3" oninput="updateDyadicLevel()">
+                            </div>
+                            <div class="help-text">Connects r in M to r+M×2ⁿ in M×2ⁿ⁺¹</div>
+                        </div>
+                        
+                        <!-- Lift Line Style -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 8px; display: block;"><strong>Lift Line Style:</strong></label>
+                            <div class="slider-group">
+                                <label>Thickness: <span id="liftLineThickness">1.0</span>px</label>
+                                <input type="range" id="liftThickness" min="0.3" max="4" step="0.1" value="1.0" oninput="updateLiftThickness()">
+                            </div>
+                            <div class="slider-group">
+                                <label>Color:</label>
+                                <select id="liftLineColor" onchange="draw()">
+                                    <option value="white">White</option>
+                                    <option value="cyan">Cyan</option>
+                                    <option value="yellow">Yellow</option>
+                                    <option value="green">Green</option>
+                                    <option value="byLevel">Color by Level</option>
+                                </select>
+                            </div>
+                            <div class="slider-group">
+                                <label>Opacity: <span id="liftOpacityValue">0.4</span></label>
+                                <input type="range" id="liftOpacity" min="0.1" max="1" step="0.1" value="0.4" oninput="updateLiftOpacity()">
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="liftDashed" onchange="draw()">
+                                <label for="liftDashed">Dashed Lines</label>
+                            </div>
+                        </div>
+                        
+                        <div class="help-text">Lift connections show relationships between residues across different moduli</div>
                     </div>
                 </div>
 
@@ -615,6 +752,11 @@
                 const scaleGroup = document.getElementById('smithScaleGroup');
                 scaleGroup.style.display = this.value === 'custom' ? 'block' : 'none';
             });
+            
+            // Dyadic lifts toggle handler
+            document.getElementById('showDyadicLifts').addEventListener('change', function() {
+                document.getElementById('dyadicControls').style.display = this.checked ? 'block' : 'none';
+            });
         }
 
         function addCustomRing() {
@@ -628,7 +770,14 @@
             
             const key = `m${mod}`;
             if (configs[key]) {
-                alert(`M=${mod} already exists`);
+                // Already exists, just select it
+                if (!selectedRings.has(key)) {
+                    selectedRings.add(key);
+                    const checkbox = document.getElementById(`ring_${key}`);
+                    if (checkbox) checkbox.checked = true;
+                    draw();
+                }
+                modInput.value = '';
                 return;
             }
             
@@ -649,6 +798,126 @@
             draw();
         }
 
+        function selectAllRings() {
+            Object.keys(configs).forEach(key => {
+                selectedRings.add(key);
+                const checkbox = document.getElementById(`ring_${key}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            draw();
+        }
+
+        function deselectAllRings() {
+            selectedRings.clear();
+            Object.keys(configs).forEach(key => {
+                const checkbox = document.getElementById(`ring_${key}`);
+                if (checkbox) checkbox.checked = false;
+            });
+            draw();
+        }
+
+        function selectRange() {
+            const start = parseInt(document.getElementById('rangeStart').value);
+            const end = parseInt(document.getElementById('rangeEnd').value);
+            
+            if (!start || !end || start < 1 || end < 1 || start > end || end > 1000) {
+                alert('Enter valid range (1-1000, start ≤ end)');
+                return;
+            }
+            
+            for (let m = start; m <= end; m++) {
+                const key = m === 1 ? 'unit' : `m${m}`;
+                
+                // Add to configs if doesn't exist
+                if (!configs[key]) {
+                    configs[key] = { mod: m, label: m.toString() };
+                    
+                    // Add checkbox
+                    const ringControls = document.getElementById('ringControls');
+                    const div = document.createElement('div');
+                    div.className = 'checkbox-item';
+                    const label = m === 1 ? 'Unit Circle (M=1)' : `M=${m} (φ=${eulerPhi(m)})`;
+                    div.innerHTML = `
+                        <input type="checkbox" id="ring_${key}" value="${key}" checked onchange="toggleRing('${key}')">
+                        <label for="ring_${key}">${label}</label>
+                    `;
+                    ringControls.appendChild(div);
+                }
+                
+                // Select it
+                selectedRings.add(key);
+                const checkbox = document.getElementById(`ring_${key}`);
+                if (checkbox) checkbox.checked = true;
+            }
+            
+            document.getElementById('rangeStart').value = '';
+            document.getElementById('rangeEnd').value = '';
+            draw();
+        }
+
+        function applyPreset() {
+            const preset = document.getElementById('quickPreset').value;
+            if (!preset) return;
+            
+            let moduli = [];
+            
+            switch(preset) {
+                case 'small':
+                    moduli = Array.from({length: 12}, (_, i) => i + 1);
+                    break;
+                case 'medium':
+                    moduli = Array.from({length: 30}, (_, i) => i + 1);
+                    break;
+                case 'default':
+                    moduli = Array.from({length: 60}, (_, i) => i + 1);
+                    break;
+                case 'large':
+                    moduli = Array.from({length: 100}, (_, i) => i + 1);
+                    break;
+                case 'primes':
+                    moduli = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59];
+                    break;
+                case 'powers2':
+                    moduli = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
+                    break;
+                case 'fibonacci':
+                    moduli = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987];
+                    break;
+            }
+            
+            // Clear current selection
+            deselectAllRings();
+            
+            // Add and select moduli
+            moduli.forEach(m => {
+                const key = m === 1 ? 'unit' : `m${m}`;
+                
+                // Add to configs if doesn't exist
+                if (!configs[key]) {
+                    configs[key] = { mod: m, label: m.toString() };
+                    
+                    // Add checkbox
+                    const ringControls = document.getElementById('ringControls');
+                    const div = document.createElement('div');
+                    div.className = 'checkbox-item';
+                    const label = m === 1 ? 'Unit Circle (M=1)' : `M=${m} (φ=${eulerPhi(m)})`;
+                    div.innerHTML = `
+                        <input type="checkbox" id="ring_${key}" value="${key}" checked onchange="toggleRing('${key}')">
+                        <label for="ring_${key}">${label}</label>
+                    `;
+                    ringControls.appendChild(div);
+                }
+                
+                // Select it
+                selectedRings.add(key);
+                const checkbox = document.getElementById(`ring_${key}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            document.getElementById('quickPreset').value = '';
+            draw();
+        }
+
         function addCustomGap() {
             const gapInput = document.getElementById('customGap');
             const gap = parseInt(gapInput.value);
@@ -659,7 +928,10 @@
             }
             
             if (selectedGaps.has(gap)) {
-                alert(`Gap ${gap} already active`);
+                // Already exists, just ensure it's selected
+                const checkbox = document.getElementById(`gap_${gap}`);
+                if (checkbox) checkbox.checked = true;
+                gapInput.value = '';
                 return;
             }
             
@@ -678,6 +950,84 @@
             draw();
         }
 
+        function selectAllGaps() {
+            // Select all gaps from 1 to 20
+            for (let g = 1; g <= 20; g++) {
+                if (!selectedGaps.has(g)) {
+                    selectedGaps.add(g);
+                    
+                    // Add checkbox if doesn't exist
+                    if (!document.getElementById(`gap_${g}`)) {
+                        const gapControls = document.getElementById('gapControls');
+                        const div = document.createElement('div');
+                        div.className = 'checkbox-item';
+                        div.innerHTML = `
+                            <input type="checkbox" id="gap_${g}" value="${g}" checked onchange="toggleGap(${g})">
+                            <label for="gap_${g}">Gap g=${g}</label>
+                        `;
+                        gapControls.appendChild(div);
+                    } else {
+                        document.getElementById(`gap_${g}`).checked = true;
+                    }
+                }
+            }
+            draw();
+        }
+
+        function deselectAllGaps() {
+            selectedGaps.clear();
+            const checkboxes = document.querySelectorAll('#gapControls input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+            draw();
+        }
+
+        function selectEvenGaps() {
+            deselectAllGaps();
+            for (let g = 2; g <= 20; g += 2) {
+                addGapIfNeeded(g);
+            }
+            draw();
+        }
+
+        function selectOddGaps() {
+            deselectAllGaps();
+            for (let g = 1; g <= 19; g += 2) {
+                addGapIfNeeded(g);
+            }
+            draw();
+        }
+
+        function selectTwinPrimes() {
+            deselectAllGaps();
+            addGapIfNeeded(2);
+            draw();
+        }
+
+        function selectSmallGaps() {
+            deselectAllGaps();
+            [2, 4, 6].forEach(g => addGapIfNeeded(g));
+            draw();
+        }
+
+        function addGapIfNeeded(gap) {
+            if (!selectedGaps.has(gap)) {
+                selectedGaps.add(gap);
+                
+                if (!document.getElementById(`gap_${gap}`)) {
+                    const gapControls = document.getElementById('gapControls');
+                    const div = document.createElement('div');
+                    div.className = 'checkbox-item';
+                    div.innerHTML = `
+                        <input type="checkbox" id="gap_${gap}" value="${gap}" checked onchange="toggleGap(${gap})">
+                        <label for="gap_${gap}">Gap g=${gap}</label>
+                    `;
+                    gapControls.appendChild(div);
+                } else {
+                    document.getElementById(`gap_${gap}`).checked = true;
+                }
+            }
+        }
+
         function toggleRing(key) {
             if (selectedRings.has(key)) {
                 selectedRings.delete(key);
@@ -693,6 +1043,36 @@
             } else {
                 selectedGaps.add(gap);
             }
+            draw();
+        }
+
+        function updateGapThickness() {
+            const val = parseFloat(document.getElementById('gapThickness').value);
+            document.getElementById('gapLineThickness').textContent = val.toFixed(1);
+            draw();
+        }
+
+        function updateGapOpacity() {
+            const val = parseFloat(document.getElementById('gapOpacity').value);
+            document.getElementById('gapOpacityValue').textContent = val.toFixed(1);
+            draw();
+        }
+
+        function updateLiftThickness() {
+            const val = parseFloat(document.getElementById('liftThickness').value);
+            document.getElementById('liftLineThickness').textContent = val.toFixed(1);
+            draw();
+        }
+
+        function updateLiftOpacity() {
+            const val = parseFloat(document.getElementById('liftOpacity').value);
+            document.getElementById('liftOpacityValue').textContent = val.toFixed(1);
+            draw();
+        }
+
+        function updateDyadicLevel() {
+            const val = parseInt(document.getElementById('dyadicLevel').value);
+            document.getElementById('maxDyadicLevel').textContent = val;
             draw();
         }
 
@@ -955,9 +1335,10 @@
                 ctx.restore();
             }
 
-            // Check for gaps
+            // Check for gaps and build position map
             const gaps = Array.from(selectedGaps);
             const gapSet = new Map(); // residue -> has gap
+            const pointPositions = new Map(); // key -> {x, y, residue, modulus}
             
             rings.forEach(ring => {
                 ring.coprimes.forEach(r => {
@@ -976,7 +1357,7 @@
                 });
             });
 
-            // Draw each ring
+            // First pass: calculate all point positions and store them
             rings.forEach((ring, ringIdx) => {
                 const baseRadius = 50 + ringIdx * 40;
                 const radius = baseRadius * zoom;
@@ -985,34 +1366,207 @@
                 ring.coprimes.forEach((r, idx) => {
                     let x, y;
                     
-                    // Apply Smith transform if enabled
                     if (smithEnabled) {
                         const transformed = applySmithTransform(
-                            r, 
-                            ring.mod, 
-                            ringIdx, 
-                            rings.length, 
-                            smithAlpha, 
-                            smithMode, 
-                            smithScale
+                            r, ring.mod, ringIdx, rings.length, 
+                            smithAlpha, smithMode, smithScale
                         );
                         x = transformed.x * zoom;
                         y = transformed.y * zoom;
                     } else {
-                        // Normal polar coordinates
                         const angle = calculateAngle(r, ring.mod, idx, numPoints) + (rotation * Math.PI / 180);
                         x = radius * Math.cos(angle);
                         y = radius * Math.sin(angle);
                     }
 
-                    const screenX = cx + x;
-                    const screenY = cy + y;
+                    pointPositions.set(`${ring.mod}_${r}`, {
+                        x: cx + x,
+                        y: cy + y,
+                        residue: r,
+                        modulus: ring.mod,
+                        ringIdx: ringIdx
+                    });
+                });
+            });
+
+            // Draw gap connection lines (behind points)
+            if (document.getElementById('showGapLines')?.checked && gaps.length > 0) {
+                ctx.save();
+                const gapThickness = parseFloat(document.getElementById('gapThickness').value);
+                const gapOpacity = parseFloat(document.getElementById('gapOpacity').value);
+                const gapLineColorMode = document.getElementById('gapLineColor').value;
+                
+                ctx.lineWidth = gapThickness;
+                
+                rings.forEach(ring => {
+                    const isGcdOne = (r) => gcd(r, ring.mod) === 1;
+                    
+                    gaps.forEach(gap => {
+                        ring.coprimes.forEach(r1 => {
+                            if (!isGcdOne(r1)) return;
+                            
+                            ring.coprimes.forEach(r2 => {
+                                if (r2 <= r1 || !isGcdOne(r2)) return;
+                                
+                                const diff = Math.abs(r2 - r1);
+                                if (diff === gap || diff === ring.mod - gap) {
+                                    const pos1 = pointPositions.get(`${ring.mod}_${r1}`);
+                                    const pos2 = pointPositions.get(`${ring.mod}_${r2}`);
+                                    
+                                    if (pos1 && pos2) {
+                                        // Determine line color
+                                        let lineColor;
+                                        if (gapLineColorMode === 'gold') {
+                                            lineColor = `rgba(255, 215, 0, ${gapOpacity})`;
+                                        } else if (gapLineColorMode === 'cyan') {
+                                            lineColor = `rgba(78, 205, 196, ${gapOpacity})`;
+                                        } else if (gapLineColorMode === 'magenta') {
+                                            lineColor = `rgba(255, 0, 255, ${gapOpacity})`;
+                                        } else if (gapLineColorMode === 'byGap') {
+                                            const hue = (gap * 30) % 360;
+                                            lineColor = `hsla(${hue}, 100%, 60%, ${gapOpacity})`;
+                                        }
+                                        
+                                        ctx.strokeStyle = lineColor;
+                                        ctx.beginPath();
+                                        ctx.moveTo(pos1.x, pos1.y);
+                                        ctx.lineTo(pos2.x, pos2.y);
+                                        ctx.stroke();
+                                    }
+                                }
+                            });
+                        });
+                    });
+                });
+                
+                ctx.restore();
+            }
+
+            // Draw direct lift connections (r in M to r in M+1)
+            if (document.getElementById('showDirectLifts')?.checked) {
+                ctx.save();
+                const liftThickness = parseFloat(document.getElementById('liftThickness').value);
+                const liftOpacity = parseFloat(document.getElementById('liftOpacity').value);
+                const liftColorMode = document.getElementById('liftLineColor').value;
+                const liftDashed = document.getElementById('liftDashed').checked;
+                
+                ctx.lineWidth = liftThickness;
+                if (liftDashed) ctx.setLineDash([5, 5]);
+                
+                for (let i = 0; i < rings.length - 1; i++) {
+                    const ring1 = rings[i];
+                    const ring2 = rings[i + 1];
+                    
+                    // Check if ring2.mod = ring1.mod + 1 (direct lift)
+                    if (ring2.mod === ring1.mod + 1) {
+                        ring1.coprimes.forEach(r => {
+                            // Check if r is coprime to both M and M+1
+                            if (gcd(r, ring2.mod) === 1) {
+                                const pos1 = pointPositions.get(`${ring1.mod}_${r}`);
+                                const pos2 = pointPositions.get(`${ring2.mod}_${r}`);
+                                
+                                if (pos1 && pos2) {
+                                    let lineColor;
+                                    if (liftColorMode === 'white') {
+                                        lineColor = `rgba(255, 255, 255, ${liftOpacity})`;
+                                    } else if (liftColorMode === 'cyan') {
+                                        lineColor = `rgba(78, 205, 196, ${liftOpacity})`;
+                                    } else if (liftColorMode === 'yellow') {
+                                        lineColor = `rgba(255, 215, 0, ${liftOpacity})`;
+                                    } else if (liftColorMode === 'green') {
+                                        lineColor = `rgba(72, 187, 120, ${liftOpacity})`;
+                                    } else if (liftColorMode === 'byLevel') {
+                                        const hue = (i * 40) % 360;
+                                        lineColor = `hsla(${hue}, 70%, 60%, ${liftOpacity})`;
+                                    }
+                                    
+                                    ctx.strokeStyle = lineColor;
+                                    ctx.beginPath();
+                                    ctx.moveTo(pos1.x, pos1.y);
+                                    ctx.lineTo(pos2.x, pos2.y);
+                                    ctx.stroke();
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                ctx.setLineDash([]);
+                ctx.restore();
+            }
+
+            // Draw dyadic lift connections (r in M to r+M×2^n in M×2^(n+1))
+            if (document.getElementById('showDyadicLifts')?.checked) {
+                ctx.save();
+                const liftThickness = parseFloat(document.getElementById('liftThickness').value);
+                const liftOpacity = parseFloat(document.getElementById('liftOpacity').value);
+                const liftColorMode = document.getElementById('liftLineColor').value;
+                const liftDashed = document.getElementById('liftDashed').checked;
+                const maxLevel = parseInt(document.getElementById('dyadicLevel').value);
+                
+                ctx.lineWidth = liftThickness;
+                if (liftDashed) ctx.setLineDash([3, 3]);
+                
+                for (let level = 1; level <= maxLevel; level++) {
+                    rings.forEach(ring1 => {
+                        const targetMod = ring1.mod * Math.pow(2, level);
+                        const ring2 = rings.find(r => r.mod === targetMod);
+                        
+                        if (ring2) {
+                            ring1.coprimes.forEach(r => {
+                                const targetR = r + ring1.mod * Math.pow(2, level - 1);
+                                
+                                if (targetR < targetMod && gcd(targetR, targetMod) === 1) {
+                                    const pos1 = pointPositions.get(`${ring1.mod}_${r}`);
+                                    const pos2 = pointPositions.get(`${targetMod}_${targetR}`);
+                                    
+                                    if (pos1 && pos2) {
+                                        let lineColor;
+                                        if (liftColorMode === 'byLevel') {
+                                            const hue = (level * 60) % 360;
+                                            lineColor = `hsla(${hue}, 80%, 60%, ${liftOpacity * 0.7})`;
+                                        } else if (liftColorMode === 'white') {
+                                            lineColor = `rgba(255, 255, 255, ${liftOpacity * 0.6})`;
+                                        } else if (liftColorMode === 'cyan') {
+                                            lineColor = `rgba(78, 205, 196, ${liftOpacity * 0.6})`;
+                                        } else if (liftColorMode === 'yellow') {
+                                            lineColor = `rgba(255, 215, 0, ${liftOpacity * 0.6})`;
+                                        } else if (liftColorMode === 'green') {
+                                            lineColor = `rgba(72, 187, 120, ${liftOpacity * 0.6})`;
+                                        }
+                                        
+                                        ctx.strokeStyle = lineColor;
+                                        ctx.beginPath();
+                                        ctx.moveTo(pos1.x, pos1.y);
+                                        ctx.lineTo(pos2.x, pos2.y);
+                                        ctx.stroke();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                ctx.setLineDash([]);
+                ctx.restore();
+            }
+
+            // Draw each ring (points on top of lines)
+            rings.forEach((ring, ringIdx) => {
+                const numPoints = ring.coprimes.length;
+
+                ring.coprimes.forEach((r, idx) => {
+                    const pos = pointPositions.get(`${ring.mod}_${r}`);
+                    if (!pos) return;
+
+                    const screenX = pos.x;
+                    const screenY = pos.y;
 
                     // Get color
                     const hasGap = gapSet.get(`${ring.mod}_${r}`) || false;
                     const baseAngle = calculateAngle(r, ring.mod, idx, numPoints);
                     const color = getPointColor(r, ring.mod, baseAngle, ring, ringIdx, hasGap, smithEnabled, 
-                        smithEnabled ? {x, y} : null);
+                        smithEnabled ? {x: pos.x - cx, y: pos.y - cy} : null);
 
                     // Draw point
                     ctx.fillStyle = color;
@@ -1020,7 +1574,7 @@
                     ctx.arc(screenX, screenY, pointSize, 0, 2 * Math.PI);
                     ctx.fill();
 
-                    // Draw label
+                    // Draw label (on top, not overlapped by lines)
                     if (showLabels) {
                         ctx.fillStyle = '#FFFFFF';
                         ctx.font = '10px monospace';
@@ -1029,7 +1583,9 @@
                 });
 
                 // Draw ring circle
-                if (showRings) {
+                if (showRings && !smithEnabled) {
+                    const baseRadius = 50 + ringIdx * 40;
+                    const radius = baseRadius * zoom;
                     ctx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
