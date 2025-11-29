@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Modular Lifting Rings - Streamlined</title>
+    <title>Interactive Modular Lifting Rings - Full Featured</title>
     <style>
         * {
             margin: 0;
@@ -48,7 +48,7 @@
             margin: 0 auto;
             padding: 20px;
             display: grid;
-            grid-template-columns: 320px minmax(600px, 1fr) 350px;
+            grid-template-columns: 350px minmax(600px, 1fr) 380px;
             gap: 15px;
             min-height: calc(100vh - 100px);
         }
@@ -93,19 +93,36 @@
         }
 
         .section-card h3 {
-            color: #cbd5e0;
+            color: #4ECDC4;
             margin-bottom: 12px;
             font-size: 0.95em;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapse-icon {
+            transition: transform 0.2s;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .section-card.collapsed .section-content {
+            display: none;
         }
 
         .checkbox-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
         }
 
@@ -144,7 +161,8 @@
             accent-color: #FFD700;
         }
 
-        .slider-group select {
+        .slider-group select,
+        .slider-group input[type="number"] {
             width: 100%;
             padding: 8px;
             background: rgba(0, 0, 0, 0.3);
@@ -173,6 +191,10 @@
             box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
         }
 
+        .btn-secondary {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44A8A0 100%);
+        }
+
         .visualization-panel {
             background: rgba(0, 0, 0, 0.4);
             border-radius: 12px;
@@ -199,9 +221,9 @@
         .info-box {
             background: rgba(45, 55, 72, 0.9);
             border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 3px solid #FFD700;
             font-size: 0.85em;
             line-height: 1.6;
         }
@@ -215,9 +237,27 @@
             color: #4ECDC4;
         }
 
+        .help-text {
+            font-size: 0.8em;
+            color: #a0aec0;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-row input {
+            flex: 1;
+        }
+
         @media (max-width: 1400px) {
             .app-container {
-                grid-template-columns: 280px 1fr 300px;
+                grid-template-columns: 300px 1fr 320px;
             }
         }
     </style>
@@ -226,7 +266,7 @@
     <div class="app-header">
         <div class="header-content">
             <h1>Interactive Modular Lifting Rings</h1>
-            <div class="subtitle">Nested Modular Rings with Gap Analysis & Dirichlet Characters</div>
+            <div class="subtitle">Full-Featured Modular Ring System with Advanced Gap Analysis & Character Theory</div>
         </div>
     </div>
 
@@ -237,71 +277,184 @@
                 <h2>Controls</h2>
             </div>
             <div class="panel-content">
-                <!-- Modular Rings -->
+                <!-- Modular Ring System -->
                 <div class="section-card">
-                    <h3>Modular Ring System</h3>
-                    <div class="checkbox-group" id="ringControls"></div>
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Modular Ring System</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="input-row">
+                            <input type="number" id="customMod" min="1" max="1000" placeholder="Add M">
+                            <button class="btn btn-secondary" onclick="addCustomRing()">Add</button>
+                        </div>
+                        <div class="checkbox-group" id="ringControls"></div>
+                        <div class="help-text">Select moduli to visualize Z/MZ rings</div>
+                    </div>
+                </div>
+
+                <!-- Angle Calculation Mode -->
+                <div class="section-card">
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Angle Calculation</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="slider-group">
+                            <label>Angle Formula:</label>
+                            <select id="angleMode" onchange="draw()">
+                                <option value="negative">-2πr/M (counterclockwise)</option>
+                                <option value="positive">+2πr/M (clockwise)</option>
+                                <option value="complement">2π(M-r)/M (complement)</option>
+                                <option value="index">2πi/φ(M) (by index)</option>
+                            </select>
+                        </div>
+                        <div class="help-text">θ determines angular position of residue r on ring M</div>
+                    </div>
                 </div>
 
                 <!-- Gap Analysis -->
                 <div class="section-card">
-                    <h3>Gap Analysis</h3>
-                    <div class="checkbox-group" id="gapControls"></div>
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Gap Analysis</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="input-row">
+                            <input type="number" id="customGap" min="1" max="100" placeholder="Gap">
+                            <button class="btn btn-secondary" onclick="addCustomGap()">Add</button>
+                        </div>
+                        <div class="checkbox-group" id="gapControls"></div>
+                        <div class="slider-group">
+                            <label>Gap Coloring:</label>
+                            <select id="gapColorMode" onchange="draw()">
+                                <option value="uniform">Uniform Gold</option>
+                                <option value="byGap">Color by Gap Value</option>
+                                <option value="intensity">By Gap Count</option>
+                            </select>
+                        </div>
+                        <div class="help-text">Highlight residue pairs (r₁, r₂) where |r₁ - r₂| = g</div>
+                    </div>
                 </div>
 
                 <!-- Dirichlet Characters -->
                 <div class="section-card">
-                    <h3>Dirichlet Characters</h3>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="showDirichlet" onchange="draw()">
-                        <label for="showDirichlet">Show Character Support (χ(r) ≠ 0)</label>
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Dirichlet Characters</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showDirichlet" onchange="draw()">
+                            <label for="showDirichlet">Show Character Support</label>
+                        </div>
+                        <div class="slider-group">
+                            <label>Support Visualization:</label>
+                            <select id="dirichletMode" onchange="draw()">
+                                <option value="highlight">Highlight gcd(r,M)=1</option>
+                                <option value="dim">Dim gcd(r,M)≠1</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+                        <div class="slider-group">
+                            <label>Character Index k:</label>
+                            <input type="number" id="charIndex" min="0" max="100" value="1" onchange="draw()">
+                        </div>
+                        <div class="help-text">χ(r) ≠ 0 ⟺ gcd(r,M) = 1. Domain of L-functions.</div>
                     </div>
                 </div>
 
                 <!-- Smith Chart Transform -->
                 <div class="section-card">
-                    <h3>Smith Chart Transform</h3>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="enableSmith" onchange="draw()">
-                        <label for="enableSmith">Enable Cayley/Smith Transform</label>
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Smith/Cayley Transform</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="enableSmith" onchange="toggleSmith()">
+                            <label for="enableSmith">Enable Transform</label>
+                        </div>
+                        <div id="smithControls" style="display: none;">
+                            <div class="slider-group">
+                                <label>Phase Shift α: <span id="alphaValue">90</span>°</label>
+                                <input type="range" id="smithAlpha" min="0" max="360" value="90" oninput="updateSmith()">
+                            </div>
+                            <div class="slider-group">
+                                <label>Radius Mode:</label>
+                                <select id="smithRadiusMode" onchange="draw()">
+                                    <option value="modulus">By Modulus M</option>
+                                    <option value="phi">By φ(M)</option>
+                                    <option value="uniform">Uniform</option>
+                                    <option value="custom">Custom Scale</option>
+                                </select>
+                            </div>
+                            <div class="slider-group" id="smithScaleGroup" style="display: none;">
+                                <label>Scale Factor: <span id="scaleValue">1.0</span></label>
+                                <input type="range" id="smithScale" min="0.1" max="5" step="0.1" value="1.0" oninput="updateScale()">
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="smithGrid" checked onchange="draw()">
+                                <label for="smithGrid">Show Grid</label>
+                            </div>
+                        </div>
+                        <div class="help-text">Cayley map: Γ = (z-1)/(z+1). Maps upper half-plane to unit disk.</div>
                     </div>
-                    <div id="smithControls" style="display: none; margin-top: 10px;">
+                </div>
+
+                <!-- Visualization Options -->
+                <div class="section-card">
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Visualization</span>
+                    </h3>
+                    <div class="section-content">
                         <div class="slider-group">
-                            <label>Phase Shift α: <span id="alphaValue">90</span>°</label>
-                            <input type="range" id="smithAlpha" min="0" max="360" value="90" oninput="updateSmith()">
+                            <label>Zoom: <span id="zoomValue">1.0</span>x</label>
+                            <input type="range" id="zoom" min="0.3" max="5" step="0.1" value="1.0" oninput="updateZoom()">
                         </div>
                         <div class="slider-group">
-                            <label>Radius Mode:</label>
-                            <select id="smithMode" onchange="draw()">
-                                <option value="modulus">By Modulus M</option>
-                                <option value="phi">By φ(M)</option>
-                                <option value="uniform">Uniform</option>
+                            <label>Rotation: <span id="rotValue">0</span>°</label>
+                            <input type="range" id="rotation" min="0" max="360" value="0" oninput="updateRotation()">
+                        </div>
+                        <div class="slider-group">
+                            <label>Point Size: <span id="sizeValue">4</span>px</label>
+                            <input type="range" id="pointSize" min="2" max="12" value="4" oninput="updateSize()">
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showLabels" onchange="draw()">
+                            <label for="showLabels">Show Residue Labels</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showRings" checked onchange="draw()">
+                            <label for="showRings">Show Ring Circles</label>
+                        </div>
+                        <div class="slider-group">
+                            <label>Coloring:</label>
+                            <select id="colorMode" onchange="draw()">
+                                <option value="angular">Angular (by θ)</option>
+                                <option value="modulus">By Modulus</option>
+                                <option value="coprime">Coprime Status</option>
+                                <option value="prime">Prime Residues</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <!-- Visualization -->
-                <div class="section-card">
-                    <h3>Visualization</h3>
-                    <div class="slider-group">
-                        <label>Zoom: <span id="zoomValue">1.0</span>x</label>
-                        <input type="range" id="zoom" min="0.5" max="3" step="0.1" value="1.0" oninput="updateZoom()">
-                    </div>
-                    <div class="slider-group">
-                        <label>Rotation: <span id="rotValue">0</span>°</label>
-                        <input type="range" id="rotation" min="0" max="360" value="0" oninput="updateRotation()">
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="showLabels" onchange="draw()">
-                        <label for="showLabels">Show Residue Labels</label>
-                    </div>
-                </div>
-
                 <!-- Export -->
                 <div class="section-card">
-                    <h3>Export</h3>
-                    <button class="btn" onclick="exportVisualization()">Export PNG with Legend</button>
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Export</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="slider-group">
+                            <label>Resolution:</label>
+                            <select id="exportRes">
+                                <option value="1">1x (800px)</option>
+                                <option value="2" selected>2x (1600px)</option>
+                                <option value="4">4x (3200px)</option>
+                            </select>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="exportLegend" checked>
+                            <label for="exportLegend">Include Legend</label>
+                        </div>
+                        <button class="btn" onclick="exportVisualization()">Export PNG</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -316,10 +469,10 @@
         <!-- Right Panel: Info -->
         <div class="panel">
             <div class="panel-header">
-                <h2>System Info</h2>
+                <h2>System Information</h2>
             </div>
             <div class="panel-content">
-                <div id="systemInfo" class="info-box"></div>
+                <div id="systemInfo"></div>
             </div>
         </div>
     </div>
@@ -331,6 +484,7 @@
         // State
         let zoom = 1.0;
         let rotation = 0;
+        let pointSize = 4;
         let selectedRings = new Set(['unit']);
         let selectedGaps = new Set();
         
@@ -339,19 +493,35 @@
             unit: { mod: 1, label: '1' }
         };
 
-        // Initialize with M1-M60
+        // Initialize with M2-M60
         for (let m = 2; m <= 60; m++) {
             configs[`m${m}`] = { mod: m, label: m.toString() };
         }
 
         // Helper: GCD
         function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
             while (b !== 0) {
                 let t = b;
                 b = a % b;
                 a = t;
             }
             return a;
+        }
+
+        // Helper: Euler's totient
+        function eulerPhi(n) {
+            if (n === 1) return 1;
+            let result = n;
+            for (let p = 2; p * p <= n; p++) {
+                if (n % p === 0) {
+                    while (n % p === 0) n /= p;
+                    result -= result / p;
+                }
+            }
+            if (n > 1) result -= result / n;
+            return Math.floor(result);
         }
 
         // Helper: Get coprimes to n
@@ -366,17 +536,62 @@
             return coprimes;
         }
 
+        // Helper: Check if prime
+        function isPrime(n) {
+            if (n < 2) return false;
+            if (n === 2) return true;
+            if (n % 2 === 0) return false;
+            for (let i = 3; i * i <= n; i += 2) {
+                if (n % i === 0) return false;
+            }
+            return true;
+        }
+
+        // Calculate angle based on mode
+        function calculateAngle(residue, modulus, index, totalCoprimes) {
+            const mode = document.getElementById('angleMode').value;
+            let angle;
+            
+            switch(mode) {
+                case 'negative':
+                    angle = -2 * Math.PI * residue / modulus;
+                    break;
+                case 'positive':
+                    angle = 2 * Math.PI * residue / modulus;
+                    break;
+                case 'complement':
+                    angle = 2 * Math.PI * (modulus - residue) / modulus;
+                    break;
+                case 'index':
+                    angle = 2 * Math.PI * index / totalCoprimes;
+                    break;
+                default:
+                    angle = -2 * Math.PI * residue / modulus;
+            }
+            
+            return angle;
+        }
+
+        // Toggle section collapse
+        function toggleSection(header) {
+            const card = header.parentElement;
+            card.classList.toggle('collapsed');
+            const icon = header.querySelector('.collapse-icon');
+            icon.classList.toggle('collapsed');
+        }
+
         // Initialize controls
         function initControls() {
             const ringControls = document.getElementById('ringControls');
             const gapControls = document.getElementById('gapControls');
 
             // Add ring checkboxes
-            Object.keys(configs).forEach((key, idx) => {
+            Object.keys(configs).forEach((key) => {
                 const div = document.createElement('div');
                 div.className = 'checkbox-item';
                 const checked = key === 'unit';
-                const label = key === 'unit' ? 'Unit Circle (M=1)' : `M${configs[key].mod}`;
+                const config = configs[key];
+                const label = key === 'unit' ? 'Unit Circle (M=1)' : `M=${config.mod} (φ=${eulerPhi(config.mod)})`;
                 div.innerHTML = `
                     <input type="checkbox" id="ring_${key}" value="${key}" ${checked ? 'checked' : ''} onchange="toggleRing('${key}')">
                     <label for="ring_${key}">${label}</label>
@@ -384,22 +599,83 @@
                 ringControls.appendChild(div);
             });
 
-            // Add gap checkboxes (2, 4, 6, 8, 10, 12)
+            // Add default gap checkboxes (2, 4, 6, 8, 10, 12)
             for (let gap = 2; gap <= 12; gap += 2) {
                 const div = document.createElement('div');
                 div.className = 'checkbox-item';
                 div.innerHTML = `
                     <input type="checkbox" id="gap_${gap}" value="${gap}" onchange="toggleGap(${gap})">
-                    <label for="gap_${gap}">Gap ${gap}</label>
+                    <label for="gap_${gap}">Gap g=${gap}</label>
                 `;
                 gapControls.appendChild(div);
             }
 
-            // Smith chart toggle handler
-            document.getElementById('enableSmith').addEventListener('change', function() {
-                document.getElementById('smithControls').style.display = this.checked ? 'block' : 'none';
-                draw();
+            // Smith radius mode handler
+            document.getElementById('smithRadiusMode').addEventListener('change', function() {
+                const scaleGroup = document.getElementById('smithScaleGroup');
+                scaleGroup.style.display = this.value === 'custom' ? 'block' : 'none';
             });
+        }
+
+        function addCustomRing() {
+            const modInput = document.getElementById('customMod');
+            const mod = parseInt(modInput.value);
+            
+            if (!mod || mod < 1 || mod > 1000) {
+                alert('Enter a modulus between 1 and 1000');
+                return;
+            }
+            
+            const key = `m${mod}`;
+            if (configs[key]) {
+                alert(`M=${mod} already exists`);
+                return;
+            }
+            
+            configs[key] = { mod: mod, label: mod.toString() };
+            selectedRings.add(key);
+            
+            const ringControls = document.getElementById('ringControls');
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+            const label = `M=${mod} (φ=${eulerPhi(mod)})`;
+            div.innerHTML = `
+                <input type="checkbox" id="ring_${key}" value="${key}" checked onchange="toggleRing('${key}')">
+                <label for="ring_${key}">${label}</label>
+            `;
+            ringControls.appendChild(div);
+            
+            modInput.value = '';
+            draw();
+        }
+
+        function addCustomGap() {
+            const gapInput = document.getElementById('customGap');
+            const gap = parseInt(gapInput.value);
+            
+            if (!gap || gap < 1) {
+                alert('Enter a gap ≥ 1');
+                return;
+            }
+            
+            if (selectedGaps.has(gap)) {
+                alert(`Gap ${gap} already active`);
+                return;
+            }
+            
+            selectedGaps.add(gap);
+            
+            const gapControls = document.getElementById('gapControls');
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+            div.innerHTML = `
+                <input type="checkbox" id="gap_${gap}" value="${gap}" checked onchange="toggleGap(${gap})">
+                <label for="gap_${gap}">Gap g=${gap}</label>
+            `;
+            gapControls.appendChild(div);
+            
+            gapInput.value = '';
+            draw();
         }
 
         function toggleRing(key) {
@@ -432,16 +708,32 @@
             draw();
         }
 
+        function updateSize() {
+            pointSize = parseFloat(document.getElementById('pointSize').value);
+            document.getElementById('sizeValue').textContent = pointSize;
+            draw();
+        }
+
+        function toggleSmith() {
+            const enabled = document.getElementById('enableSmith').checked;
+            document.getElementById('smithControls').style.display = enabled ? 'block' : 'none';
+            draw();
+        }
+
         function updateSmith() {
             const alpha = parseFloat(document.getElementById('smithAlpha').value);
             document.getElementById('alphaValue').textContent = alpha;
             draw();
         }
 
+        function updateScale() {
+            const scale = parseFloat(document.getElementById('smithScale').value);
+            document.getElementById('scaleValue').textContent = scale.toFixed(1);
+            draw();
+        }
+
         // Smith Chart Transform (Cayley map)
-        function applySmithTransform(x, y, r, alpha) {
-            // Cayley transform: w = (z - i*alpha) / (z + i*alpha)
-            // For visualization, we use: w = r * e^(iθ) where mapping depends on alpha
+        function applySmithTransform(x, y, r, alpha, mode, scaleFactor) {
             const theta = Math.atan2(y, x);
             const alphaRad = (alpha * Math.PI) / 180;
             
@@ -450,19 +742,76 @@
             
             // Map radius based on mode
             let newR = r;
-            const mode = document.getElementById('smithMode').value;
-            if (mode === 'modulus') {
-                newR = r; // Keep as is
-            } else if (mode === 'phi') {
-                newR = r * 0.8; // Slight scaling
-            } else {
-                newR = 200; // Uniform radius
+            switch(mode) {
+                case 'modulus':
+                    newR = r;
+                    break;
+                case 'phi':
+                    newR = r * 0.9;
+                    break;
+                case 'uniform':
+                    newR = 150;
+                    break;
+                case 'custom':
+                    newR = r * scaleFactor;
+                    break;
             }
             
             return {
                 x: newR * Math.cos(shiftedTheta),
                 y: newR * Math.sin(shiftedTheta)
             };
+        }
+
+        // Get color based on mode
+        function getPointColor(residue, modulus, angle, ring, ringIdx, hasGap) {
+            const colorMode = document.getElementById('colorMode').value;
+            const showDirichlet = document.getElementById('showDirichlet').checked;
+            const dirichletMode = document.getElementById('dirichletMode').value;
+            
+            let color = '#4ECDC4'; // Default cyan
+            
+            // Color by mode
+            if (colorMode === 'angular') {
+                const hue = ((angle + Math.PI) / (2 * Math.PI)) * 360;
+                color = `hsl(${hue}, 70%, 60%)`;
+            } else if (colorMode === 'modulus') {
+                const hue = (modulus % 12) * 30;
+                color = `hsl(${hue}, 70%, 60%)`;
+            } else if (colorMode === 'coprime') {
+                color = gcd(residue, modulus) === 1 ? '#00FF7F' : '#666666';
+            } else if (colorMode === 'prime') {
+                color = isPrime(residue) ? '#FF69B4' : '#4ECDC4';
+            }
+            
+            // Gap coloring overrides
+            if (hasGap && selectedGaps.size > 0) {
+                const gapColorMode = document.getElementById('gapColorMode').value;
+                if (gapColorMode === 'uniform') {
+                    color = '#FFD700';
+                } else if (gapColorMode === 'byGap') {
+                    // Color by which gap
+                    const gaps = Array.from(selectedGaps);
+                    const hue = (gaps[0] % 12) * 30;
+                    color = `hsl(${hue}, 100%, 50%)`;
+                } else if (gapColorMode === 'intensity') {
+                    color = '#FFA500';
+                }
+            }
+            
+            // Dirichlet character support
+            if (showDirichlet) {
+                const isSupported = gcd(residue, modulus) === 1;
+                if (dirichletMode === 'highlight' && isSupported) {
+                    color = '#00FF7F';
+                } else if (dirichletMode === 'dim' && !isSupported) {
+                    color = 'rgba(100, 100, 100, 0.3)';
+                } else if (dirichletMode === 'both') {
+                    color = isSupported ? '#00FF7F' : 'rgba(100, 100, 100, 0.3)';
+                }
+            }
+            
+            return color;
         }
 
         // Main draw function
@@ -475,10 +824,12 @@
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, w, h);
 
-            const showDirichlet = document.getElementById('showDirichlet').checked;
             const showLabels = document.getElementById('showLabels').checked;
+            const showRings = document.getElementById('showRings').checked;
             const smithEnabled = document.getElementById('enableSmith').checked;
             const smithAlpha = parseFloat(document.getElementById('smithAlpha').value);
+            const smithMode = document.getElementById('smithRadiusMode').value;
+            const smithScale = parseFloat(document.getElementById('smithScale').value);
 
             // Get active rings
             const rings = Array.from(selectedRings).map(key => {
@@ -490,6 +841,27 @@
                 };
             }).sort((a, b) => a.mod - b.mod);
 
+            // Check for gaps
+            const gaps = Array.from(selectedGaps);
+            const gapSet = new Map(); // residue -> has gap
+            
+            rings.forEach(ring => {
+                ring.coprimes.forEach(r => {
+                    let hasGap = false;
+                    gaps.forEach(g => {
+                        ring.coprimes.forEach(r2 => {
+                            if (r !== r2) {
+                                const diff = Math.abs(r2 - r);
+                                if (diff === g || diff === ring.mod - g) {
+                                    hasGap = true;
+                                }
+                            }
+                        });
+                    });
+                    gapSet.set(`${ring.mod}_${r}`, hasGap);
+                });
+            });
+
             // Draw each ring
             rings.forEach((ring, ringIdx) => {
                 const baseRadius = 50 + ringIdx * 40;
@@ -497,13 +869,13 @@
                 const numPoints = ring.coprimes.length;
 
                 ring.coprimes.forEach((r, idx) => {
-                    const angle = ((2 * Math.PI * idx) / numPoints) + (rotation * Math.PI / 180);
+                    const angle = calculateAngle(r, ring.mod, idx, numPoints) + (rotation * Math.PI / 180);
                     let x = radius * Math.cos(angle);
                     let y = radius * Math.sin(angle);
 
                     // Apply Smith transform if enabled
                     if (smithEnabled) {
-                        const transformed = applySmithTransform(x, y, radius, smithAlpha);
+                        const transformed = applySmithTransform(x, y, radius, smithAlpha, smithMode, smithScale);
                         x = transformed.x;
                         y = transformed.y;
                     }
@@ -511,34 +883,14 @@
                     const screenX = cx + x;
                     const screenY = cy + y;
 
-                    // Determine color
-                    let color = '#4ECDC4'; // Default cyan
-                    
-                    // Gap coloring
-                    if (selectedGaps.size > 0) {
-                        const isInGap = Array.from(selectedGaps).some(gap => {
-                            return ring.coprimes.some((r2, idx2) => {
-                                if (idx2 === idx) return false;
-                                const diff = Math.abs(r2 - r);
-                                return diff === gap || diff === ring.mod - gap;
-                            });
-                        });
-                        if (isInGap) {
-                            color = '#FFD700'; // Gold for gap points
-                        }
-                    }
-
-                    // Dirichlet character support (dimmed if gcd(r,M) != 1, but we already have coprimes)
-                    if (showDirichlet) {
-                        // All points in coprimes are already coprime, so they're all supported
-                        // We'll brighten them
-                        color = color === '#FFD700' ? '#FFD700' : '#00FF7F'; // Spring green
-                    }
+                    // Get color
+                    const hasGap = gapSet.get(`${ring.mod}_${r}`) || false;
+                    const color = getPointColor(r, ring.mod, angle, ring, ringIdx, hasGap);
 
                     // Draw point
                     ctx.fillStyle = color;
                     ctx.beginPath();
-                    ctx.arc(screenX, screenY, 4, 0, 2 * Math.PI);
+                    ctx.arc(screenX, screenY, pointSize, 0, 2 * Math.PI);
                     ctx.fill();
 
                     // Draw label
@@ -550,11 +902,13 @@
                 });
 
                 // Draw ring circle
-                ctx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-                ctx.stroke();
+                if (showRings) {
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
             });
 
             updateSystemInfo();
@@ -563,30 +917,64 @@
         // Update info panel
         function updateSystemInfo() {
             const info = document.getElementById('systemInfo');
-            const rings = Array.from(selectedRings).map(key => configs[key]);
+            const rings = Array.from(selectedRings).map(key => configs[key]).sort((a, b) => a.mod - b.mod);
             const gaps = Array.from(selectedGaps);
 
-            let html = '<strong>Active Configuration:</strong><br><br>';
+            let html = '';
             
-            html += `<strong>Rings:</strong> ${rings.length}<br>`;
+            // Ring info
             rings.forEach(r => {
-                const phi = getCoprimes(r.mod).length;
-                html += `M=${r.mod}: φ(${r.mod})=${phi}<br>`;
+                const phi = eulerPhi(r.mod);
+                const coprimes = getCoprimes(r.mod);
+                const primeResidues = coprimes.filter(c => isPrime(c)).length;
+                
+                html += `<div class="info-box">
+                    <strong>M = ${r.mod}</strong><br>
+                    <em class="math-notation">φ(${r.mod}) = ${phi}</em><br>
+                    Coprimes: [${coprimes.length > 10 ? coprimes.slice(0, 10).join(', ') + '...' : coprimes.join(', ')}]<br>
+                    Prime residues: ${primeResidues}
+                </div>`;
             });
 
+            // Gap info
             if (gaps.length > 0) {
-                html += `<br><strong>Gaps:</strong> [${gaps.join(', ')}]<br>`;
+                html += `<div class="info-box">
+                    <strong>Gap Analysis:</strong><br>
+                    Active gaps: [${gaps.join(', ')}]<br>
+                    <em>Highlighting residue pairs with prescribed gaps</em>
+                </div>`;
             }
 
-            const totalResidues = rings.reduce((sum, r) => sum + getCoprimes(r.mod).length, 0);
-            html += `<br><strong>Total Residues:</strong> ${totalResidues}`;
+            // System summary
+            const totalResidues = rings.reduce((sum, r) => sum + eulerPhi(r.mod), 0);
+            html += `<div class="info-box">
+                <strong>System Summary:</strong><br>
+                Total rings: ${rings.length}<br>
+                Total residues: ${totalResidues}<br>
+                Angle mode: ${document.getElementById('angleMode').selectedOptions[0].text}
+            </div>`;
 
+            // Dirichlet info
             if (document.getElementById('showDirichlet').checked) {
-                html += '<br><br><em class="math-notation">Dirichlet character support active</em>';
+                const charIndex = document.getElementById('charIndex').value;
+                html += `<div class="info-box" style="border-left-color: #00FF7F;">
+                    <strong>Dirichlet Characters:</strong><br>
+                    Character index k=${charIndex}<br>
+                    Domain: gcd(r,M) = 1<br>
+                    <em class="math-notation">χ<sub>${charIndex}</sub>(r) ≠ 0</em>
+                </div>`;
             }
 
+            // Smith transform info
             if (document.getElementById('enableSmith').checked) {
-                html += '<br><br><em class="math-notation">Smith/Cayley transform active</em>';
+                const alpha = document.getElementById('smithAlpha').value;
+                const mode = document.getElementById('smithRadiusMode').selectedOptions[0].text;
+                html += `<div class="info-box" style="border-left-color: #4ECDC4;">
+                    <strong>Smith/Cayley Transform:</strong><br>
+                    Phase α = ${alpha}°<br>
+                    Radius mode: ${mode}<br>
+                    <em class="math-notation">Γ = (z-1)/(z+1)</em>
+                </div>`;
             }
 
             info.innerHTML = html;
@@ -594,58 +982,90 @@
 
         // Export function
         function exportVisualization() {
+            const resolution = parseFloat(document.getElementById('exportRes').value);
+            const includeLegend = document.getElementById('exportLegend').checked;
+            
             const exportCanvas = document.createElement('canvas');
             const exportCtx = exportCanvas.getContext('2d');
-            const legendWidth = 300;
-            exportCanvas.width = canvas.width + legendWidth;
-            exportCanvas.height = canvas.height;
+            const legendWidth = includeLegend ? 350 : 0;
+            const baseSize = 800 * resolution;
+            
+            exportCanvas.width = baseSize + legendWidth;
+            exportCanvas.height = baseSize;
 
-            // Draw main canvas
+            // Scale context
+            exportCtx.scale(resolution, resolution);
+
+            // Draw background
             exportCtx.fillStyle = '#000000';
-            exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-            exportCtx.drawImage(canvas, 0, 0);
+            exportCtx.fillRect(0, 0, exportCanvas.width / resolution, exportCanvas.height / resolution);
+            
+            // Draw main visualization (scaled)
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 800;
+            tempCanvas.height = 800;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Redraw on temp canvas
+            const originalCanvas = canvas;
+            canvas.width = 800;
+            canvas.height = 800;
+            draw();
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            exportCtx.drawImage(tempCanvas, 0, 0);
 
             // Draw legend
-            exportCtx.fillStyle = 'rgba(45, 55, 72, 0.95)';
-            exportCtx.fillRect(canvas.width, 0, legendWidth, exportCanvas.height);
+            if (includeLegend) {
+                exportCtx.fillStyle = 'rgba(45, 55, 72, 0.95)';
+                exportCtx.fillRect(800, 0, legendWidth / resolution, exportCanvas.height / resolution);
 
-            let y = 30;
-            exportCtx.fillStyle = '#FFD700';
-            exportCtx.font = 'bold 16px Arial';
-            exportCtx.fillText('Configuration', canvas.width + 20, y);
-            
-            y += 30;
-            exportCtx.font = '12px Arial';
-            exportCtx.fillStyle = '#FFFFFF';
-
-            const rings = Array.from(selectedRings).map(key => configs[key]);
-            rings.forEach(r => {
-                const phi = getCoprimes(r.mod).length;
-                exportCtx.fillText(`M=${r.mod}, φ=${phi}`, canvas.width + 20, y);
-                y += 20;
-            });
-
-            const gaps = Array.from(selectedGaps);
-            if (gaps.length > 0) {
-                y += 10;
+                let y = 30;
                 exportCtx.fillStyle = '#FFD700';
-                exportCtx.fillText('Gaps:', canvas.width + 20, y);
-                y += 20;
+                exportCtx.font = 'bold 16px Arial';
+                exportCtx.fillText('Configuration', 820, y);
+                
+                y += 30;
+                exportCtx.font = '12px Arial';
                 exportCtx.fillStyle = '#FFFFFF';
-                exportCtx.fillText(`[${gaps.join(', ')}]`, canvas.width + 20, y);
+
+                const rings = Array.from(selectedRings).map(key => configs[key]);
+                exportCtx.fillText('Rings:', 820, y);
+                y += 20;
+                rings.forEach(r => {
+                    const phi = eulerPhi(r.mod);
+                    exportCtx.fillText(`M=${r.mod}, φ=${phi}`, 830, y);
+                    y += 18;
+                });
+
+                const gaps = Array.from(selectedGaps);
+                if (gaps.length > 0) {
+                    y += 10;
+                    exportCtx.fillStyle = '#FFD700';
+                    exportCtx.fillText('Gaps:', 820, y);
+                    y += 20;
+                    exportCtx.fillStyle = '#FFFFFF';
+                    exportCtx.fillText(`[${gaps.join(', ')}]`, 830, y);
+                    y += 25;
+                }
+
+                // Watermark
+                y = (exportCanvas.height / resolution) - 30;
+                exportCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                exportCtx.font = '10px Arial';
+                exportCtx.fillText('Interactive Modular Rings', 820, y);
+                exportCtx.fillText(`${new Date().toISOString().split('T')[0]}`, 820, y + 15);
             }
 
-            // Watermark
-            y = exportCanvas.height - 20;
-            exportCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-            exportCtx.font = '10px Arial';
-            exportCtx.fillText('Interactive Modular Rings', canvas.width + 20, y);
-
             // Download
+            exportCtx.setTransform(1, 0, 0, 1, 0, 0); // Reset scale
             const link = document.createElement('a');
-            link.download = 'modular_rings_visualization.png';
+            link.download = `modular_rings_${resolution}x.png`;
             link.href = exportCanvas.toDataURL();
             link.click();
+            
+            // Restore original
+            draw();
         }
 
         // Initialize and draw
