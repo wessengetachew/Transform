@@ -463,7 +463,7 @@
                         <!-- Quick Actions -->
                         <div class="input-row">
                             <button class="btn btn-danger" style="margin: 0;" onclick="clearAllRings()">Clear All Rings</button>
-                            <button class="btn" style="margin: 0; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);" onclick="resetToDefault()">Reset to M1-M30</button>
+                            <button class="btn" style="margin: 0; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);" onclick="resetToDefault()">Reset to M1-M100</button>
                         </div>
                     </div>
                 </div>
@@ -858,6 +858,21 @@
 
         <!-- Center Panel: Canvas -->
         <div class="visualization-panel">
+            <!-- Quick Zoom Controls Above Canvas -->
+            <div style="background: rgba(45, 55, 72, 0.9); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255, 215, 0, 0.2);">
+                <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 15px; align-items: center;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; color: #FFD700;">Zoom: <span id="zoomValueTop" style="color: #4ECDC4; font-weight: bold;">1.00</span>×</label>
+                        <input type="range" id="zoomSliderTop" min="0.05" max="10" step="0.05" value="1.0" style="width: 100%; accent-color: #FFD700;" oninput="updateZoomFromTop()">
+                    </div>
+                    <button class="btn" style="margin: 0; padding: 10px 20px; white-space: nowrap;" onclick="autoFitZoom()">Auto-Fit to Rings</button>
+                    <button class="btn" style="margin: 0; padding: 10px 20px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);" onclick="resetZoom()">Reset (1×)</button>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.8em; color: #888;">
+                    Auto-fit adjusts zoom to show all active rings. Drag slider or use buttons for manual control.
+                </div>
+            </div>
+            
             <div class="canvas-wrapper">
                 <canvas id="canvas" width="800" height="800"></canvas>
             </div>
@@ -1399,7 +1414,7 @@
             });
             
             document.getElementById('multiModInput').value = '';
-            draw();
+            autoFitZoom();
         }
 
         function addSingleModulus() {
@@ -1411,7 +1426,7 @@
                 }
                 selectedRings.add(key);
                 document.getElementById('singleModInput').value = '';
-                draw();
+                autoFitZoom();
             }
         }
 
@@ -1427,7 +1442,7 @@
                     }
                     selectedRings.add(key);
                 }
-                draw();
+                autoFitZoom();
             }
         }
 
@@ -1453,7 +1468,7 @@
                     selectedRings.add(key);
                 });
                 
-                draw();
+                autoFitZoom();
             }
         }
 
@@ -1464,14 +1479,14 @@
 
         function resetToDefault() {
             clearAllRings();
-            for (let m = 1; m <= 30; m++) {
+            for (let m = 1; m <= 100; m++) {
                 const key = m === 1 ? 'unit' : `m${m}`;
                 if (!configs[key]) {
                     configs[key] = { mod: m, label: m.toString() };
                 }
                 selectedRings.add(key);
             }
-            draw();
+            autoFitZoom();
         }
 
         // Gap generation functions
@@ -1623,7 +1638,76 @@
 
         function updateZoom() {
             zoom = parseFloat(document.getElementById('zoom').value);
-            document.getElementById('zoomValue').textContent = zoom.toFixed(1);
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2);
+            
+            // Sync top slider
+            if (document.getElementById('zoomSliderTop')) {
+                document.getElementById('zoomSliderTop').value = zoom;
+                document.getElementById('zoomValueTop').textContent = zoom.toFixed(2);
+            }
+            
+            draw();
+        }
+
+        function updateZoomFromTop() {
+            zoom = parseFloat(document.getElementById('zoomSliderTop').value);
+            document.getElementById('zoomValueTop').textContent = zoom.toFixed(2);
+            
+            // Sync bottom slider
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2);
+            
+            draw();
+        }
+
+        function resetZoom() {
+            zoom = 1.0;
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2);
+            
+            if (document.getElementById('zoomSliderTop')) {
+                document.getElementById('zoomSliderTop').value = zoom;
+                document.getElementById('zoomValueTop').textContent = zoom.toFixed(2);
+            }
+            
+            draw();
+        }
+
+        function autoFitZoom() {
+            // Get all active rings
+            const rings = Array.from(selectedRings).map(key => ({
+                key: key,
+                mod: configs[key].mod
+            })).sort((a, b) => a.mod - b.mod);
+            
+            if (rings.length === 0) {
+                resetZoom();
+                return;
+            }
+            
+            // Calculate the radius needed for the largest ring
+            const maxMod = rings[rings.length - 1].mod;
+            const ringIndex = rings.length - 1;
+            const maxRadius = 50 + ringIndex * 40;
+            
+            // Canvas dimensions
+            const canvasSize = 800;
+            const centerToEdge = canvasSize / 2;
+            
+            // Calculate zoom to fit with some padding (85% of available space)
+            const requiredZoom = (centerToEdge * 0.85) / maxRadius;
+            
+            // Clamp between min and max zoom
+            zoom = Math.max(0.05, Math.min(10, requiredZoom));
+            
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2);
+            
+            if (document.getElementById('zoomSliderTop')) {
+                document.getElementById('zoomSliderTop').value = zoom;
+                document.getElementById('zoomValueTop').textContent = zoom.toFixed(2);
+            }
+            
             draw();
         }
 
@@ -2211,7 +2295,7 @@
             info.innerHTML = html;
         }
 
-        // Comprehensive export function with detailed legend
+        // Comprehensive export function - captures actual canvas state
         function exportVisualization() {
             try {
                 console.log('Export function called');
@@ -2221,12 +2305,300 @@
                 
                 const baseCanvasSize = 800;
                 const canvasSize = baseCanvasSize * resolution;
-                const legendWidth = includeLegend ? 400 * resolution : 0;
-            
-            const exportCanvas = document.createElement('canvas');
-            const exportCtx = exportCanvas.getContext('2d');
-            
-            exportCanvas.width = canvasSize + legendWidth;
+                const legendWidth = includeLegend ? 420 * resolution : 0;
+                
+                // Calculate statistics first
+                const rings = Array.from(selectedRings).map(key => ({
+                    key: key,
+                    mod: configs[key].mod,
+                    coprimes: getCoprimes(configs[key].mod)
+                })).sort((a, b) => a.mod - b.mod);
+                
+                const minMod = rings.length > 0 ? rings[0].mod : 1;
+                const maxMod = rings.length > 0 ? rings[rings.length - 1].mod : 1;
+                const totalModuli = rings.length;
+                
+                // GCD statistics
+                let gcd1Count = 0;
+                let nonGcd1Count = 0;
+                let totalResidues = 0;
+                
+                rings.forEach(ring => {
+                    for (let r = 0; r < ring.mod; r++) {
+                        totalResidues++;
+                        if (gcd(r, ring.mod) === 1) {
+                            gcd1Count++;
+                        } else {
+                            nonGcd1Count++;
+                        }
+                    }
+                });
+                
+                const gcd1Density = totalResidues > 0 ? (gcd1Count / totalResidues).toFixed(4) : 0;
+                const piSquaredOver6 = (Math.PI * Math.PI / 6).toFixed(4);
+                
+                const exportCanvas = document.createElement('canvas');
+                const exportCtx = exportCanvas.getContext('2d');
+                
+                exportCanvas.width = canvasSize + legendWidth;
+                exportCanvas.height = canvasSize;
+                
+                // Black background
+                exportCtx.fillStyle = '#000000';
+                exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                
+                // Simply copy the current canvas at current zoom/rotation
+                exportCtx.save();
+                exportCtx.scale(resolution, resolution);
+                exportCtx.drawImage(canvas, 0, 0);
+                exportCtx.restore();
+
+                if (includeLegend) {
+                    // Get current parameters
+                    const gaps = Array.from(selectedGaps);
+                    const showDirectLifts = document.getElementById('showDirectLifts')?.checked || false;
+                    const showDyadicLifts = document.getElementById('showDyadicLifts')?.checked || false;
+                    const showGapLines = document.getElementById('showGapLines')?.checked || false;
+                    const colorMode = document.getElementById('colorMode')?.value || 'angular';
+                    const currentZoom = parseFloat(document.getElementById('zoom')?.value || 1.0);
+                    const currentRotation = parseFloat(document.getElementById('rotation')?.value || 0);
+                    const showDirichlet = document.getElementById('showDirichlet')?.checked || false;
+                    const showSmith = document.getElementById('enableSmith')?.checked || false;
+
+                    // Legend background
+                    exportCtx.fillStyle = '#1a1f2e';
+                    exportCtx.fillRect(canvasSize, 0, legendWidth, exportCanvas.height);
+
+                    let y = 60 * resolution;
+                    const leftMargin = canvasSize + 30 * resolution;
+                    const fontSize = 13 * resolution;
+                    const titleSize = 20 * resolution;
+                    const sectionSize = 15 * resolution;
+                    const lineHeight = 20 * resolution;
+
+                    // Title
+                    exportCtx.fillStyle = '#FFFFFF';
+                    exportCtx.font = `bold ${titleSize}px Arial`;
+                    exportCtx.fillText('Multi-Modulus Projection', leftMargin, y);
+                    y += 22 * resolution;
+                    exportCtx.fillText('Explorer', leftMargin, y);
+                    
+                    // Timestamp
+                    y += 25 * resolution;
+                    exportCtx.font = `${10 * resolution}px Arial`;
+                    exportCtx.fillStyle = '#888888';
+                    const now = new Date();
+                    exportCtx.fillText(now.toLocaleString(), leftMargin, y);
+
+                    // CONFIGURATION Section
+                    y += 45 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('CONFIGURATION', leftMargin, y);
+
+                    y += 25 * resolution;
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.font = `${fontSize}px Arial`;
+                    exportCtx.fillText(`Modulus Range: ${minMod} to ${maxMod}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Total Moduli: ${totalModuli}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Zoom: ${currentZoom.toFixed(2)}×`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Rotation: ${currentRotation}°`, leftMargin, y);
+
+                    // CONNECTIONS Section
+                    y += 35 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('CONNECTIONS', leftMargin, y);
+
+                    y += 25 * resolution;
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.font = `${fontSize}px Arial`;
+                    exportCtx.fillText(`Direct Lifts: ${showDirectLifts ? 'Enabled' : 'Disabled'}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Dyadic Lifts: ${showDyadicLifts ? 'Enabled' : 'Disabled'}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Gap Lines: ${showGapLines ? 'Enabled' : 'Disabled'}`, leftMargin, y);
+                    
+                    if (gaps.length > 0) {
+                        y += lineHeight;
+                        exportCtx.fillText(`Active Gaps: [${gaps.slice(0, 8).join(', ')}${gaps.length > 8 ? '...' : ''}]`, leftMargin, y);
+                    }
+
+                    // GCD ANALYSIS Section
+                    y += 35 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('GCD ANALYSIS', leftMargin, y);
+
+                    y += 25 * resolution;
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.font = `${fontSize}px Arial`;
+                    exportCtx.fillText(`Total Residues: ${totalResidues}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillStyle = '#00FFFF';
+                    exportCtx.fillText(`GCD = 1 (Coprime): ${gcd1Count}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillStyle = '#FF1493';
+                    exportCtx.fillText(`GCD > 1 (Non-coprime): ${nonGcd1Count}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.fillText(`Coprime Density: ${gcd1Density}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.font = `${11 * resolution}px Arial`;
+                    exportCtx.fillStyle = '#888888';
+                    exportCtx.fillText(`(π²/6 ≈ ${piSquaredOver6})`, leftMargin, y);
+
+                    // Per-Modulus GCD Counts
+                    y += 30 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('PER-MODULUS BREAKDOWN', leftMargin, y);
+
+                    y += 20 * resolution;
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.font = `${11 * resolution}px monospace`;
+                    
+                    const maxDisplay = 12;
+                    const displayRings = rings.slice(0, maxDisplay);
+                    displayRings.forEach(ring => {
+                        y += 16 * resolution;
+                        const phi = eulerPhi(ring.mod);
+                        const nonCoprime = ring.mod - phi;
+                        exportCtx.fillText(`M=${ring.mod.toString().padStart(3)}: φ=${phi.toString().padStart(3)} (coprime), ${nonCoprime.toString().padStart(3)} (non)`, leftMargin, y);
+                    });
+                    
+                    if (rings.length > maxDisplay) {
+                        y += 16 * resolution;
+                        exportCtx.fillStyle = '#888888';
+                        exportCtx.fillText(`... and ${rings.length - maxDisplay} more moduli`, leftMargin, y);
+                    }
+
+                    // VISUALIZATION Section
+                    y += 35 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('VISUALIZATION', leftMargin, y);
+
+                    y += 25 * resolution;
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.font = `${fontSize}px Arial`;
+                    exportCtx.fillText(`Color Mode: ${colorMode}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Dirichlet: ${showDirichlet ? 'Enabled' : 'Disabled'}`, leftMargin, y);
+                    
+                    y += lineHeight;
+                    exportCtx.fillText(`Smith Chart: ${showSmith ? 'Enabled' : 'Disabled'}`, leftMargin, y);
+
+                    // COLOR KEY Section
+                    y += 35 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('COLOR KEY', leftMargin, y);
+
+                    y += 25 * resolution;
+                    
+                    // Cyan box
+                    exportCtx.fillStyle = '#00FFFF';
+                    exportCtx.fillRect(leftMargin, y - 11 * resolution, 14 * resolution, 14 * resolution);
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.font = `${fontSize}px Arial`;
+                    exportCtx.fillText('Coprime (gcd=1)', leftMargin + 20 * resolution, y);
+                    
+                    y += lineHeight;
+                    // Magenta box
+                    exportCtx.fillStyle = '#FF1493';
+                    exportCtx.fillRect(leftMargin, y - 11 * resolution, 14 * resolution, 14 * resolution);
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.fillText('Non-coprime (gcd>1)', leftMargin + 20 * resolution, y);
+                    
+                    y += lineHeight;
+                    // Gold box
+                    exportCtx.fillStyle = '#FFD700';
+                    exportCtx.fillRect(leftMargin, y - 11 * resolution, 14 * resolution, 14 * resolution);
+                    exportCtx.fillStyle = '#CCCCCC';
+                    exportCtx.fillText('Modulus Rings', leftMargin + 20 * resolution, y);
+
+                    // METADATA Section
+                    y = exportCanvas.height - 100 * resolution;
+                    exportCtx.fillStyle = '#4ECDC4';
+                    exportCtx.font = `bold ${sectionSize}px Arial`;
+                    exportCtx.fillText('METADATA', leftMargin, y);
+
+                    y += 22 * resolution;
+                    exportCtx.fillStyle = '#888888';
+                    exportCtx.font = `${10 * resolution}px Arial`;
+                    exportCtx.fillText(`Generated: ${now.toLocaleString()}`, leftMargin, y);
+                    
+                    y += 16 * resolution;
+                    exportCtx.fillText('Author: Wessen Getachew', leftMargin, y);
+                    
+                    y += 16 * resolution;
+                    exportCtx.fillText('Tool: Modular Lifting Rings', leftMargin, y);
+                    
+                    y += 16 * resolution;
+                    exportCtx.fillText(`Resolution: ${canvasSize}×${canvasSize}`, leftMargin, y);
+                }
+
+                // Add title header above the image
+                const headerHeight = 80 * resolution;
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = exportCanvas.width;
+                finalCanvas.height = exportCanvas.height + headerHeight;
+                const finalCtx = finalCanvas.getContext('2d');
+
+                // Black background for header
+                finalCtx.fillStyle = '#000000';
+                finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+                // Title
+                finalCtx.fillStyle = '#FFFFFF';
+                finalCtx.font = `bold ${28 * resolution}px Arial`;
+                finalCtx.textAlign = 'center';
+                finalCtx.fillText('Interactive Modular Lifting Rings', finalCanvas.width / 2, 35 * resolution);
+
+                // Subtitle
+                finalCtx.fillStyle = '#4ECDC4';
+                finalCtx.font = `${16 * resolution}px Arial`;
+                const subtitle = `Moduli: M = ${minMod} to ${maxMod} (${totalModuli} rings)`;
+                finalCtx.fillText(subtitle, finalCanvas.width / 2, 62 * resolution);
+
+                // Draw main content below header
+                finalCtx.drawImage(exportCanvas, 0, headerHeight);
+
+                // Download
+                console.log('Creating download link...');
+                const link = document.createElement('a');
+                link.download = `modular_rings_M${minMod}_to_M${maxMod}_${Date.now()}.png`;
+                link.href = finalCanvas.toDataURL('image/png');
+                link.click();
+                console.log('Export completed successfully!');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Export failed: ' + error.message);
+            }
+        }
+
+        // Update gap opacity
+        function updateGapOpacity() {
+            document.getElementById('gapOpacityValue').textContent = document.getElementById('gapOpacity').value;
+            draw();
+        }
+
+        // Initialize and draw
             exportCanvas.height = canvasSize;
             
             // Black background
@@ -2508,6 +2880,25 @@
 
         // Initialize and draw
         initControls();
+        
+        // Set default configuration: M=1 to M=100
+        for (let m = 1; m <= 100; m++) {
+            const key = m === 1 ? 'unit' : `m${m}`;
+            if (!configs[key]) {
+                configs[key] = { mod: m, label: m.toString() };
+            }
+            selectedRings.add(key);
+        }
+        
+        // Enable direct lifts by default
+        const directLiftsCheckbox = document.getElementById('showDirectLifts');
+        if (directLiftsCheckbox) {
+            directLiftsCheckbox.checked = true;
+        }
+        
+        // Auto-fit zoom to show all 100 rings with padding
+        autoFitZoom();
+        
         draw();
 
         // Resize handler
