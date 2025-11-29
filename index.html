@@ -528,16 +528,12 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="showDyadicLifts" onchange="draw()">
-                            <label for="showDyadicLifts">Dyadic Lifts (r → r+M×2ⁿ)</label>
+                            <label for="showDyadicLifts">Dyadic Lifts (r → r+M, M → M×2, consecutive only)</label>
                         </div>
                         
                         <!-- Dyadic Parameters -->
                         <div id="dyadicControls" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; display: none;">
-                            <div class="slider-group">
-                                <label>Max Dyadic Level n: <span id="maxDyadicLevel">3</span></label>
-                                <input type="range" id="dyadicLevel" min="1" max="8" value="3" oninput="updateDyadicLevel()">
-                            </div>
-                            <div class="help-text">Connects r in M to r+M×2ⁿ in M×2ⁿ⁺¹</div>
+                            <div class="help-text">Connects r in M to r+M in M×2 (consecutive doubling only)</div>
                         </div>
                         
                         <!-- Lift Line Style -->
@@ -883,7 +879,7 @@
                 </p>
                 
                 <p style="margin-bottom: 12px; line-height: 1.6; font-size: 0.9em;">
-                    <strong style="color: #4ECDC4;">Lift Connections:</strong> Direct lifts (r → r, M → M+1) show how residues naturally embed from one modulus to the next when gcd(r,M) = gcd(r,M+1) = 1. Dyadic lifts (r → r+M×2ⁿ) explore the doubling structure, connecting residues across moduli related by powers of 2.
+                    <strong style="color: #4ECDC4;">Lift Connections:</strong> Direct lifts (r → r, M → M+1) show how residues naturally embed from one modulus to the next when gcd(r,M) = gcd(r,M+1) = 1. Dyadic lifts (r → r+M, M → M×2) explore the doubling structure for consecutive moduli only, connecting a residue r in M to r+M in the next doubled modulus M×2.
                 </p>
                 
                 <p style="margin-bottom: 0; line-height: 1.6; font-size: 0.9em;">
