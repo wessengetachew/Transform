@@ -255,9 +255,130 @@
             flex: 1;
         }
 
+        /* Mobile Panel Toggle Button */
+        .mobile-panel-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #1a202c;
+        }
+
+        .close-panel {
+            display: none;
+        }
+
         @media (max-width: 1400px) {
             .app-container {
                 grid-template-columns: 300px 1fr 320px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+            }
+            
+            .mobile-panel-toggle {
+                display: block;
+            }
+            
+            .panel {
+                display: none;
+                max-height: none;
+            }
+            
+            .panel.active {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 999;
+                max-height: 100vh;
+                border-radius: 0;
+                overflow-y: auto;
+            }
+            
+            .panel.active .close-panel {
+                display: inline-block;
+                float: right;
+                background: rgba(255, 107, 107, 0.2);
+                border: none;
+                padding: 5px 15px;
+                border-radius: 4px;
+                color: #FF6B6B;
+                cursor: pointer;
+                font-size: 0.9em;
+            }
+            
+            .visualization-panel {
+                padding: 10px;
+            }
+            
+            #canvas {
+                width: 100% !important;
+                height: auto !important;
+                max-width: 100vw;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 15px 20px;
+            }
+            
+            .header-content h1 {
+                font-size: 1.3em;
+            }
+            
+            .app-container {
+                padding: 10px;
+            }
+            
+            .section-card {
+                padding: 12px;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85em;
+            }
+            
+            .mobile-panel-toggle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content h1 {
+                font-size: 1.1em;
+            }
+            
+            .section-card {
+                padding: 10px;
+            }
+            
+            .section-card h3 {
+                font-size: 0.85em;
             }
         }
     </style>
@@ -272,9 +393,10 @@
 
     <div class="app-container">
         <!-- Left Panel: Controls -->
-        <div class="panel">
+        <div class="panel" id="leftPanel">
             <div class="panel-header">
                 <h2>Controls</h2>
+                <button class="close-panel" onclick="closePanel()">Close ✕</button>
             </div>
             <div class="panel-content">
                 <!-- Advanced Modular Ring Selection -->
@@ -746,9 +868,10 @@
         </div>
 
         <!-- Right Panel: Info -->
-        <div class="panel">
+        <div class="panel" id="rightPanel">
             <div class="panel-header">
                 <h2>System Information</h2>
+                <button class="close-panel" onclick="closePanel()">Close ✕</button>
             </div>
             <div class="panel-content">
                 <div id="systemInfo"></div>
@@ -2163,6 +2286,19 @@
                 draw();
             }, 250);
         });
+
+        // Mobile panel controls
+        function openPanel(panelId) {
+            document.getElementById(panelId).classList.add('active');
+        }
+
+        function closePanel() {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        }
     </script>
+
+    <!-- Mobile Panel Toggle Buttons -->
+    <button class="mobile-panel-toggle" onclick="openPanel('leftPanel')" title="Open Controls" style="bottom: 90px;">⚙️</button>
+    <button class="mobile-panel-toggle" onclick="openPanel('rightPanel')" title="Open Info">ℹ️</button>
 </body>
 </html>
