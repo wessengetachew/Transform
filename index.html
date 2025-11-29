@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -732,42 +732,111 @@
             draw();
         }
 
-        // Smith Chart Transform (Cayley map)
-        function applySmithTransform(x, y, r, alpha, mode, scaleFactor) {
-            const theta = Math.atan2(y, x);
-            const alphaRad = (alpha * Math.PI) / 180;
+        // Cayley/Möbius transform: Γ = (z - 1)/(z + 1)
+        function cayleyTransform(z) {
+            // z = {re, im}
+            const numeratorRe = z.re - 1;
+            const numeratorIm = z.im;
+            const denominatorRe = z.re + 1;
+            const denominatorIm = z.im;
             
-            // Apply phase shift
-            const shiftedTheta = theta + alphaRad;
+            // Complex division: (a + bi)/(c + di) = [(ac + bd) + i(bc - ad)]/(c² + d²)
+            const denomMagSq = denominatorRe * denominatorRe + denominatorIm * denominatorIm;
             
-            // Map radius based on mode
-            let newR = r;
-            switch(mode) {
-                case 'modulus':
-                    newR = r;
-                    break;
-                case 'phi':
-                    newR = r * 0.9;
-                    break;
-                case 'uniform':
-                    newR = 150;
-                    break;
-                case 'custom':
-                    newR = r * scaleFactor;
-                    break;
+            if (denomMagSq < 1e-10) {
+                return {re: 0, im: 0};
             }
             
+            const gammaRe = (numeratorRe * denominatorRe + numeratorIm * denominatorIm) / denomMagSq;
+            const gammaIm = (numeratorIm * denominatorRe - numeratorRe * denominatorIm) / denomMagSq;
+            
+            return {re: gammaRe, im: gammaIm};
+        }
+        
+        // Direct formula using trig (from screenshot)
+        function cayleyTransformDirect(R, theta) {
+            // A = R·cos(θ) - 1, B = R·sin(θ), C = R·cos(θ) + 1
+            const A = R * Math.cos(theta) - 1;
+            const B = R * Math.sin(theta);
+            const C = R * Math.cos(theta) + 1;
+            
+            const denominator = C * C + B * B;
+            
+            if (denominator < 1e-10) {
+                return {re: 0, im: 0};
+            }
+            
+            // Re(Γ) = (AC + B²)/(C² + B²)
+            const gammaRe = (A * C + B * B) / denominator;
+            // Im(Γ) = B(C - A)/(C² + B²)
+            const gammaIm = (B * (C - A)) / denominator;
+            
+            return {re: gammaRe, im: gammaIm};
+        }
+        
+        // Special case for unit radius R=1
+        function cayleyTransformUnit(theta) {
+            // Γ(θ) = i·tan(θ/2)
+            return {re: 0, im: Math.tan(theta / 2)};
+        }
+        
+        // Get Smith chart radius for a ring
+        function getSmithRadius(ringIndex, totalRings, modulus, mode, scaleFactor) {
+            switch(mode) {
+                case 'modulus':
+                    // Use modulus value (normalized)
+                    return Math.min(3.0, Math.log(modulus + 1) / Math.log(10));
+                case 'phi':
+                    // Use Euler phi
+                    return Math.min(3.0, Math.log(eulerPhi(modulus) + 1) / Math.log(5));
+                case 'uniform':
+                    return 1.0;
+                case 'custom':
+                    return scaleFactor;
+                default:
+                    return 1.0;
+            }
+        }
+        
+        // Smith Chart Transform - proper implementation
+        function applySmithTransform(residue, modulus, ringIndex, totalRings, alpha, mode, scaleFactor) {
+            // θ = 2πr/M + α (residue angle with phase shift)
+            const alphaRad = (alpha * Math.PI) / 180;
+            const theta = (2 * Math.PI * residue / modulus) + alphaRad;
+            
+            // Get radius R based on mode
+            const R = getSmithRadius(ringIndex, totalRings, modulus, mode, scaleFactor);
+            
+            // Apply Cayley transform
+            let gamma;
+            if (mode === 'uniform' && R === 1.0) {
+                // Use special case formula for R=1
+                gamma = cayleyTransformUnit(theta);
+            } else {
+                // Use general formula
+                gamma = cayleyTransformDirect(R, theta);
+            }
+            
+            // Scale to fit canvas (map unit disk to display radius)
+            const smithScale = 250;
+            
             return {
-                x: newR * Math.cos(shiftedTheta),
-                y: newR * Math.sin(shiftedTheta)
+                x: gamma.re * smithScale,
+                y: gamma.im * smithScale
             };
         }
 
         // Get color based on mode
-        function getPointColor(residue, modulus, angle, ring, ringIdx, hasGap) {
+        function getPointColor(residue, modulus, baseAngle, ring, ringIdx, hasGap, smithEnabled, smithTransform) {
             const colorMode = document.getElementById('colorMode').value;
             const showDirichlet = document.getElementById('showDirichlet').checked;
             const dirichletMode = document.getElementById('dirichletMode').value;
+            
+            // Use transformed angle if Smith is enabled
+            let angle = baseAngle;
+            if (smithEnabled && smithTransform) {
+                angle = Math.atan2(smithTransform.y, smithTransform.x);
+            }
             
             let color = '#4ECDC4'; // Default cyan
             
@@ -841,6 +910,51 @@
                 };
             }).sort((a, b) => a.mod - b.mod);
 
+            // Draw Smith grid if enabled
+            if (smithEnabled && document.getElementById('smithGrid').checked) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(78, 205, 196, 0.2)';
+                ctx.lineWidth = 1;
+                
+                // Constant-R circles (resistance circles)
+                const smithScale = 250 * zoom;
+                for (let R = 0.5; R <= 2.5; R += 0.5) {
+                    ctx.beginPath();
+                    // For R=1, it maps to imaginary axis
+                    // For R>1 and R<1, draw circles in transformed space
+                    const numPoints = 100;
+                    for (let i = 0; i <= numPoints; i++) {
+                        const theta = (i / numPoints) * 2 * Math.PI;
+                        const gamma = cayleyTransformDirect(R, theta);
+                        const x = cx + gamma.re * smithScale;
+                        const y = cy + gamma.im * smithScale;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+                
+                // Constant-X arcs (reactance arcs)
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)';
+                for (let X = -2; X <= 2; X += 0.5) {
+                    if (Math.abs(X) < 0.01) continue;
+                    ctx.beginPath();
+                    const numPoints = 50;
+                    for (let i = 0; i <= numPoints; i++) {
+                        const R = 0.1 + (i / numPoints) * 3;
+                        const theta = Math.atan2(X, 1); // Approximate reactance angle
+                        const gamma = cayleyTransformDirect(R, theta);
+                        const x = cx + gamma.re * smithScale;
+                        const y = cy + gamma.im * smithScale;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+
             // Check for gaps
             const gaps = Array.from(selectedGaps);
             const gapSet = new Map(); // residue -> has gap
@@ -869,15 +983,26 @@
                 const numPoints = ring.coprimes.length;
 
                 ring.coprimes.forEach((r, idx) => {
-                    const angle = calculateAngle(r, ring.mod, idx, numPoints) + (rotation * Math.PI / 180);
-                    let x = radius * Math.cos(angle);
-                    let y = radius * Math.sin(angle);
-
+                    let x, y;
+                    
                     // Apply Smith transform if enabled
                     if (smithEnabled) {
-                        const transformed = applySmithTransform(x, y, radius, smithAlpha, smithMode, smithScale);
-                        x = transformed.x;
-                        y = transformed.y;
+                        const transformed = applySmithTransform(
+                            r, 
+                            ring.mod, 
+                            ringIdx, 
+                            rings.length, 
+                            smithAlpha, 
+                            smithMode, 
+                            smithScale
+                        );
+                        x = transformed.x * zoom;
+                        y = transformed.y * zoom;
+                    } else {
+                        // Normal polar coordinates
+                        const angle = calculateAngle(r, ring.mod, idx, numPoints) + (rotation * Math.PI / 180);
+                        x = radius * Math.cos(angle);
+                        y = radius * Math.sin(angle);
                     }
 
                     const screenX = cx + x;
@@ -885,7 +1010,9 @@
 
                     // Get color
                     const hasGap = gapSet.get(`${ring.mod}_${r}`) || false;
-                    const color = getPointColor(r, ring.mod, angle, ring, ringIdx, hasGap);
+                    const baseAngle = calculateAngle(r, ring.mod, idx, numPoints);
+                    const color = getPointColor(r, ring.mod, baseAngle, ring, ringIdx, hasGap, smithEnabled, 
+                        smithEnabled ? {x, y} : null);
 
                     // Draw point
                     ctx.fillStyle = color;
