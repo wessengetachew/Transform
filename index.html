@@ -277,54 +277,72 @@
                 <h2>Controls</h2>
             </div>
             <div class="panel-content">
-                <!-- Modular Ring System -->
+                <!-- Advanced Modular Ring Selection -->
                 <div class="section-card">
                     <h3 onclick="toggleSection(this)">
-                        <span><span class="collapse-icon">▼</span> Modular Ring System</span>
+                        <span><span class="collapse-icon">▼</span> Advanced Modulus Selection</span>
                     </h3>
                     <div class="section-content">
-                        <!-- Quick Actions -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;">
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px;" onclick="selectAllRings()">Select All</button>
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px;" onclick="deselectAllRings()">Deselect All</button>
-                        </div>
-                        
-                        <!-- Range Selection -->
+                        <!-- Multi-Select Moduli -->
                         <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
-                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;">Select Range:</label>
-                            <div class="input-row" style="margin-bottom: 5px;">
-                                <input type="number" id="rangeStart" min="1" max="1000" placeholder="From" style="width: 70px;">
-                                <span style="padding: 0 5px;">to</span>
-                                <input type="number" id="rangeEnd" min="1" max="1000" placeholder="To" style="width: 70px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;"><strong>Multi-Select Moduli:</strong></label>
+                            <div class="input-group">
+                                <input type="text" id="multiModInput" placeholder="e.g., 2,3,5,7,11,13" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #e2e8f0; margin-bottom: 5px;">
                             </div>
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="selectRange()">Add Range</button>
+                            <button class="btn btn-primary" style="margin: 0;" onclick="addMultipleModuli()">Add Multiple Moduli</button>
                         </div>
-                        
-                        <!-- Quick Presets -->
+
+                        <!-- Single Modulus -->
                         <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
-                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;">Quick Presets:</label>
-                            <select id="quickPreset" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #e2e8f0; font-size: 0.85em; margin-bottom: 5px;">
-                                <option value="">-- Select Preset --</option>
-                                <option value="small">Small (M1-M12)</option>
-                                <option value="medium">Medium (M1-M30)</option>
-                                <option value="default">Default (M1-M60)</option>
-                                <option value="large">Large (M1-M100)</option>
-                                <option value="primes">Primes only (≤60)</option>
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;"><strong>Single Modulus:</strong></label>
+                            <div class="input-row">
+                                <input type="number" id="singleModInput" min="1" max="1000" placeholder="42" style="padding: 8px;">
+                                <button class="btn" style="margin: 0;" onclick="addSingleModulus()">Add Single</button>
+                            </div>
+                        </div>
+
+                        <!-- Consecutive Range -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;"><strong>Consecutive Range:</strong></label>
+                            <div style="display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 0.85em;">From:</span>
+                                <input type="number" id="rangeStartAdv" min="1" max="1000" value="1" style="padding: 6px;">
+                                <span style="font-size: 0.85em;">To:</span>
+                                <input type="number" id="rangeEndAdv" min="1" max="1000" value="20" style="padding: 6px;">
+                            </div>
+                            <button class="btn" style="margin: 0;" onclick="addRangeModuli()">Add M₁ to Mₙ</button>
+                        </div>
+
+                        <!-- By Mathematical Property -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;"><strong>By Mathematical Property:</strong></label>
+                            <select id="mathPropertySelect" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #e2e8f0; margin-bottom: 8px;">
+                                <option value="primes">Prime Numbers</option>
                                 <option value="powers2">Powers of 2</option>
-                                <option value="fibonacci">Fibonacci numbers</option>
+                                <option value="fibonacci">Fibonacci</option>
+                                <option value="triangular">Triangular Numbers</option>
+                                <option value="squares">Perfect Squares</option>
+                                <option value="composites">Composite Numbers</option>
                             </select>
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="applyPreset()">Apply Preset</button>
+                            <div style="margin-bottom: 8px;">
+                                <label style="font-size: 0.85em; display: block; margin-bottom: 4px;">Up to:</label>
+                                <input type="number" id="propertyLimit" min="1" max="1000" value="100" style="width: 100%; padding: 6px;">
+                            </div>
+                            <button class="btn" style="margin: 0;" onclick="addByMathProperty()">Add by Property</button>
+                            <div class="help-text" style="margin-top: 8px;">
+                                Quick Selection Examples:<br>
+                                • Primes: 2,3,5,7,11,13,17,19,23,29<br>
+                                • Powers of 2: 2,4,8,16,32,64<br>
+                                • Fibonacci: 1,2,3,5,8,13,21,34<br>
+                                • Custom: Any combination you want!
+                            </div>
                         </div>
-                        
-                        <!-- Add Single -->
+
+                        <!-- Quick Actions -->
                         <div class="input-row">
-                            <input type="number" id="customMod" min="1" max="1000" placeholder="Add M">
-                            <button class="btn btn-secondary" onclick="addCustomRing()">Add</button>
+                            <button class="btn btn-danger" style="margin: 0;" onclick="clearAllRings()">Clear All Rings</button>
+                            <button class="btn" style="margin: 0; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);" onclick="resetToDefault()">Reset to M1-M30</button>
                         </div>
-                        
-                        <!-- Ring List -->
-                        <div class="checkbox-group" id="ringControls"></div>
-                        <div class="help-text">Select moduli to visualize Z/MZ rings</div>
                     </div>
                 </div>
 
@@ -347,72 +365,32 @@
                     </div>
                 </div>
 
-                <!-- Gap Analysis -->
+                <!-- Dynamic Gap Generation -->
                 <div class="section-card">
                     <h3 onclick="toggleSection(this)">
-                        <span><span class="collapse-icon">▼</span> Gap Analysis</span>
+                        <span><span class="collapse-icon">▼</span> Dynamic Gap Generation</span>
                     </h3>
                     <div class="section-content">
-                        <!-- Quick Actions for Gaps -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;">
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="selectAllGaps()">All</button>
-                            <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.85em;" onclick="deselectAllGaps()">None</button>
-                        </div>
-                        
-                        <!-- Gap Presets -->
-                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
-                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;">Quick Presets:</label>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectEvenGaps()">Even</button>
-                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectOddGaps()">Odd</button>
-                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectTwinPrimes()">Twin (2)</button>
-                                <button class="btn btn-secondary" style="margin: 0; padding: 6px; font-size: 0.8em;" onclick="selectSmallGaps()">2,4,6</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Add Custom Gap -->
-                        <div class="input-row">
-                            <input type="number" id="customGap" min="1" max="100" placeholder="Gap">
-                            <button class="btn btn-secondary" onclick="addCustomGap()">Add</button>
-                        </div>
-                        
-                        <!-- Gap List -->
-                        <div class="checkbox-group" id="gapControls"></div>
-                        
-                        <!-- Gap Line Controls -->
-                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-top: 10px;">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="showGapLines" checked onchange="draw()">
-                                <label for="showGapLines">Show Gap Connection Lines</label>
-                            </div>
-                            <div class="slider-group">
-                                <label>Line Thickness: <span id="gapLineThickness">1.5</span>px</label>
-                                <input type="range" id="gapThickness" min="0.5" max="5" step="0.5" value="1.5" oninput="updateGapThickness()">
-                            </div>
-                            <div class="slider-group">
-                                <label>Line Color:</label>
-                                <select id="gapLineColor" onchange="draw()">
-                                    <option value="gold">Gold</option>
-                                    <option value="cyan">Cyan</option>
-                                    <option value="magenta">Magenta</option>
-                                    <option value="byGap">Color by Gap</option>
-                                </select>
-                            </div>
-                            <div class="slider-group">
-                                <label>Line Opacity: <span id="gapOpacityValue">0.6</span></label>
-                                <input type="range" id="gapOpacity" min="0.1" max="1" step="0.1" value="0.6" oninput="updateGapOpacity()">
-                            </div>
-                        </div>
-                        
                         <div class="slider-group">
-                            <label>Gap Coloring:</label>
-                            <select id="gapColorMode" onchange="draw()">
-                                <option value="uniform">Uniform Gold</option>
-                                <option value="byGap">Color by Gap Value</option>
-                                <option value="intensity">By Gap Count</option>
-                            </select>
+                            <label>Max Gap: <span id="maxGapValue">12</span></label>
+                            <input type="range" id="maxGapSlider" min="1" max="50" value="12" oninput="updateMaxGap()">
                         </div>
-                        <div class="help-text">Highlight residue pairs (r₁, r₂) where |r₁ - r₂| = g</div>
+                        
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                            <label style="font-size: 0.85em; margin-bottom: 5px; display: block;"><strong>Add Consecutive Range:</strong></label>
+                            <div style="display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 0.85em;">From:</span>
+                                <input type="number" id="gapRangeFrom" min="1" max="100" value="14" style="padding: 6px;">
+                                <span style="font-size: 0.85em;">To:</span>
+                                <input type="number" id="gapRangeTo" min="1" max="100" value="20" style="padding: 6px;">
+                            </div>
+                            <button class="btn" style="margin: 0;" onclick="addGapRangeFunc()">Add Range</button>
+                        </div>
+                        
+                        <div class="input-row">
+                            <button class="btn" style="margin: 0;" onclick="generateEvenGapsFunc()">Generate Even Gaps</button>
+                            <button class="btn btn-danger" style="margin: 0;" onclick="clearAllGapsFunc()">Clear All Gaps</button>
+                        </div>
                     </div>
                 </div>
 
@@ -540,6 +518,80 @@
                         <span><span class="collapse-icon">▼</span> Visualization</span>
                     </h3>
                     <div class="section-content">
+                        <!-- Color Palette Presets -->
+                        <label style="font-size: 0.9em; font-weight: 600; margin-bottom: 10px; display: block;">Color Palette Presets:</label>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px;">
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, red, orange, yellow, lime, cyan, blue, magenta); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('rainbow')" title="Rainbow"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #00d4ff, #0099ff, #0066cc); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('ocean')" title="Ocean"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('sunset')" title="Sunset"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #00ff00, #00ff00); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('neon')" title="Neon"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #ff0000, #ff6600, #ff9900); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('fire')" title="Fire"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #d1f2eb, #00bcd4, #3f51b5); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('cool')" title="Cool"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #9b59b6, #8e44ad, #6c3483); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('purple')" title="Purple"></div>
+                            <div style="height: 35px; border-radius: 6px; background: linear-gradient(90deg, #d4a574, #8b6f47, #654321); cursor: pointer; border: 2px solid transparent;" onclick="setColorPalette('earth')" title="Earth"></div>
+                        </div>
+
+                        <!-- Residue Coloring Scheme -->
+                        <div class="slider-group">
+                            <label>Residue Coloring Scheme:</label>
+                            <select id="colorMode" onchange="draw()">
+                                <option value="angular">Rainbow by Angular Position</option>
+                                <option value="residue">By Residue Value</option>
+                                <option value="modulus">By Ring (Modulus)</option>
+                                <option value="prime">Prime vs Composite</option>
+                                <option value="gcd_unified">GCD=1: Unified Color (Character Support)</option>
+                                <option value="gcd_mod">GCD=1: Unique Color per Modulus</option>
+                                <option value="gcd_res">GCD=1: Unique Color per Residue Value</option>
+                                <option value="gcd_prog">GCD=1: Mathematical Progression</option>
+                                <option value="gcd_spectral">GCD=1: Spectral Distribution</option>
+                                <option value="coprime">Coprime Status</option>
+                                <option value="custom">Custom Single Color</option>
+                            </select>
+                        </div>
+
+                        <!-- Direct Lift Line Color -->
+                        <div style="margin-bottom: 10px;">
+                            <label style="font-size: 0.9em; display: block; margin-bottom: 4px;">Direct Lift Line Color:</label>
+                            <div style="height: 40px; border-radius: 6px; background: linear-gradient(90deg, #FFD700, #FFA500); border: 1px solid rgba(255,255,255,0.2);"></div>
+                        </div>
+
+                        <!-- Modular Lift Line Color -->
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-size: 0.9em; display: block; margin-bottom: 4px;">Modular Lift Line Color:</label>
+                            <div style="height: 40px; border-radius: 6px; background: linear-gradient(90deg, #FF69B4, #FF1493); border: 1px solid rgba(255,255,255,0.2);"></div>
+                        </div>
+
+                        <!-- Thickness Sliders -->
+                        <div class="slider-group">
+                            <label>Lift Line Thickness: <span id="liftLineThicknessVal">0.5</span></label>
+                            <input type="range" id="liftThicknessSlider" min="0.1" max="3" step="0.1" value="0.5" oninput="updateThicknessValues()">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>Gap Line Thickness: <span id="gapLineThicknessVal">0.3</span></label>
+                            <input type="range" id="gapThicknessSlider" min="0.1" max="3" step="0.1" value="0.3" oninput="updateThicknessValues()">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>Ring Circle Thickness: <span id="ringCircleThicknessVal">0.61</span></label>
+                            <input type="range" id="ringThicknessSlider" min="0.1" max="3" step="0.01" value="0.61" oninput="updateThicknessValues()">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>Unit Circle Thickness: <span id="unitCircleThicknessVal">0.28</span></label>
+                            <input type="range" id="unitThicknessSlider" min="0.1" max="2" step="0.01" value="0.28" oninput="updateThicknessValues()">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>Residue Point Size: <span id="residuePointSizeVal">0.78</span></label>
+                            <input type="range" id="pointSizeSlider" min="0.1" max="2" step="0.01" value="0.78" oninput="updateThicknessValues()">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>Point Border Thickness: <span id="pointBorderThicknessVal">0.3</span></label>
+                            <input type="range" id="borderThicknessSlider" min="0" max="2" step="0.1" value="0.3" oninput="updateThicknessValues()">
+                        </div>
+
                         <div class="slider-group">
                             <label>Zoom: <span id="zoomValue">1.0</span>x</label>
                             <input type="range" id="zoom" min="0.3" max="5" step="0.1" value="1.0" oninput="updateZoom()">
@@ -548,26 +600,116 @@
                             <label>Rotation: <span id="rotValue">0</span>°</label>
                             <input type="range" id="rotation" min="0" max="360" value="0" oninput="updateRotation()">
                         </div>
-                        <div class="slider-group">
-                            <label>Point Size: <span id="sizeValue">4</span>px</label>
-                            <input type="range" id="pointSize" min="2" max="12" value="4" oninput="updateSize()">
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="showLabels" onchange="draw()">
-                            <label for="showLabels">Show Residue Labels</label>
-                        </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="showRings" checked onchange="draw()">
                             <label for="showRings">Show Ring Circles</label>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Label Controls -->
+                <div class="section-card">
+                    <h3 onclick="toggleSection(this)">
+                        <span><span class="collapse-icon">▼</span> Label Controls</span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showLabels" onchange="draw()">
+                            <label for="showLabels">Show Residue Labels</label>
+                        </div>
+
                         <div class="slider-group">
-                            <label>Coloring:</label>
-                            <select id="colorMode" onchange="draw()">
-                                <option value="angular">Angular (by θ)</option>
-                                <option value="modulus">By Modulus</option>
-                                <option value="coprime">Coprime Status</option>
-                                <option value="prime">Prime Residues</option>
+                            <label>Label Format:</label>
+                            <select id="labelFormat" onchange="draw()">
+                                <option value="number">Number (r)</option>
+                                <option value="fraction">Fraction (r/M)</option>
+                                <option value="farey">Farey Sequence (r/M simplified)</option>
+                                <option value="angle">Angle (θ = 2πr/M)</option>
+                                <option value="gcd">GCD Value gcd(r,M)</option>
+                                <option value="coprime">Coprime Status (✓/✗)</option>
+                                <option value="combined">Combined (r, gcd, θ)</option>
                             </select>
+                        </div>
+
+                        <!-- Selective Labeling -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <label style="font-size: 0.85em; font-weight: 600; margin-bottom: 8px; display: block;">Selective Labeling:</label>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="labelUnit" checked onchange="draw()">
+                                <label for="labelUnit">Label Unit Circle</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="labelGcd1" checked onchange="draw()">
+                                <label for="labelGcd1">Label GCD=1 Residues</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="labelGcdNot1" onchange="draw()">
+                                <label for="labelGcdNot1">Label GCD≠1 Residues</label>
+                            </div>
+                        </div>
+
+                        <!-- GCD-Specific Labels -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <label style="font-size: 0.85em; font-weight: 600; margin-bottom: 8px; display: block;">GCD-Specific Labels:</label>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="showGcdValue" onchange="draw()">
+                                <label for="showGcdValue">Show gcd(r,M) value</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="showCoprimeCheck" onchange="draw()">
+                                <label for="showCoprimeCheck">Show ✓/✗ coprime indicator</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="showPhiPos" onchange="draw()">
+                                <label for="showPhiPos">Show position in φ(M) sequence</label>
+                            </div>
+                        </div>
+
+                        <!-- Label Specific Moduli -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <label style="font-size: 0.85em; font-weight: 600; margin-bottom: 5px; display: block;">Label Specific Moduli:</label>
+                            <div style="display: flex; gap: 8px;">
+                                <span style="font-size: 0.85em; padding: 8px 0;">Moduli:</span>
+                                <input type="text" id="specificModuli" placeholder="2,3,5,30" style="flex: 1; padding: 6px;">
+                                <button class="btn btn-small" style="margin: 0; padding: 6px 12px;" onclick="applySpecificModuli()">Apply</button>
+                            </div>
+                        </div>
+
+                        <!-- Label Consecutive Range -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <label style="font-size: 0.85em; font-weight: 600; margin-bottom: 5px; display: block;">Label Consecutive Range:</label>
+                            <div style="display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 6px; align-items: center; margin-bottom: 6px;">
+                                <span style="font-size: 0.85em;">From M:</span>
+                                <input type="number" id="labelFromM" min="1" value="1" style="padding: 4px; font-size: 0.85em;">
+                                <span style="font-size: 0.85em;">To M:</span>
+                                <input type="number" id="labelToM" min="1" value="10" style="padding: 4px; font-size: 0.85em;">
+                            </div>
+                            <button class="btn btn-small" style="margin: 0; padding: 6px;" onclick="applyLabelModRange()">Apply Range</button>
+                        </div>
+
+                        <!-- Min Ring Radius -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                            <label style="font-size: 0.85em; font-weight: 600; margin-bottom: 5px; display: block;">Min Ring Radius:</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="number" id="minRingRadius" min="1" value="80" style="flex: 1; padding: 6px;">
+                                <button class="btn btn-small" style="margin: 0; padding: 6px 12px;" onclick="updateMinRingRadius()">Update</button>
+                            </div>
+                        </div>
+
+                        <!-- Label Size & Opacity -->
+                        <div class="slider-group">
+                            <label>Label Size: <span id="labelSizeVal">1.0</span>x</label>
+                            <input type="range" id="labelSizeSlider" min="0.5" max="3" step="0.1" value="1.0" oninput="updateLabelSizeVal()">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>Label Opacity: <span id="labelOpacityVal">0.95</span></label>
+                            <input type="range" id="labelOpacitySlider" min="0.1" max="1" step="0.05" value="0.95" oninput="updateLabelOpacityVal()">
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showPrimeCounts" onchange="draw()">
+                            <label for="showPrimeCounts">Show Prime Counts (when sieve active)</label>
                         </div>
                     </div>
                 </div>
@@ -1043,6 +1185,265 @@
             } else {
                 selectedGaps.add(gap);
             }
+            draw();
+        }
+
+        // Helper functions for mathematical properties
+        function getPrimes(limit) {
+            const primes = [];
+            for (let i = 2; i <= limit; i++) {
+                if (isPrime(i)) primes.push(i);
+            }
+            return primes;
+        }
+
+        function getPowersOf2(limit) {
+            const powers = [];
+            for (let p = 1; p <= limit; p *= 2) {
+                powers.push(p);
+            }
+            return powers;
+        }
+
+        function getFibonacci(limit) {
+            const fib = [1, 1];
+            while (true) {
+                const next = fib[fib.length - 1] + fib[fib.length - 2];
+                if (next > limit) break;
+                fib.push(next);
+            }
+            return [...new Set(fib)].filter(n => n <= limit);
+        }
+
+        function getTriangular(limit) {
+            const tri = [];
+            for (let n = 1; ; n++) {
+                const t = (n * (n + 1)) / 2;
+                if (t > limit) break;
+                tri.push(t);
+            }
+            return tri;
+        }
+
+        function getSquares(limit) {
+            const sq = [];
+            for (let n = 1; n * n <= limit; n++) {
+                sq.push(n * n);
+            }
+            return sq;
+        }
+
+        function getComposites(limit) {
+            const comp = [];
+            for (let n = 4; n <= limit; n++) {
+                if (!isPrime(n)) comp.push(n);
+            }
+            return comp;
+        }
+
+        // Advanced modulus selection functions
+        function addMultipleModuli() {
+            const input = document.getElementById('multiModInput').value;
+            const moduli = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0 && n <= 1000);
+            
+            moduli.forEach(m => {
+                const key = m === 1 ? 'unit' : `m${m}`;
+                if (!configs[key]) {
+                    configs[key] = { mod: m, label: m.toString() };
+                }
+                selectedRings.add(key);
+            });
+            
+            document.getElementById('multiModInput').value = '';
+            draw();
+        }
+
+        function addSingleModulus() {
+            const m = parseInt(document.getElementById('singleModInput').value);
+            if (!isNaN(m) && m > 0 && m <= 1000) {
+                const key = m === 1 ? 'unit' : `m${m}`;
+                if (!configs[key]) {
+                    configs[key] = { mod: m, label: m.toString() };
+                }
+                selectedRings.add(key);
+                document.getElementById('singleModInput').value = '';
+                draw();
+            }
+        }
+
+        function addRangeModuli() {
+            const from = parseInt(document.getElementById('rangeStartAdv').value);
+            const to = parseInt(document.getElementById('rangeEndAdv').value);
+            
+            if (!isNaN(from) && !isNaN(to) && from > 0 && to >= from && to <= 1000) {
+                for (let m = from; m <= to; m++) {
+                    const key = m === 1 ? 'unit' : `m${m}`;
+                    if (!configs[key]) {
+                        configs[key] = { mod: m, label: m.toString() };
+                    }
+                    selectedRings.add(key);
+                }
+                draw();
+            }
+        }
+
+        function addByMathProperty() {
+            const prop = document.getElementById('mathPropertySelect').value;
+            const limit = parseInt(document.getElementById('propertyLimit').value);
+            
+            if (!isNaN(limit) && limit > 0) {
+                let moduli = [];
+                
+                if (prop === 'primes') moduli = getPrimes(limit);
+                else if (prop === 'powers2') moduli = getPowersOf2(limit);
+                else if (prop === 'fibonacci') moduli = getFibonacci(limit);
+                else if (prop === 'triangular') moduli = getTriangular(limit);
+                else if (prop === 'squares') moduli = getSquares(limit);
+                else if (prop === 'composites') moduli = getComposites(limit);
+                
+                moduli.forEach(m => {
+                    const key = m === 1 ? 'unit' : `m${m}`;
+                    if (!configs[key]) {
+                        configs[key] = { mod: m, label: m.toString() };
+                    }
+                    selectedRings.add(key);
+                });
+                
+                draw();
+            }
+        }
+
+        function clearAllRings() {
+            selectedRings.clear();
+            draw();
+        }
+
+        function resetToDefault() {
+            clearAllRings();
+            for (let m = 1; m <= 30; m++) {
+                const key = m === 1 ? 'unit' : `m${m}`;
+                if (!configs[key]) {
+                    configs[key] = { mod: m, label: m.toString() };
+                }
+                selectedRings.add(key);
+            }
+            draw();
+        }
+
+        // Gap generation functions
+        function updateMaxGap() {
+            const val = document.getElementById('maxGapSlider').value;
+            document.getElementById('maxGapValue').textContent = val;
+        }
+
+        function addGapRangeFunc() {
+            const from = parseInt(document.getElementById('gapRangeFrom').value);
+            const to = parseInt(document.getElementById('gapRangeTo').value);
+            
+            if (!isNaN(from) && !isNaN(to) && from > 0 && to >= from) {
+                for (let g = from; g <= to; g++) {
+                    selectedGaps.add(g);
+                }
+                draw();
+            }
+        }
+
+        function generateEvenGapsFunc() {
+            const maxGap = parseInt(document.getElementById('maxGapSlider').value);
+            for (let g = 2; g <= maxGap; g += 2) {
+                selectedGaps.add(g);
+            }
+            draw();
+        }
+
+        function clearAllGapsFunc() {
+            selectedGaps.clear();
+            draw();
+        }
+
+        // Color palette functions
+        let currentPalette = 'rainbow';
+
+        function setColorPalette(palette) {
+            currentPalette = palette;
+            draw();
+        }
+
+        function getColorFromPalette(value, total) {
+            const t = value / total;
+            
+            if (currentPalette === 'rainbow') {
+                const hue = t * 360;
+                return `hsl(${hue}, 70%, 60%)`;
+            } else if (currentPalette === 'ocean') {
+                const r = Math.floor(0 + t * 0);
+                const g = Math.floor(153 + t * 51);
+                const b = Math.floor(255 - t * 51);
+                return `rgb(${r}, ${g}, ${b})`;
+            } else if (currentPalette === 'sunset') {
+                const r = Math.floor(255 - t * 148);
+                const g = Math.floor(107 + t * 110);
+                const b = Math.floor(107 - t * 107);
+                return `rgb(${r}, ${g}, ${b})`;
+            } else if (currentPalette === 'neon') {
+                return '#00ff00';
+            } else if (currentPalette === 'fire') {
+                const r = 255;
+                const g = Math.floor(0 + t * 153);
+                const b = 0;
+                return `rgb(${r}, ${g}, ${b})`;
+            } else if (currentPalette === 'cool') {
+                const r = Math.floor(209 - t * 209);
+                const g = Math.floor(242 - t * 54);
+                const b = Math.floor(235 - t * 56);
+                return `rgb(${r}, ${g}, ${b})`;
+            } else if (currentPalette === 'purple') {
+                const hue = 270 + t * 30;
+                return `hsl(${hue}, 50%, 50%)`;
+            } else if (currentPalette === 'earth') {
+                const r = Math.floor(212 - t * 111);
+                const g = Math.floor(165 - t * 54);
+                const b = Math.floor(116 - t * 83);
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+            
+            return '#4ECDC4';
+        }
+
+        // Thickness update function
+        function updateThicknessValues() {
+            document.getElementById('liftLineThicknessVal').textContent = document.getElementById('liftThicknessSlider').value;
+            document.getElementById('gapLineThicknessVal').textContent = document.getElementById('gapThicknessSlider').value;
+            document.getElementById('ringCircleThicknessVal').textContent = document.getElementById('ringThicknessSlider').value;
+            document.getElementById('unitCircleThicknessVal').textContent = document.getElementById('unitThicknessSlider').value;
+            document.getElementById('residuePointSizeVal').textContent = document.getElementById('pointSizeSlider').value;
+            document.getElementById('pointBorderThicknessVal').textContent = document.getElementById('borderThicknessSlider').value;
+            draw();
+        }
+
+        // Label functions
+        function updateLabelSizeVal() {
+            document.getElementById('labelSizeVal').textContent = document.getElementById('labelSizeSlider').value;
+            draw();
+        }
+
+        function updateLabelOpacityVal() {
+            document.getElementById('labelOpacityVal').textContent = document.getElementById('labelOpacitySlider').value;
+            draw();
+        }
+
+        function applySpecificModuli() {
+            // Implementation for specific moduli labeling
+            draw();
+        }
+
+        function applyLabelModRange() {
+            // Implementation for label range
+            draw();
+        }
+
+        function updateMinRingRadius() {
+            // Implementation for min radius
             draw();
         }
 
