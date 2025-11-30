@@ -2878,47 +2878,50 @@
         }
     }
 
-        // Initialize and draw
-        initControls();
-        
-        // Clear default unit circle and set M=1 to M=101
-        selectedRings.clear();
-        for (let m = 1; m <= 101; m++) {
-            const key = m === 1 ? 'unit' : `m${m}`;
-            if (!configs[key]) {
-                configs[key] = { mod: m, label: m.toString() };
+        // Wait for DOM to be ready before initializing
+        window.addEventListener('DOMContentLoaded', function() {
+            // Initialize and draw
+            initControls();
+            
+            // Clear default unit circle and set M=1 to M=101
+            selectedRings.clear();
+            for (let m = 1; m <= 101; m++) {
+                const key = m === 1 ? 'unit' : `m${m}`;
+                if (!configs[key]) {
+                    configs[key] = { mod: m, label: m.toString() };
+                }
+                selectedRings.add(key);
             }
-            selectedRings.add(key);
-        }
-        
-        // Enable direct lifts by default
-        const directLiftsCheckbox = document.getElementById('showDirectLifts');
-        if (directLiftsCheckbox) {
-            directLiftsCheckbox.checked = true;
-        }
-        
-        // Calculate and set auto-fit zoom
-        const rings = Array.from(selectedRings).map(key => ({
-            key: key,
-            mod: configs[key].mod
-        })).sort((a, b) => a.mod - b.mod);
-        
-        const ringIndex = rings.length - 1;
-        const maxRadius = 50 + ringIndex * 40;
-        const canvasSize = 800;
-        const centerToEdge = canvasSize / 2;
-        const requiredZoom = (centerToEdge * 0.85) / maxRadius;
-        zoom = Math.max(0.05, Math.min(10, requiredZoom));
-        
-        document.getElementById('zoom').value = zoom;
-        document.getElementById('zoomValue').textContent = zoom.toFixed(2);
-        
-        if (document.getElementById('zoomSliderTop')) {
-            document.getElementById('zoomSliderTop').value = zoom;
-            document.getElementById('zoomValueTop').textContent = zoom.toFixed(2);
-        }
-        
-        draw();
+            
+            // Enable direct lifts by default
+            const directLiftsCheckbox = document.getElementById('showDirectLifts');
+            if (directLiftsCheckbox) {
+                directLiftsCheckbox.checked = true;
+            }
+            
+            // Calculate and set auto-fit zoom
+            const rings = Array.from(selectedRings).map(key => ({
+                key: key,
+                mod: configs[key].mod
+            })).sort((a, b) => a.mod - b.mod);
+            
+            const ringIndex = rings.length - 1;
+            const maxRadius = 50 + ringIndex * 40;
+            const canvasSize = 800;
+            const centerToEdge = canvasSize / 2;
+            const requiredZoom = (centerToEdge * 0.85) / maxRadius;
+            zoom = Math.max(0.05, Math.min(10, requiredZoom));
+            
+            document.getElementById('zoom').value = zoom;
+            document.getElementById('zoomValue').textContent = zoom.toFixed(2);
+            
+            if (document.getElementById('zoomSliderTop')) {
+                document.getElementById('zoomSliderTop').value = zoom;
+                document.getElementById('zoomValueTop').textContent = zoom.toFixed(2);
+            }
+            
+            draw();
+        });
 
         // Resize handler
         window.addEventListener('resize', () => {
