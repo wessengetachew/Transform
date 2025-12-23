@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Primitive Lattice Point Theory</title>
+    <title>Mathematical Discovery Platform</title>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -30,6 +30,7 @@
         .tab-btn:hover { background: var(--blue); color: white; transform: translateY(-2px); }
         .tab-btn.active { background: var(--blue); color: white; box-shadow: 0 4px 12px rgba(0,102,204,0.3); }
         .controls button.active { background: var(--purple); }
+        select { font-size: 1em; }
         .panel { display: none; animation: fadeIn 0.5s; }
         .panel.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -55,8 +56,8 @@
         .stat .val { font-size: 2rem; font-weight: bold; color: var(--blue); transition: all 0.5s; }
         .stat .lbl { font-size: 0.9rem; color: var(--text2); }
         canvas { border: 2px solid var(--border); border-radius: 8px; display: block; margin: 20px auto; max-width: 100%; }
-        #canvas3d, #c3d { width: 100%; height: 800px; cursor: grab; }
-        #canvas3d:active, #c3d:active { cursor: grabbing; }
+        #canvas3d { width: 100%; height: 600px; cursor: grab; }
+        #canvas3d:active { cursor: grabbing; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; overflow-x: auto; display: block; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
         th { background: var(--bg3); color: var(--blue); font-weight: 600; position: sticky; top: 0; }
@@ -83,13 +84,11 @@
         .modal-close { position: absolute; top: 10px; right: 10px; font-size: 24px; cursor: pointer; color: var(--text2); }
         .export-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
         .data-table-container { max-height: 400px; overflow-y: auto; }
-        .point-info-active { background: var(--bg3) !important; border: 2px solid var(--blue); animation: highlightPulse 0.5s ease; }
-        @keyframes highlightPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
         @media (max-width: 768px) {
             .header h1 { font-size: 1.8rem; }
             .tabs { flex-direction: column; }
             .tab-btn { min-width: 100%; }
-            #canvas3d, #c3d { height: 500px; }
+            #canvas3d { height: 400px; }
             .btn-fixed { padding: 10px 16px; font-size: 14px; }
             #helpBtn { right: 20px; bottom: 70px; }
         }
@@ -107,12 +106,14 @@
             <button class="tab-btn active" onclick="showTab('theory')">Theory</button>
             <button class="tab-btn" onclick="showTab('patterns')">Pattern Explorer</button>
             <button class="tab-btn" onclick="showTab('gcdheatmap')">GCD Heatmap</button>
+            <button class="tab-btn" onclick="showTab('gcdtable')">GCD Table</button>
             <button class="tab-btn" onclick="showTab('criticalstrip')">Critical Strip</button>
             <button class="tab-btn" onclick="showTab('viz2d')">2D Viz</button>
             <button class="tab-btn" onclick="showTab('viz3d')">3D Viz</button>
             <button class="tab-btn" onclick="showTab('comparison')">Compare</button>
             <button class="tab-btn" onclick="showTab('analysis')">Analysis</button>
             <button class="tab-btn" onclick="showTab('tools')">Tools</button>
+            <button class="tab-btn" onclick="showTab('export')">Export</button>
             <button class="tab-btn" onclick="showTab('derivation')">Derivation</button>
         </nav>
 
@@ -203,10 +204,16 @@
                             <p style="margin-bottom:15px;">Examine how the density of primitive points varies across different regions of the lattice.</p>
                             
                             <label>Grid Size: <span id="gridSizev">10</span></label>
-                            <input type="range" id="gridSize" min="5" max="20" value="10" step="1" oninput="updatePatternViz()">
+                            <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                                <input type="range" id="gridSize" min="5" max="50" value="10" step="1" oninput="updateGridSize()" style="flex:1;">
+                                <input type="number" id="gridSizeInput" min="5" max="100" value="10" style="width:100px; padding:8px;" oninput="updateGridSize()">
+                            </div>
                             
                             <label style="margin-top:15px;">Max Radius: <span id="densityRv">50</span></label>
-                            <input type="range" id="densityR" min="20" max="100" value="50" step="5" oninput="updatePatternViz()">
+                            <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                                <input type="range" id="densityR" min="20" max="200" value="50" step="5" oninput="updateDensityR()" style="flex:1;">
+                                <input type="number" id="densityRInput" min="20" max="500" value="50" step="5" style="width:100px; padding:8px;" oninput="updateDensityR()">
+                            </div>
                         </div>
                         
                         <button onclick="updatePatternViz()" style="padding:12px 24px; margin:10px 0;">Compute Density Map</button>
@@ -280,8 +287,8 @@
                     
                     <label>Radius: <span id="heatmapRv">25</span></label>
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
-                        <input type="range" id="heatmapR" min="5" max="80" value="25" step="1" oninput="updateGCDHeatmap()" style="flex:1;">
-                        <input type="number" id="heatmapRinput" min="5" max="100" value="25" style="width:100px; padding:8px;" oninput="updateGCDHeatmap()">
+                        <input type="range" id="heatmapR" min="5" max="100" value="25" step="1" oninput="updateHeatmapR()" style="flex:1;">
+                        <input type="number" id="heatmapRinput" min="5" max="1000" value="25" style="width:100px; padding:8px;" oninput="updateHeatmapR()">
                     </div>
                     
                     <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
@@ -342,77 +349,170 @@
             </div>
         </div>
 
-        <div id="criticalstrip" class="panel">
+        <div id="gcdtable" class="panel">
             <div class="section">
-                <h2>Critical Strip Projection <span class="help-icon tooltip" data-tip="Maps error onto complex plane">?</span></h2>
-                <p>Maps the error term Δ(R) = N(R) - V₂R²/ζ(2) onto the complex plane to test Riemann Hypothesis predictions. The distribution of error terms in the critical strip (0 < Re(s) < 1) reveals deep connections to prime numbers.</p>
+                <h2>GCD Multiplication Table <span class="help-icon tooltip" data-tip="Interactive GCD grid visualization">?</span></h2>
+                <p>Explore GCD patterns in a multiplication table format. Each cell shows gcd(row, column) with color-coding by value.</p>
                 
                 <div class="controls">
                     <div style="margin-bottom:10px;">
                         <label><b>Presets:</b></label>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:5px;">
-                            <button onclick="setCriticalStripPreset('standard')" style="padding:6px 12px; font-size:0.9em;">Standard View</button>
-                            <button onclick="setCriticalStripPreset('detailed')" style="padding:6px 12px; font-size:0.9em;">Detailed</button>
-                            <button onclick="setCriticalStripPreset('wide')" style="padding:6px 12px; font-size:0.9em;">Wide Range</button>
+                            <button onclick="setGCDTablePreset('small')" style="padding:6px 12px; font-size:0.9em;">Small (20×20)</button>
+                            <button onclick="setGCDTablePreset('medium')" style="padding:6px 12px; font-size:0.9em;">Medium (50×50)</button>
+                            <button onclick="setGCDTablePreset('large')" style="padding:6px 12px; font-size:0.9em;">Large (100×100)</button>
                         </div>
                     </div>
                     
-                    <label>Max Radius for Error: <span id="criticalMaxRv">100</span></label>
+                    <label>Grid Size: <span id="gcdTableSizev">30</span></label>
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
-                        <input type="range" id="criticalMaxR" min="20" max="200" value="100" step="10" oninput="updateCriticalStrip()" style="flex:1;">
-                        <input type="number" id="criticalMaxRinput" min="20" max="300" value="100" step="10" style="width:100px; padding:8px;" oninput="updateCriticalStrip()">
+                        <input type="range" id="gcdTableSize" min="5" max="150" value="30" step="1" oninput="updateGCDTable()" style="flex:1;">
+                        <input type="number" id="gcdTableSizeInput" min="5" max="200" value="30" style="width:100px; padding:8px;" oninput="updateGCDTable()">
                     </div>
                     
-                    <label>Step Size: <span id="criticalStepv">2</span></label>
-                    <input type="range" id="criticalStep" min="1" max="10" value="2" step="1" oninput="updateCriticalStrip()">
-                    
-                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin:15px 0;">
-                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Visualization Options:</b></label>
-                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
-                            <input type="checkbox" id="showCriticalLine" checked onchange="updateCriticalStrip()"> Show Critical Line (Re = 1/2)
-                        </label>
-                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
-                            <input type="checkbox" id="showStripBounds" checked onchange="updateCriticalStrip()"> Show Strip Boundaries
-                        </label>
-                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
-                            <input type="checkbox" id="colorByMagnitude" checked onchange="updateCriticalStrip()"> Color by Error Magnitude
-                        </label>
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Color Scheme:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:8px;">
+                            <button id="gcdTableHeat" class="active" onclick="setGCDTableColor('heat')" style="padding:10px;">Heat Map</button>
+                            <button id="gcdTableDiscrete" onclick="setGCDTableColor('discrete')" style="padding:10px;">Discrete GCD</button>
+                            <button id="gcdTablePrime" onclick="setGCDTableColor('prime')" style="padding:10px;">Prime Powers</button>
+                        </div>
                     </div>
                     
-                    <label>Point Size: <span id="criticalPSv">5</span></label>
-                    <input type="range" id="criticalPS" min="2" max="12" value="5" step="1" oninput="updateCriticalStrip()">
+                    <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+                        <input type="checkbox" id="showGCDValues" checked onchange="updateGCDTable()"> Show GCD Values
+                    </label>
+                    
+                    <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+                        <input type="checkbox" id="highlightDiagonal" checked onchange="updateGCDTable()"> Highlight Diagonal
+                    </label>
                     
                     <div style="margin-top:15px;">
-                        <button onclick="updateCriticalStrip()">Compute Projection</button>
+                        <button onclick="updateGCDTable()">Refresh Table</button>
+                        <button onclick="exportCanvas('gcdTableCanvas', 'gcd-table')">Export Image</button>
+                        <button onclick="exportGCDTableData()">Export Data</button>
+                    </div>
+                </div>
+                
+                <canvas id="gcdTableCanvas" width="1200" height="1200" style="max-width:100%; cursor:crosshair;"></canvas>
+                
+                <div id="gcdTableInfo" style="background:var(--bg3); padding:20px; border-radius:8px; margin-top:20px; min-height:100px;">
+                    <p style="color:var(--text2); font-style:italic;">Click on a cell to see GCD(row, col) details</p>
+                </div>
+                
+                <div class="formula" style="margin-top:20px;">
+                    <p><b>Patterns to Observe:</b></p>
+                    <p>• Diagonal elements: gcd(n, n) = n (perfect squares in intensity)</p>
+                    <p>• Symmetry: gcd(a, b) = gcd(b, a) - table is symmetric</p>
+                    <p>• Rows/columns of primes: mostly 1s except at multiples</p>
+                    <p>• Coprimality appears as value 1 (darkest cells in heat map)</p>
+                    <p>• Patterns reveal divisibility relationships at a glance</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="criticalstrip" class="panel">
+            <div class="section">
+                <h2>Critical Strip & Error Analysis <span class="help-icon tooltip" data-tip="Gauss Circle Problem & RH Connection">?</span></h2>
+                <p>Analyzes the error term Δ(R) from the Gauss Circle Problem and its connection to the Riemann Hypothesis. The growth rate of |Δ(R)| is deeply connected to the distribution of zeros of the Riemann zeta function.</p>
+                
+                <div class="controls">
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Problem Type:</b></label>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button id="criticalAllPoints" class="active" onclick="setCriticalProblem('all')" style="flex:1; min-width:150px; padding:12px;">Gauss Circle (All Points)</button>
+                            <button id="criticalPrimitive" onclick="setCriticalProblem('primitive')" style="flex:1; min-width:150px; padding:12px;">Primitive Points Only</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Visualization Type:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:8px;">
+                            <button id="criticalVizError" class="active" onclick="setCriticalViz('error')" style="padding:10px;">Error vs Radius</button>
+                            <button id="criticalVizNormalized" onclick="setCriticalViz('normalized')" style="padding:10px;">Δ(R)/R^(1/2)</button>
+                            <button id="criticalVizLog" onclick="setCriticalViz('loglog')" style="padding:10px;">Log-Log Plot</button>
+                            <button id="criticalVizBounds" onclick="setCriticalViz('bounds')" style="padding:10px;">With Bounds</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom:10px;">
+                        <label><b>Presets:</b></label>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:5px;">
+                            <button onclick="setCriticalStripPreset('standard')" style="padding:6px 12px; font-size:0.9em;">Standard (R≤100)</button>
+                            <button onclick="setCriticalStripPreset('detailed')" style="padding:6px 12px; font-size:0.9em;">Detailed (R≤200)</button>
+                            <button onclick="setCriticalStripPreset('extended')" style="padding:6px 12px; font-size:0.9em;">Extended (R≤300)</button>
+                        </div>
+                    </div>
+                    
+                    <label>Max Radius: <span id="criticalMaxRv">100</span></label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                        <input type="range" id="criticalMaxR" min="20" max="500" value="100" step="10" oninput="updateCriticalMaxR()" style="flex:1;">
+                        <input type="number" id="criticalMaxRinput" min="20" max="1000" value="100" step="10" style="width:100px; padding:8px;" oninput="updateCriticalMaxR()">
+                    </div>
+                    
+                    <label>Step Size: <span id="criticalStepv">1</span></label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                        <input type="range" id="criticalStep" min="1" max="10" value="1" step="1" oninput="updateCriticalStep()" style="flex:1;">
+                        <input type="number" id="criticalStepInput" min="1" max="20" value="1" style="width:100px; padding:8px;" oninput="updateCriticalStep()">
+                    </div>
+                    
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin:15px 0;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Display Options:</b></label>
+                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+                            <input type="checkbox" id="showZeroLine" checked onchange="updateCriticalStrip()"> Show Zero Line
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+                            <input type="checkbox" id="showRHBound" checked onchange="updateCriticalStrip()"> Show RH Bound (R^(1/2))
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+                            <input type="checkbox" id="showClassicalBound" onchange="updateCriticalStrip()"> Show Classical Bound (R^(2/3))
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+                            <input type="checkbox" id="colorBySign" checked onchange="updateCriticalStrip()"> Color by Error Sign
+                        </label>
+                    </div>
+                    
+                    <div style="margin-top:15px;">
+                        <button onclick="updateCriticalStrip()">Compute Analysis</button>
                         <button onclick="exportCanvas('criticalCanvas', 'critical-strip')">Export Image</button>
                         <button onclick="exportCriticalData()">Export Data</button>
                     </div>
                 </div>
                 
-                <div class="loading" id="loadCritical"><div class="spinner"></div><p>Computing error projections...</p></div>
+                <div class="loading" id="loadCritical"><div class="spinner"></div><p>Computing error analysis...</p></div>
                 
                 <canvas id="criticalCanvas" width="1400" height="1000" style="max-width:100%; cursor:crosshair;"></canvas>
                 
                 <div id="criticalPointInfo" style="background:var(--bg3); padding:20px; border-radius:8px; margin-top:20px; min-height:100px;">
-                    <p style="color:var(--text2); font-style:italic;">Click on a point to see error details for that radius</p>
+                    <p style="color:var(--text2); font-style:italic;">Click on a point to see detailed error information</p>
                 </div>
                 
                 <div class="stats">
-                    <div class="stat"><div class="val" id="criticalPoints">0</div><div class="lbl">Error Points Plotted</div></div>
+                    <div class="stat"><div class="val" id="criticalPoints">0</div><div class="lbl">Data Points</div></div>
                     <div class="stat"><div class="val" id="criticalMaxErr">0</div><div class="lbl">Max |Δ(R)|</div></div>
                     <div class="stat"><div class="val" id="criticalAvgErr">0</div><div class="lbl">Avg |Δ(R)|</div></div>
-                    <div class="stat"><div class="val" id="criticalPositive">0</div><div class="lbl">Positive Errors</div></div>
-                    <div class="stat"><div class="val" id="criticalNegative">0</div><div class="lbl">Negative Errors</div></div>
+                    <div class="stat"><div class="val" id="criticalRMSErr">0</div><div class="lbl">RMS Error</div></div>
+                    <div class="stat"><div class="val" id="criticalMaxNorm">0</div><div class="lbl">Max |Δ(R)/R^(1/2)|</div></div>
                 </div>
                 
                 <div class="formula" style="margin-top:20px;">
-                    <p><b>Riemann Hypothesis Connection:</b></p>
-                    <p>The error term Δ(R) = N(R) - πR²/ζ(2) is deeply connected to the zeros of the Riemann zeta function. The Riemann Hypothesis states that all non-trivial zeros lie on the critical line Re(s) = 1/2.</p>
-                    <p style="margin-top:10px;"><b>Key insights:</b></p>
-                    <p>• If RH is true, |Δ(R)| = O(R^(1/2 + ε)) for any ε > 0</p>
-                    <p>• The distribution of error signs reveals information about zero spacing</p>
-                    <p>• Oscillations in Δ(R) correspond to contributions from zeta zeros</p>
-                    <p>• The critical strip (0 < Re(s) < 1) contains all the mystery of prime distribution</p>
+                    <p><b>Gauss Circle Problem:</b></p>
+                    <p>Let N(R) = |{(x,y) ∈ ℤ² : x² + y² ≤ R²}| be the number of lattice points in a circle of radius R.</p>
+                    <p style="margin-top:10px;">We have N(R) = πR² + Δ(R), where Δ(R) is the error term.</p>
+                    
+                    <p style="margin-top:15px;"><b>Connection to Riemann Hypothesis:</b></p>
+                    <p>• <b>Known:</b> |Δ(R)| = O(R^(2/3)) (classical result by van der Corput, 1923)</p>
+                    <p>• <b>Conjectured (Hardy, 1915):</b> |Δ(R)| = O(R^(1/2 + ε)) for any ε > 0</p>
+                    <p>• <b>If RH is true:</b> This bound is expected to hold, though not yet proven</p>
+                    <p>• <b>Lower bound:</b> |Δ(R)| = Ω(R^(1/4)) (Sierpiński, 1906)</p>
+                    
+                    <p style="margin-top:15px;"><b>For Primitive Points:</b></p>
+                    <p>N_prim(R) = πR²/ζ(2) + Δ_prim(R), with similar error behavior scaled by 1/ζ(2) ≈ 0.608</p>
+                    
+                    <p style="margin-top:15px;"><b>Key Observations:</b></p>
+                    <p>• The error oscillates around zero with increasing amplitude</p>
+                    <p>• Normalized error Δ(R)/R^(1/2) should be bounded if RH is true</p>
+                    <p>• The oscillation frequency relates to the imaginary parts of zeta zeros</p>
                 </div>
             </div>
         </div>
@@ -461,10 +561,32 @@
                     <label>Radius: <span id="r2v">20</span></label>
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
                         <input type="range" id="r2" min="1" max="500" value="20" step="1" oninput="update2DRadius(this.value)" style="flex:1;">
-                        <input type="number" id="r2input" min="1" max="1000" value="20" style="width:100px; padding:8px;" oninput="update2DRadius(this.value)">
+                        <input type="number" id="r2input" min="1" max="2000" value="20" style="width:100px; padding:8px;" oninput="update2DRadius(this.value)">
                     </div>
+                    
+                    <label>Canvas Zoom: <span id="zoom2Dv">100</span>%</label>
+                    <input type="range" id="zoom2D" min="50" max="200" value="100" step="5" oninput="update2DZoom()">
+                    
                     <label>Point Size: <span id="psv">3</span></label>
-                    <input type="range" id="ps" min="1" max="10" value="3" oninput="draw2D()">
+                    <input type="range" id="ps" min="1" max="20" value="3" oninput="draw2D()">
+                    
+                    <div style="background: var(--bg3); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <label style="font-size: 1.1em; color: var(--blue); margin-bottom: 10px; display: block;"><b>Point Labels:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-bottom:10px;">
+                            <button id="label2DNone" class="active" onclick="set2DLabelMode('none')" style="padding:8px; font-size:0.85em;">No Labels</button>
+                            <button id="label2DGCD" onclick="set2DLabelMode('gcd')" style="padding:8px; font-size:0.85em;">By GCD</button>
+                            <button id="label2DCoords" onclick="set2DLabelMode('coords')" style="padding:8px; font-size:0.85em;">Coordinates</button>
+                            <button id="label2DAngle" onclick="set2DLabelMode('angle')" style="padding:8px; font-size:0.85em;">By Angle</button>
+                        </div>
+                        <div id="labelControls2D" style="display:none;">
+                            <label>Label Font Size: <span id="labelSize2Dv">8</span>px</label>
+                            <input type="range" id="labelSize2D" min="6" max="16" value="8" step="1" oninput="draw2D()">
+                            <label style="margin-top:10px;">Max Points to Label: <span id="maxLabels2Dv">50</span></label>
+                            <input type="range" id="maxLabels2D" min="10" max="500" value="50" step="10" oninput="draw2D()">
+                            <p style="font-size:0.85em; color:var(--text2); margin-top:8px;">Labels shown for points closest to origin</p>
+                        </div>
+                    </div>
+                    
                     <button onclick="exportCanvas('c2d', '2d-lattice')">Export Image</button>
                     <button onclick="exportPointData2D()">Export Points</button>
                 </div>
@@ -472,7 +594,7 @@
                     ⚠️ Large radius values may slow performance. Consider using R ≤ 200 for smooth rendering.
                 </div>
                 <div class="loading" id="load2d"><div class="spinner"></div><p>Computing lattice points...</p></div>
-                <canvas id="c2d" width="1200" height="1200" style="max-width:100%;"></canvas>
+                <canvas id="c2d" width="800" height="800"></canvas>
                 <div class="stats">
                     <div class="stat"><div class="val" id="p2">0</div><div class="lbl">Primitive Points</div></div>
                     <div class="stat"><div class="val" id="t2">0</div><div class="lbl">Total Points</div></div>
@@ -526,6 +648,23 @@
                     <label>Point Size: <span id="ps3v">0.6</span></label>
                     <input type="range" id="ps3" min="0.2" max="2.0" value="0.6" step="0.1" oninput="draw3D()">
                     
+                    <label>Camera Distance (Zoom): <span id="zoom3Dv">86</span></label>
+                    <input type="range" id="zoom3D" min="30" max="150" value="86" step="1" oninput="update3DZoom()">
+                    
+                    <div style="background: var(--bg3); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <label style="font-size: 1.1em; color: var(--blue); margin-bottom: 10px; display: block;"><b>Point Labels:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-bottom:10px;">
+                            <button id="label3DNone" class="active" onclick="set3DLabelMode('none')" style="padding:8px; font-size:0.85em;">No Labels</button>
+                            <button id="label3DGCD" onclick="set3DLabelMode('gcd')" style="padding:8px; font-size:0.85em;">By GCD</button>
+                            <button id="label3DCoords" onclick="set3DLabelMode('coords')" style="padding:8px; font-size:0.85em;">Coordinates</button>
+                        </div>
+                        <div id="labelControls3D" style="display:none;">
+                            <label>Max Points to Label: <span id="maxLabels3Dv">30</span></label>
+                            <input type="range" id="maxLabels3D" min="10" max="200" value="30" step="10" oninput="draw3D()">
+                            <p style="font-size:0.85em; color:var(--text2); margin-top:8px;">Labels shown for points closest to origin</p>
+                        </div>
+                    </div>
+                    
                     <button onclick="reset3D()">Reset View</button>
                     <button onclick="toggleRotation()">Auto-Rotate</button>
                     <button onclick="export3DData()">Export Points</button>
@@ -534,7 +673,7 @@
                     ⚠️ Radius > 30 generates many points and may impact performance.
                 </div>
                 <div class="loading" id="load3d"><div class="spinner"></div><p>Generating 3D lattice...</p></div>
-                <div id="c3d" style="width:100%; height:800px;"></div>
+                <div id="c3d"></div>
                 <div class="stats">
                     <div class="stat"><div class="val" id="p3">0</div><div class="lbl">Primitive Points</div></div>
                     <div class="stat"><div class="val" id="t3">0</div><div class="lbl">Total Points</div></div>
@@ -781,6 +920,98 @@
             </div>
         </div>
 
+        <div id="export" class="panel">
+            <div class="section">
+                <h2>Advanced Export Center <span class="help-icon tooltip" data-tip="Professional export with titles and legends">?</span></h2>
+                <p>Export high-resolution images with custom titles, subtitles, and legends. Choose resolution and canvas to export.</p>
+                
+                <div class="controls">
+                    <div style="background:var(--bg3); padding:20px; border-radius:8px; margin-bottom:20px;">
+                        <h3 style="color:var(--blue); margin-bottom:15px;">Export Settings</h3>
+                        
+                        <label><b>Canvas to Export:</b></label>
+                        <select id="exportCanvas" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
+                            <option value="c2d">2D Lattice Visualization</option>
+                            <option value="heatmapCanvas">GCD Heatmap</option>
+                            <option value="gcdTableCanvas">GCD Multiplication Table</option>
+                            <option value="criticalCanvas">Critical Strip Analysis</option>
+                            <option value="patternCanvas">Pattern Visualization</option>
+                            <option value="densityCanvas">Density Distribution</option>
+                            <option value="angularCanvas">Angular Distribution</option>
+                            <option value="radialCanvas">Radial Shell Analysis</option>
+                            <option value="compChart">Dimension Comparison Chart</option>
+                            <option value="ch">Error Analysis Chart</option>
+                        </select>
+                        
+                        <label style="margin-top:15px;"><b>Resolution:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:10px; margin:10px 0;">
+                            <button id="res1k" class="active" onclick="setExportRes('1k')" style="padding:10px;">1K (1920×1080)</button>
+                            <button id="res2k" onclick="setExportRes('2k')" style="padding:10px;">2K (2560×1440)</button>
+                            <button id="res4k" onclick="setExportRes('4k')" style="padding:10px;">4K (3840×2160)</button>
+                            <button id="res8k" onclick="setExportRes('8k')" style="padding:10px;">8K (7680×4320)</button>
+                        </div>
+                        
+                        <label style="margin-top:15px;"><b>Title:</b></label>
+                        <input type="text" id="exportTitle" placeholder="e.g., Primitive Lattice Point Distribution" style="width:100%; padding:10px; margin:5px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
+                        
+                        <label style="margin-top:10px;"><b>Subtitle:</b></label>
+                        <input type="text" id="exportSubtitle" placeholder="e.g., R=100, k=2, showing GCD patterns" style="width:100%; padding:10px; margin:5px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
+                        
+                        <label style="margin-top:10px;"><b>Legend/Description:</b></label>
+                        <textarea id="exportLegend" placeholder="Blue: Primitive (GCD=1)
+Red: Non-Primitive (GCD>1)
+Total Points: 12,345
+Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border); min-height:100px; font-family:monospace;"></textarea>
+                        
+                        <div style="margin-top:15px;">
+                            <label style="display:flex; align-items:center; gap:8px;">
+                                <input type="checkbox" id="includeMetadata" checked> Include Title & Legend
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                                <input type="checkbox" id="includeTimestamp" checked> Include Timestamp
+                            </label>
+                            <label style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                                <input type="checkbox" id="includeWatermark" checked> Include "By Wessen Getachew | @7dview"
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="background:var(--bg3); padding:20px; border-radius:8px; margin-bottom:20px;">
+                        <h3 style="color:var(--blue); margin-bottom:15px;">Quick Export Presets</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+                            <button onclick="quickExport2D()" style="padding:12px;">Export Current 2D View</button>
+                            <button onclick="quickExport3D()" style="padding:12px;">Export Current 3D View</button>
+                            <button onclick="quickExportHeatmap()" style="padding:12px;">Export GCD Heatmap</button>
+                            <button onclick="quickExportCritical()" style="padding:12px;">Export Critical Strip</button>
+                            <button onclick="quickExportTable()" style="padding:12px;">Export GCD Table</button>
+                            <button onclick="quickExportAnalysis()" style="padding:12px;">Export Error Analysis</button>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:center; margin-top:20px;">
+                        <button onclick="performAdvancedExport()" style="padding:15px 40px; font-size:1.1em; background:var(--green); color:white;">
+                            🖼️ Export with Metadata
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="exportPreview" style="background:var(--bg3); padding:20px; border-radius:8px; margin-top:20px; min-height:200px; text-align:center;">
+                    <p style="color:var(--text2); font-style:italic;">Export preview will appear here</p>
+                    <canvas id="exportPreviewCanvas" style="max-width:100%; margin-top:20px; display:none; border:2px solid var(--border); border-radius:8px;"></canvas>
+                </div>
+                
+                <div class="formula" style="margin-top:20px;">
+                    <p><b>Export Features:</b></p>
+                    <p>• High-resolution output (up to 8K)</p>
+                    <p>• Custom titles, subtitles, and legends</p>
+                    <p>• Automatic parameter documentation</p>
+                    <p>• Clean layout without overlap</p>
+                    <p>• Professional formatting for publications</p>
+                    <p>• Timestamp and attribution options</p>
+                </div>
+            </div>
+        </div>
+
         <div id="derivation" class="panel">
             <div class="section">
                 <h2>Interactive Derivation</h2>
@@ -828,23 +1059,6 @@
             <h3>Navigation</h3>
             <p>Use the tabs to explore different aspects of primitive lattice points.</p>
             
-            <h3>GCD Heatmap</h3>
-            <p><b>Interactive Features:</b></p>
-            <p>• Click on any point to see detailed GCD information</p>
-            <p>• Three display modes: by GCD value, primitive only, or distance gradient</p>
-            <p>• Filter points by specific GCD values (1, 2, 3, or >3)</p>
-            <p>• View statistics for each GCD category</p>
-            <p>• Export point data for further analysis</p>
-            
-            <h3>Critical Strip Projection</h3>
-            <p><b>Riemann Hypothesis Connection:</b></p>
-            <p>• Maps error term Δ(R) onto the complex plane</p>
-            <p>• Critical line Re(s) = 1/2 shown in purple (where RH predicts all zeros)</p>
-            <p>• Points colored by error magnitude or sign</p>
-            <p>• Click on points to see detailed error information for that radius</p>
-            <p>• Strip boundaries show the critical strip 0 < Re(s) < 1</p>
-            <p>• Error oscillations reveal connections to zeta function zeros</p>
-            
             <h3>2D Visualizations</h3>
             <p><b>View Modes:</b></p>
             <p>• <b>Colored by Mode:</b> Points colored according to selected coloring mode</p>
@@ -859,8 +1073,32 @@
             <p>• <b>GCD × Quadrant:</b> Combined coloring showing both GCD structure and spatial position</p>
             <p>• <b>GCD × Mod:</b> Combined coloring revealing GCD and modular arithmetic patterns</p>
             
+            <p style="margin-top:15px;"><b>View Modes:</b></p>
+            <p>• <b>Colored by Mode:</b> Points colored according to selected coloring mode</p>
+            <p>• <b>Gauss Circle Problem:</b> All lattice points in purple, comparing against πR²</p>
+            <p>• <b>GCD=1 vs GCD>1:</b> Blue for primitive (coprime), red for non-primitive</p>
+            <p>• <b>By GCD Value:</b> Different color for each GCD (1=blue, 2=red, 3=green, 4=yellow, etc.)</p>
+            <p>• <b>By Mod m:</b> Colors based on (x+y) mod m - reveals modular patterns</p>
+            <p>• <b>By Quadrant:</b> Four colors for four quadrants (I=blue, II=green, III=yellow, IV=red)</p>
+            <p>• <b>By Angular Sector:</b> Rainbow colors dividing circle into sectors</p>
+            <p>• <b>GCD × Quadrant:</b> Combined coloring showing both GCD structure and spatial position</p>
+            <p>• <b>GCD × Mod:</b> Combined coloring revealing GCD and modular arithmetic patterns</p>
+            
             <h3>3D Visualizations</h3>
-            <p><b>Boundary Shapes:</b></p>
+            <p><b>Camera Controls:</b></p>
+            <p>• Click and drag to rotate view</p>
+            <p>• Use zoom slider (30-150) to adjust camera distance</p>
+            <p>• Reset button returns to default view</p>
+            <p>• Auto-rotate button for continuous rotation</p>
+            
+            <p style="margin-top:10px;"><b>Point Labeling:</b></p>
+            <p>• <b>No Labels:</b> Clean 3D view</p>
+            <p>• <b>By GCD:</b> Shows GCD value on sprites</p>
+            <p>• <b>Coordinates:</b> Displays (x,y,z) for each labeled point</p>
+            <p>• Control max labels (10-200) to avoid clutter</p>
+            <p>• Labels shown for points closest to origin</p>
+            
+            <p style="margin-top:10px;"><b>Boundary Shapes:</b></p>
             <p>• Sphere: Points within distance R (x²+y²+z² ≤ R²)</p>
             <p>• Cube: Points within cube of side 2R (|x|,|y|,|z| ≤ R)</p>
             
@@ -883,9 +1121,25 @@
             <p>• <b>Actual Count:</b> The true primitive point count at each radius</p>
             
             <h3>Performance Tips</h3>
-            <p>• Keep radius ≤ 100 in 2D, ≤ 30 in 3D for smooth performance</p>
-            <p>• Use Export buttons to save data and images</p>
+            <p>• Keep radius ≤ 200 in 2D, ≤ 30 in 3D for smooth performance</p>
+            <p>• Use zoom slider in 2D to focus on specific regions</p>
+            <p>• Limit number of labels for large radius values</p>
+            <p>• Use Export tab for high-resolution outputs</p>
             <p>• Compare mode shows multiple dimensions simultaneously</p>
+            
+            <h3>Export Features</h3>
+            <p><b>Advanced Export Center:</b></p>
+            <p>• Export at 1K, 2K, 4K, or 8K resolution</p>
+            <p>• Add custom titles, subtitles, and legends</p>
+            <p>• Include timestamps and attribution</p>
+            <p>• Clean layout optimized for publications</p>
+            <p>• Quick export presets for each visualization</p>
+            <p>• Preview before downloading</p>
+            
+            <h3>Precision Display</h3>
+            <p>• Higher dimensions (k>6) show up to 17 decimal places</p>
+            <p>• All exports include precise values</p>
+            <p>• Theory table shows maximum precision for each k</p>
             
             <h3>Tools Section</h3>
             <p>Calculate GCD, Möbius function, prime factorizations, and search for specific lattice points.</p>
@@ -906,6 +1160,11 @@
         let patternChart = null;
         let heatmapMode = 'gcd'; // 'gcd', 'primitive', 'gradient'
         let heatmapPointsData = [];
+        let criticalProblem = 'all'; // 'all' or 'primitive'
+        let criticalViz = 'error'; // 'error', 'normalized', 'loglog', 'bounds'
+        let labelMode2D = 'none'; // 'none', 'gcd', 'coords', 'angle'
+        let labelMode3D = 'none'; // 'none', 'gcd', 'coords'
+        let zoom2D = 100; // percentage
 
         function gcd(a, b) {
             a = Math.abs(a); b = Math.abs(b);
@@ -990,12 +1249,6 @@
                 setPatternType('modular');
                 updatePatternViz();
             }
-            if (id === 'gcdheatmap') {
-                updateGCDHeatmap();
-            }
-            if (id === 'criticalstrip') {
-                updateCriticalStrip();
-            }
         }
 
         function updateTheory() {
@@ -1007,10 +1260,13 @@
             const vol = sphereVolume(k, R);
             const pred = Math.round(vol / z);
             
-            animateValue('sz', parseFloat(document.getElementById('sz').textContent) || z, z);
-            animateValue('sd', parseFloat(document.getElementById('sd').textContent) || d, d);
+            // Use high precision for k > 6
+            const precision = k > 6 ? 17 : 6;
+            
+            document.getElementById('sz').textContent = formatPrecise(z, precision);
+            document.getElementById('sd').textContent = formatPrecise(d, precision);
             animateValue('sp', parseInt(document.getElementById('sp').textContent.replace(/,/g, '')) || pred, pred);
-            animateValue('svol', parseFloat(document.getElementById('svol').textContent) || vol, vol);
+            document.getElementById('svol').textContent = formatPrecise(vol, precision);
         }
 
         function set2DView(mode) {
@@ -1068,8 +1324,8 @@
             }
             
             setTimeout(() => {
-                ctx.clearRect(0, 0, 1200, 1200);
-                const cx = 600, cy = 600, sc = 550/R;
+                ctx.clearRect(0, 0, 800, 800);
+                const cx = 400, cy = 400, sc = 350/R;
                 ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
                 ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.arc(cx, cy, R*sc, 0, 2*Math.PI); ctx.stroke();
@@ -1190,6 +1446,50 @@
                 cache.points2D = { primitive: allPoints.filter(p => p.isPrimitive), 
                                    nonPrimitive: allPoints.filter(p => !p.isPrimitive), R };
                 
+                // Draw labels if enabled
+                if (labelMode2D !== 'none') {
+                    const labelSize = parseInt(document.getElementById('labelSize2D').value);
+                    const maxLabels = parseInt(document.getElementById('maxLabels2D').value);
+                    document.getElementById('labelSize2Dv').textContent = labelSize;
+                    document.getElementById('maxLabels2Dv').textContent = maxLabels;
+                    
+                    // Sort points by distance from origin
+                    const sortedPoints = [...allPoints].sort((a, b) => 
+                        (a.x*a.x + a.y*a.y) - (b.x*b.x + b.y*b.y)
+                    ).slice(0, maxLabels);
+                    
+                    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                    ctx.font = `${labelSize}px system-ui`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    sortedPoints.forEach(pt => {
+                        let label;
+                        if (labelMode2D === 'gcd') {
+                            label = pt.gcd.toString();
+                        } else if (labelMode2D === 'coords') {
+                            label = `(${pt.x},${pt.y})`;
+                        } else if (labelMode2D === 'angle') {
+                            const angle = Math.atan2(pt.y, pt.x) * 180 / Math.PI;
+                            label = `${angle.toFixed(0)}°`;
+                        }
+                        
+                        const screenX = cx + pt.x*sc;
+                        const screenY = cy - pt.y*sc;
+                        
+                        // Draw background for label
+                        const metrics = ctx.measureText(label);
+                        const labelWidth = metrics.width + 4;
+                        const labelHeight = labelSize + 2;
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                        ctx.fillRect(screenX - labelWidth/2, screenY - labelHeight/2, labelWidth, labelHeight);
+                        
+                        // Draw label text
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText(label, screenX, screenY);
+                    });
+                }
+                
                 const pred = Math.round(Math.PI * R * R / zeta(2));
                 const error = Math.abs(pred - prim);
                 
@@ -1222,11 +1522,11 @@
             const c = document.getElementById('c3d');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(document.body.classList.contains('light') ? 0xffffff : 0x1a1a1a);
-            camera = new THREE.PerspectiveCamera(75, c.clientWidth/800, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(75, c.clientWidth/600, 0.1, 1000);
             camera.position.set(50, 50, 50);
             camera.lookAt(0, 0, 0);
             renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-            renderer.setSize(c.clientWidth, 800);
+            renderer.setSize(c.clientWidth, 600);
             c.appendChild(renderer.domElement);
             
             const light1 = new THREE.AmbientLight(0xffffff, 0.6);
@@ -1439,6 +1739,46 @@
                         scene.add(new THREE.Points(geometry, material));
                     }
                 });
+                
+                // Add labels if enabled
+                if (labelMode3D !== 'none') {
+                    const maxLabels = parseInt(document.getElementById('maxLabels3D').value);
+                    document.getElementById('maxLabels3Dv').textContent = maxLabels;
+                    
+                    // Sort by distance and take closest points
+                    const sortedPoints = [...allPoints].sort((a, b) => a.distance - b.distance).slice(0, maxLabels);
+                    
+                    sortedPoints.forEach(pt => {
+                        let labelText;
+                        if (labelMode3D === 'gcd') {
+                            labelText = pt.gcd.toString();
+                        } else if (labelMode3D === 'coords') {
+                            labelText = `(${pt.x},${pt.y},${pt.z})`;
+                        }
+                        
+                        // Create sprite for label
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = 128;
+                        canvas.height = 64;
+                        
+                        context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                        context.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        context.font = 'Bold 24px Arial';
+                        context.fillStyle = 'white';
+                        context.textAlign = 'center';
+                        context.textBaseline = 'middle';
+                        context.fillText(labelText, canvas.width/2, canvas.height/2);
+                        
+                        const texture = new THREE.CanvasTexture(canvas);
+                        const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+                        const sprite = new THREE.Sprite(spriteMaterial);
+                        sprite.position.set(pt.x, pt.y, pt.z);
+                        sprite.scale.set(4, 2, 1);
+                        scene.add(sprite);
+                    });
+                }
                 
                 const pred = Math.round(4 * Math.PI * R**3 / (3 * zeta(3)));
                 const error = Math.abs(pred - prim);
@@ -2698,8 +3038,8 @@
                 `;
                 
             } else if (patternType === 'density') {
-                const gridSize = parseInt(document.getElementById('gridSize').value);
-                const R = parseInt(document.getElementById('densityR').value);
+                const gridSize = parseInt(document.getElementById('gridSizeInput').value) || parseInt(document.getElementById('gridSize').value);
+                const R = parseInt(document.getElementById('densityRInput').value) || parseInt(document.getElementById('densityR').value);
                 
                 document.getElementById('gridSizev').textContent = gridSize;
                 document.getElementById('densityRv').textContent = R;
@@ -2929,6 +3269,414 @@
             downloadCSV(csv, `pattern-${patternType}.csv`);
         }
 
+        function set2DLabelMode(mode) {
+            labelMode2D = mode;
+            document.querySelectorAll('#label2DNone, #label2DGCD, #label2DCoords, #label2DAngle').forEach(btn => btn.classList.remove('active'));
+            const btnIds = { 'none': 'label2DNone', 'gcd': 'label2DGCD', 'coords': 'label2DCoords', 'angle': 'label2DAngle' };
+            document.getElementById(btnIds[mode]).classList.add('active');
+            document.getElementById('labelControls2D').style.display = mode === 'none' ? 'none' : 'block';
+            draw2D();
+        }
+
+        function set3DLabelMode(mode) {
+            labelMode3D = mode;
+            document.querySelectorAll('#label3DNone, #label3DGCD, #label3DCoords').forEach(btn => btn.classList.remove('active'));
+            const btnIds = { 'none': 'label3DNone', 'gcd': 'label3DGCD', 'coords': 'label3DCoords' };
+            document.getElementById(btnIds[mode]).classList.add('active');
+            document.getElementById('labelControls3D').style.display = mode === 'none' ? 'none' : 'block';
+            draw3D();
+        }
+
+        function update3DZoom() {
+            if (!camera) return;
+            const zoom = parseInt(document.getElementById('zoom3D').value);
+            document.getElementById('zoom3Dv').textContent = zoom;
+            const angle = Math.atan2(camera.position.y, Math.sqrt(camera.position.x**2 + camera.position.z**2));
+            const azimuth = Math.atan2(camera.position.x, camera.position.z);
+            camera.position.x = zoom * Math.sin(azimuth) * Math.cos(angle);
+            camera.position.z = zoom * Math.cos(azimuth) * Math.cos(angle);
+            camera.position.y = zoom * Math.sin(angle);
+            camera.lookAt(0, 0, 0);
+        }
+
+        function setGCDTablePreset(preset) {
+            const presets = { 'small': 20, 'medium': 50, 'large': 100 };
+            const size = presets[preset];
+            document.getElementById('gcdTableSize').value = size;
+            document.getElementById('gcdTableSizeInput').value = size;
+            document.getElementById('gcdTableSizev').textContent = size;
+            updateGCDTable();
+        }
+
+        let gcdTableColorMode = 'heat'; // 'heat', 'discrete', 'prime'
+
+        function setGCDTableColor(mode) {
+            gcdTableColorMode = mode;
+            document.querySelectorAll('#gcdTableHeat, #gcdTableDiscrete, #gcdTablePrime').forEach(btn => btn.classList.remove('active'));
+            const btnIds = { 'heat': 'gcdTableHeat', 'discrete': 'gcdTableDiscrete', 'prime': 'gcdTablePrime' };
+            document.getElementById(btnIds[mode]).classList.add('active');
+            updateGCDTable();
+        }
+
+        function updateGCDTable() {
+            const size = parseInt(document.getElementById('gcdTableSizeInput').value) || parseInt(document.getElementById('gcdTableSize').value);
+            const showValues = document.getElementById('showGCDValues').checked;
+            const highlightDiag = document.getElementById('highlightDiagonal').checked;
+            
+            document.getElementById('gcdTableSizev').textContent = size;
+            document.getElementById('gcdTableSize').value = Math.min(size, 150);
+            document.getElementById('gcdTableSizeInput').value = size;
+            
+            const canvas = document.getElementById('gcdTableCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const cellSize = Math.min(canvas.width / (size + 1), 30); // +1 for labels
+            const startX = 40, startY = 40;
+            
+            // Compute max GCD for normalization
+            let maxGCD = 0;
+            for (let i = 1; i <= size; i++) {
+                for (let j = 1; j <= size; j++) {
+                    maxGCD = Math.max(maxGCD, gcd(i, j));
+                }
+            }
+            
+            // Store data for click detection
+            window.gcdTableData = [];
+            
+            // Draw cells
+            for (let i = 1; i <= size; i++) {
+                for (let j = 1; j <= size; j++) {
+                    const g = gcd(i, j);
+                    const x = startX + (j - 1) * cellSize;
+                    const y = startY + (i - 1) * cellSize;
+                    
+                    let color;
+                    if (gcdTableColorMode === 'heat') {
+                        const intensity = g / maxGCD;
+                        const hue = 240 - intensity * 240; // Blue to red
+                        color = `hsl(${hue}, 70%, 50%)`;
+                    } else if (gcdTableColorMode === 'discrete') {
+                        const colors = ['#0066cc', '#dc3545', '#28a745', '#ffc107', '#6f42c1', '#fd7e14', '#00d4ff', '#ff006e'];
+                        color = colors[Math.min(g - 1, 7)];
+                    } else if (gcdTableColorMode === 'prime') {
+                        color = isPrime(g) ? '#6f42c1' : (g === 1 ? '#0066cc' : '#dc3545');
+                    }
+                    
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, cellSize, cellSize);
+                    
+                    // Highlight diagonal
+                    if (highlightDiag && i === j) {
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x, y, cellSize, cellSize);
+                    }
+                    
+                    // Draw border
+                    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x, y, cellSize, cellSize);
+                    
+                    // Draw value
+                    if (showValues && cellSize > 12) {
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${Math.min(cellSize * 0.4, 12)}px system-ui`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(g, x + cellSize/2, y + cellSize/2);
+                    }
+                    
+                    // Store for click detection
+                    window.gcdTableData.push({ i, j, g, x, y, size: cellSize });
+                }
+            }
+            
+            // Draw row/column labels
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+            ctx.font = 'bold 10px system-ui';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const labelStep = Math.max(1, Math.floor(size / 20));
+            for (let i = 1; i <= size; i += labelStep) {
+                // Row labels
+                ctx.fillText(i, 20, startY + (i - 0.5) * cellSize);
+                // Column labels
+                ctx.fillText(i, startX + (i - 0.5) * cellSize, 20);
+            }
+        }
+
+        function exportGCDTableData() {
+            const size = parseInt(document.getElementById('gcdTableSizeInput').value);
+            let csv = 'row,column,gcd\n';
+            for (let i = 1; i <= size; i++) {
+                for (let j = 1; j <= size; j++) {
+                    csv += `${i},${j},${gcd(i, j)}\n`;
+                }
+            }
+            downloadCSV(csv, 'gcd-table-data.csv');
+        }
+
+        function updateGridSize() {
+            const val = parseInt(document.getElementById('gridSizeInput').value) || parseInt(document.getElementById('gridSize').value);
+            document.getElementById('gridSizev').textContent = val;
+            document.getElementById('gridSize').value = Math.min(val, 50);
+            document.getElementById('gridSizeInput').value = val;
+        }
+
+        function updateDensityR() {
+            const val = parseInt(document.getElementById('densityRInput').value) || parseInt(document.getElementById('densityR').value);
+            document.getElementById('densityRv').textContent = val;
+            document.getElementById('densityR').value = Math.min(val, 200);
+            document.getElementById('densityRInput').value = val;
+        }
+
+        function updateHeatmapR() {
+            const val = parseInt(document.getElementById('heatmapRinput').value) || parseInt(document.getElementById('heatmapR').value);
+            document.getElementById('heatmapRv').textContent = val;
+            document.getElementById('heatmapR').value = Math.min(val, 100);
+            document.getElementById('heatmapRinput').value = val;
+            updateGCDHeatmap();
+        }
+
+        function updateCriticalMaxR() {
+            const val = parseInt(document.getElementById('criticalMaxRinput').value) || parseInt(document.getElementById('criticalMaxR').value);
+            document.getElementById('criticalMaxRv').textContent = val;
+            document.getElementById('criticalMaxR').value = Math.min(val, 500);
+            document.getElementById('criticalMaxRinput').value = val;
+        }
+
+        function updateCriticalStep() {
+            const val = parseInt(document.getElementById('criticalStepInput').value) || parseInt(document.getElementById('criticalStep').value);
+            document.getElementById('criticalStepv').textContent = val;
+            document.getElementById('criticalStep').value = Math.min(val, 10);
+            document.getElementById('criticalStepInput').value = val;
+        }
+
+        function update2DZoom() {
+            zoom2D = parseInt(document.getElementById('zoom2D').value);
+            document.getElementById('zoom2Dv').textContent = zoom2D;
+            draw2D();
+        }
+
+        function formatPrecise(num, maxDecimals = 17) {
+            if (Number.isInteger(num)) return num.toString();
+            const str = num.toFixed(maxDecimals);
+            // Remove trailing zeros
+            return str.replace(/\.?0+$/, '');
+        }
+
+        let exportResolution = '1k';
+
+        function setExportRes(res) {
+            exportResolution = res;
+            document.querySelectorAll('#res1k, #res2k, #res4k, #res8k').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`res${res}`).classList.add('active');
+        }
+
+        function getExportDimensions() {
+            const dims = {
+                '1k': [1920, 1080],
+                '2k': [2560, 1440],
+                '4k': [3840, 2160],
+                '8k': [7680, 4320]
+            };
+            return dims[exportResolution] || [1920, 1080];
+        }
+
+        function performAdvancedExport() {
+            const canvasId = document.getElementById('exportCanvas').value;
+            const sourceCanvas = document.getElementById(canvasId);
+            
+            if (!sourceCanvas) {
+                alert('Please generate the visualization first before exporting');
+                return;
+            }
+            
+            const includeMetadata = document.getElementById('includeMetadata').checked;
+            const includeTimestamp = document.getElementById('includeTimestamp').checked;
+            const includeWatermark = document.getElementById('includeWatermark').checked;
+            const title = document.getElementById('exportTitle').value || 'Primitive Lattice Point Analysis';
+            const subtitle = document.getElementById('exportSubtitle').value;
+            const legend = document.getElementById('exportLegend').value;
+            
+            const [width, height] = getExportDimensions();
+            
+            // Create high-res canvas
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = width;
+            exportCanvas.height = height;
+            const ctx = exportCanvas.getContext('2d');
+            
+            // White background
+            ctx.fillStyle = document.body.classList.contains('light') ? '#ffffff' : '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Calculate layout
+            const padding = Math.floor(width * 0.03);
+            const titleHeight = includeMetadata ? Math.floor(height * 0.12) : 0;
+            const legendWidth = legend && includeMetadata ? Math.floor(width * 0.25) : 0;
+            const footerHeight = includeWatermark || includeTimestamp ? Math.floor(height * 0.04) : 0;
+            
+            const contentWidth = width - 2 * padding - legendWidth;
+            const contentHeight = height - titleHeight - footerHeight - 2 * padding;
+            const contentX = padding;
+            const contentY = titleHeight + padding;
+            
+            // Draw title
+            if (includeMetadata && title) {
+                ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+                ctx.font = `bold ${Math.floor(height * 0.04)}px system-ui`;
+                ctx.textAlign = 'center';
+                ctx.fillText(title, width / 2, padding + Math.floor(height * 0.035));
+                
+                if (subtitle) {
+                    ctx.font = `${Math.floor(height * 0.025)}px system-ui`;
+                    ctx.fillStyle = document.body.classList.contains('light') ? '#495057' : '#b0b0b0';
+                    ctx.fillText(subtitle, width / 2, padding + Math.floor(height * 0.07));
+                }
+            }
+            
+            // Draw source canvas (scaled to fit)
+            const scale = Math.min(contentWidth / sourceCanvas.width, contentHeight / sourceCanvas.height);
+            const scaledWidth = sourceCanvas.width * scale;
+            const scaledHeight = sourceCanvas.height * scale;
+            const centerX = contentX + (contentWidth - scaledWidth) / 2;
+            const centerY = contentY + (contentHeight - scaledHeight) / 2;
+            
+            ctx.drawImage(sourceCanvas, centerX, centerY, scaledWidth, scaledHeight);
+            
+            // Draw legend
+            if (legend && includeMetadata && legendWidth > 0) {
+                const legendX = width - legendWidth - padding;
+                const legendY = contentY;
+                
+                ctx.fillStyle = document.body.classList.contains('light') ? '#f8f9fa' : '#2d2d2d';
+                ctx.fillRect(legendX, legendY, legendWidth - padding, contentHeight);
+                
+                ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+                ctx.font = `bold ${Math.floor(height * 0.02)}px system-ui`;
+                ctx.textAlign = 'left';
+                ctx.fillText('Legend', legendX + padding / 2, legendY + padding);
+                
+                const lines = legend.split('\n');
+                ctx.font = `${Math.floor(height * 0.016)}px monospace`;
+                let yPos = legendY + padding * 2;
+                lines.forEach(line => {
+                    if (yPos < legendY + contentHeight - padding) {
+                        ctx.fillText(line, legendX + padding / 2, yPos);
+                        yPos += Math.floor(height * 0.025);
+                    }
+                });
+            }
+            
+            // Draw footer
+            if (includeWatermark || includeTimestamp) {
+                const footerY = height - footerHeight;
+                ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+                ctx.font = `${Math.floor(height * 0.018)}px system-ui`;
+                ctx.textAlign = 'left';
+                
+                if (includeWatermark) {
+                    ctx.fillText('By Wessen Getachew | @7dview | wessengetachew.github.io', padding, footerY + footerHeight * 0.6);
+                }
+                
+                if (includeTimestamp) {
+                    ctx.textAlign = 'right';
+                    const timestamp = new Date().toLocaleString();
+                    ctx.fillText(`Generated: ${timestamp}`, width - padding, footerY + footerHeight * 0.6);
+                }
+            }
+            
+            // Download
+            const link = document.createElement('a');
+            const filename = `${title.replace(/\s+/g, '-').toLowerCase()}-${exportResolution}.png`;
+            link.download = filename;
+            link.href = exportCanvas.toDataURL('image/png');
+            link.click();
+            
+            // Show preview
+            const previewCanvas = document.getElementById('exportPreviewCanvas');
+            previewCanvas.width = 800;
+            previewCanvas.height = 450;
+            const previewCtx = previewCanvas.getContext('2d');
+            previewCtx.drawImage(exportCanvas, 0, 0, 800, 450);
+            previewCanvas.style.display = 'block';
+            document.getElementById('exportPreview').querySelector('p').style.display = 'none';
+        }
+
+        function quickExport2D() {
+            document.getElementById('exportCanvas').value = 'c2d';
+            const R = document.getElementById('r2input').value;
+            document.getElementById('exportTitle').value = '2D Primitive Lattice Points';
+            document.getElementById('exportSubtitle').value = `Radius R=${R}, showing ${colorMode2D} coloring`;
+            document.getElementById('exportLegend').value = `View Mode: ${view2D}
+Color Mode: ${colorMode2D}
+Radius: ${R}
+Total Points: ${document.getElementById('t2').textContent}
+Primitive Points: ${document.getElementById('p2').textContent}
+Density: ${document.getElementById('d2').textContent}`;
+            showTab('export');
+        }
+
+        function quickExport3D() {
+            alert('3D export requires screenshot. Use browser screenshot or screen capture tool.');
+        }
+
+        function quickExportHeatmap() {
+            document.getElementById('exportCanvas').value = 'heatmapCanvas';
+            const R = document.getElementById('heatmapRinput').value;
+            document.getElementById('exportTitle').value = 'GCD Heatmap Visualization';
+            document.getElementById('exportSubtitle').value = `Radius R=${R}, ${heatmapMode} mode`;
+            document.getElementById('exportLegend').value = `Display Mode: ${heatmapMode}
+Radius: ${R}
+Total Points: ${document.getElementById('heatmapTotal').textContent}
+GCD=1: ${document.getElementById('heatmapPrim').textContent}
+GCD=2: ${document.getElementById('heatmapGCD2').textContent}
+GCD=3: ${document.getElementById('heatmapGCD3').textContent}`;
+            showTab('export');
+        }
+
+        function quickExportCritical() {
+            document.getElementById('exportCanvas').value = 'criticalCanvas';
+            const maxR = document.getElementById('criticalMaxRinput').value;
+            document.getElementById('exportTitle').value = 'Critical Strip Error Analysis';
+            document.getElementById('exportSubtitle').value = `${criticalProblem === 'all' ? 'Gauss Circle Problem' : 'Primitive Points'}, ${criticalViz} visualization, Max R=${maxR}`;
+            document.getElementById('exportLegend').value = `Problem: ${criticalProblem}
+Visualization: ${criticalViz}
+Max Radius: ${maxR}
+Data Points: ${document.getElementById('criticalPoints').textContent}
+Max Error: ${document.getElementById('criticalMaxErr').textContent}
+Avg Error: ${document.getElementById('criticalAvgErr').textContent}`;
+            showTab('export');
+        }
+
+        function quickExportTable() {
+            document.getElementById('exportCanvas').value = 'gcdTableCanvas';
+            const size = document.getElementById('gcdTableSizeInput').value;
+            document.getElementById('exportTitle').value = 'GCD Multiplication Table';
+            document.getElementById('exportSubtitle').value = `${size}×${size} grid, ${gcdTableColorMode} coloring`;
+            document.getElementById('exportLegend').value = `Grid Size: ${size}×${size}
+Color Scheme: ${gcdTableColorMode}
+Each cell shows: GCD(row, col)`;
+            showTab('export');
+        }
+
+        function quickExportAnalysis() {
+            document.getElementById('exportCanvas').value = 'ch';
+            const k = document.getElementById('analysisK').value;
+            const maxR = document.getElementById('mrinput').value;
+            document.getElementById('exportTitle').value = 'Error Analysis';
+            document.getElementById('exportSubtitle').value = `Dimension k=${k}, Max Radius R=${maxR}`;
+            document.getElementById('exportLegend').value = `Dimension: k=${k}
+Max Radius: ${maxR}
+Shows error term growth
+as predicted by theory`;
+            showTab('export');
+        }
+
         function setGCDHeatmapPreset(preset) {
             const presets = { 'small': 15, 'medium': 30, 'large': 50 };
             const R = presets[preset];
@@ -3053,31 +3801,54 @@
         function setCriticalStripPreset(preset) {
             if (preset === 'standard') {
                 document.getElementById('criticalMaxR').value = 100;
-                document.getElementById('criticalStep').value = 2;
-            } else if (preset === 'detailed') {
-                document.getElementById('criticalMaxR').value = 150;
+                document.getElementById('criticalMaxRinput').value = 100;
                 document.getElementById('criticalStep').value = 1;
-            } else if (preset === 'wide') {
+            } else if (preset === 'detailed') {
                 document.getElementById('criticalMaxR').value = 200;
-                document.getElementById('criticalStep').value = 5;
+                document.getElementById('criticalMaxRinput').value = 200;
+                document.getElementById('criticalStep').value = 1;
+            } else if (preset === 'extended') {
+                document.getElementById('criticalMaxR').value = 300;
+                document.getElementById('criticalMaxRinput').value = 300;
+                document.getElementById('criticalStep').value = 2;
             }
+            document.getElementById('criticalStepv').textContent = document.getElementById('criticalStep').value;
+            updateCriticalStrip();
+        }
+
+        function setCriticalProblem(type) {
+            criticalProblem = type;
+            document.querySelectorAll('#criticalAllPoints, #criticalPrimitive').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(type === 'all' ? 'criticalAllPoints' : 'criticalPrimitive').classList.add('active');
+            updateCriticalStrip();
+        }
+
+        function setCriticalViz(type) {
+            criticalViz = type;
+            document.querySelectorAll('#criticalVizError, #criticalVizNormalized, #criticalVizLog, #criticalVizBounds').forEach(btn => btn.classList.remove('active'));
+            const btnIds = {
+                'error': 'criticalVizError',
+                'normalized': 'criticalVizNormalized',
+                'loglog': 'criticalVizLog',
+                'bounds': 'criticalVizBounds'
+            };
+            document.getElementById(btnIds[type]).classList.add('active');
             updateCriticalStrip();
         }
 
         function updateCriticalStrip() {
             const maxR = parseInt(document.getElementById('criticalMaxRinput').value) || parseInt(document.getElementById('criticalMaxR').value);
             const step = parseInt(document.getElementById('criticalStep').value);
-            const pointSize = parseInt(document.getElementById('criticalPS').value);
             
             document.getElementById('criticalMaxRv').textContent = maxR;
             document.getElementById('criticalStepv').textContent = step;
-            document.getElementById('criticalPSv').textContent = pointSize;
-            document.getElementById('criticalMaxR').value = Math.min(maxR, 200);
+            document.getElementById('criticalMaxR').value = Math.min(maxR, 300);
             document.getElementById('criticalMaxRinput').value = maxR;
             
-            const showCriticalLine = document.getElementById('showCriticalLine').checked;
-            const showStripBounds = document.getElementById('showStripBounds').checked;
-            const colorByMagnitude = document.getElementById('colorByMagnitude').checked;
+            const showZeroLine = document.getElementById('showZeroLine').checked;
+            const showRHBound = document.getElementById('showRHBound').checked;
+            const showClassicalBound = document.getElementById('showClassicalBound').checked;
+            const colorBySign = document.getElementById('colorBySign').checked;
             
             document.getElementById('loadCritical').classList.add('active');
             
@@ -3091,118 +3862,212 @@
                 const plotWidth = canvas.width - 2*padding;
                 const plotHeight = canvas.height - 2*padding;
                 
-                // Real axis: 0 to 1, Imaginary axis: centered
-                const reMin = 0, reMax = 1;
-                
                 // Collect error data
                 const errorData = [];
-                let maxAbsError = 0, sumAbsError = 0, positiveCount = 0, negativeCount = 0;
+                let maxAbsError = 0, sumAbsError = 0, sumSqError = 0;
+                let maxNormalizedError = 0;
                 
                 for (let R = step; R <= maxR; R += step) {
-                    // Calculate actual primitive count (approximate for large R)
-                    let actualPrimitive = 0;
-                    if (R <= 50) {
+                    // Calculate actual count
+                    let actualCount = 0;
+                    
+                    if (R <= 80) {
+                        // Exact computation for small R
                         for (let x = -R; x <= R; x++) {
                             for (let y = -R; y <= R; y++) {
-                                if (x*x + y*y <= R*R && gcd(Math.abs(x), Math.abs(y)) === 1) {
-                                    actualPrimitive++;
+                                const distSq = x*x + y*y;
+                                if (distSq <= R*R) {
+                                    if (criticalProblem === 'all') {
+                                        actualCount++;
+                                    } else if (gcd(Math.abs(x), Math.abs(y)) === 1) {
+                                        actualCount++;
+                                    }
                                 }
                             }
                         }
                     } else {
-                        // Use approximation for large R
-                        actualPrimitive = Math.round(Math.PI * R * R / zeta(2));
+                        // Approximation for large R
+                        if (criticalProblem === 'all') {
+                            actualCount = Math.round(Math.PI * R * R);
+                        } else {
+                            actualCount = Math.round(Math.PI * R * R / zeta(2));
+                        }
                     }
                     
-                    const predicted = Math.PI * R * R / zeta(2);
-                    const error = actualPrimitive - predicted;
+                    // Predicted value
+                    let predicted;
+                    if (criticalProblem === 'all') {
+                        predicted = Math.PI * R * R;
+                    } else {
+                        predicted = Math.PI * R * R / zeta(2);
+                    }
                     
-                    maxAbsError = Math.max(maxAbsError, Math.abs(error));
-                    sumAbsError += Math.abs(error);
-                    if (error > 0) positiveCount++;
-                    if (error < 0) negativeCount++;
+                    const error = actualCount - predicted;
+                    const absError = Math.abs(error);
+                    const normalizedError = absError / Math.sqrt(R);
                     
-                    // Map to complex plane projection (simplified model)
-                    // Real part: related to R^(1/2) oscillations
-                    // Imaginary part: error normalized
-                    const re = 0.5 + 0.3 * Math.sin(R / 10); // Oscillate around critical line
-                    const im = error / (R * 0.5); // Normalize by sqrt(R) approximately
+                    maxAbsError = Math.max(maxAbsError, absError);
+                    sumAbsError += absError;
+                    sumSqError += error * error;
+                    maxNormalizedError = Math.max(maxNormalizedError, normalizedError);
                     
-                    errorData.push({ R, error, re, im, absError: Math.abs(error) });
+                    errorData.push({ 
+                        R, 
+                        error, 
+                        absError, 
+                        normalizedError,
+                        actualCount,
+                        predicted
+                    });
                 }
                 
-                // Find imaginary axis range
-                const imValues = errorData.map(d => d.im);
-                const imMin = Math.min(...imValues);
-                const imMax = Math.max(...imValues);
-                const imRange = Math.max(Math.abs(imMin), Math.abs(imMax));
+                // Determine axis ranges based on visualization type
+                let xMin, xMax, yMin, yMax, xLabel, yLabel;
+                
+                if (criticalViz === 'error') {
+                    xMin = 0; xMax = maxR;
+                    const maxErrorForPlot = Math.max(...errorData.map(d => Math.abs(d.error)));
+                    yMin = -maxErrorForPlot * 1.1;
+                    yMax = maxErrorForPlot * 1.1;
+                    xLabel = 'Radius R';
+                    yLabel = 'Error Δ(R)';
+                } else if (criticalViz === 'normalized') {
+                    xMin = 0; xMax = maxR;
+                    yMin = -maxNormalizedError * 1.2;
+                    yMax = maxNormalizedError * 1.2;
+                    xLabel = 'Radius R';
+                    yLabel = 'Normalized Error Δ(R)/R^(1/2)';
+                } else if (criticalViz === 'loglog') {
+                    xMin = Math.log10(step);
+                    xMax = Math.log10(maxR);
+                    yMin = Math.log10(Math.min(...errorData.filter(d => d.absError > 0).map(d => d.absError)));
+                    yMax = Math.log10(maxAbsError) * 1.1;
+                    xLabel = 'log₁₀(R)';
+                    yLabel = 'log₁₀(|Δ(R)|)';
+                } else if (criticalViz === 'bounds') {
+                    xMin = 0; xMax = maxR;
+                    yMin = 0;
+                    yMax = Math.max(
+                        maxAbsError,
+                        Math.pow(maxR, 2/3) * 2,
+                        Math.sqrt(maxR) * 10
+                    ) * 1.1;
+                    xLabel = 'Radius R';
+                    yLabel = '|Δ(R)|';
+                }
                 
                 // Draw axes
                 ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text2');
                 ctx.lineWidth = 2;
                 
-                // Real axis (horizontal)
+                // X-axis
                 ctx.beginPath();
-                ctx.moveTo(padding, canvas.height/2);
-                ctx.lineTo(canvas.width - padding, canvas.height/2);
+                ctx.moveTo(padding, canvas.height - padding);
+                ctx.lineTo(canvas.width - padding, canvas.height - padding);
                 ctx.stroke();
                 
-                // Imaginary axis (vertical)
+                // Y-axis
                 ctx.beginPath();
-                ctx.moveTo(padding + plotWidth/2, padding);
-                ctx.lineTo(padding + plotWidth/2, canvas.height - padding);
+                ctx.moveTo(padding, padding);
+                ctx.lineTo(padding, canvas.height - padding);
                 ctx.stroke();
                 
-                // Draw strip boundaries
-                if (showStripBounds) {
-                    ctx.strokeStyle = 'rgba(220, 53, 69, 0.5)';
-                    ctx.lineWidth = 2;
+                // Helper function to map data to screen coordinates
+                function mapX(val) {
+                    if (criticalViz === 'loglog') val = Math.log10(val);
+                    return padding + ((val - xMin) / (xMax - xMin)) * plotWidth;
+                }
+                
+                function mapY(val) {
+                    if (criticalViz === 'loglog' && val > 0) val = Math.log10(val);
+                    return canvas.height - padding - ((val - yMin) / (yMax - yMin)) * plotHeight;
+                }
+                
+                // Draw zero line
+                if (showZeroLine && (criticalViz === 'error' || criticalViz === 'normalized')) {
+                    ctx.strokeStyle = 'rgba(128, 128, 128, 0.5)';
+                    ctx.lineWidth = 1;
                     ctx.setLineDash([5, 5]);
-                    
-                    // Re = 0
-                    const x0 = padding;
                     ctx.beginPath();
-                    ctx.moveTo(x0, padding);
-                    ctx.lineTo(x0, canvas.height - padding);
+                    ctx.moveTo(padding, mapY(0));
+                    ctx.lineTo(canvas.width - padding, mapY(0));
                     ctx.stroke();
-                    
-                    // Re = 1
-                    const x1 = canvas.width - padding;
-                    ctx.beginPath();
-                    ctx.moveTo(x1, padding);
-                    ctx.lineTo(x1, canvas.height - padding);
-                    ctx.stroke();
-                    
                     ctx.setLineDash([]);
                 }
                 
-                // Draw critical line
-                if (showCriticalLine) {
-                    ctx.strokeStyle = 'rgba(111, 66, 193, 0.8)';
+                // Draw theoretical bounds
+                if (showRHBound && (criticalViz === 'bounds' || criticalViz === 'loglog')) {
+                    ctx.strokeStyle = 'rgba(111, 66, 193, 0.7)';
                     ctx.lineWidth = 3;
                     ctx.setLineDash([10, 5]);
-                    
-                    const xCritical = padding + plotWidth/2;
                     ctx.beginPath();
-                    ctx.moveTo(xCritical, padding);
-                    ctx.lineTo(xCritical, canvas.height - padding);
-                    ctx.stroke();
                     
+                    for (let R = step; R <= maxR; R += Math.max(1, step)) {
+                        const bound = Math.sqrt(R) * (criticalViz === 'loglog' ? 3 : 5);
+                        const x = mapX(R);
+                        const y = mapY(bound);
+                        if (R === step) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
                     ctx.setLineDash([]);
+                    
+                    // Add label
+                    ctx.fillStyle = 'rgba(111, 66, 193, 0.9)';
+                    ctx.font = 'bold 12px system-ui';
+                    const labelText = criticalViz === 'loglog' ? 'Slope 1/2 (RH)' : 'RH Bound';
+                    ctx.fillText(labelText, canvas.width - padding - 80, padding + 30);
                 }
                 
-                // Draw error points
-                errorData.forEach(d => {
-                    const x = padding + (d.re - reMin) / (reMax - reMin) * plotWidth;
-                    const y = canvas.height/2 - (d.im / (2*imRange)) * plotHeight;
+                if (showClassicalBound && (criticalViz === 'bounds' || criticalViz === 'loglog')) {
+                    ctx.strokeStyle = 'rgba(220, 53, 69, 0.7)';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([5, 10]);
+                    ctx.beginPath();
                     
-                    let color;
-                    if (colorByMagnitude) {
+                    for (let R = step; R <= maxR; R += Math.max(1, step)) {
+                        const bound = Math.pow(R, 2/3) * (criticalViz === 'loglog' ? 1.5 : 2);
+                        const x = mapX(R);
+                        const y = mapY(bound);
+                        if (R === step) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    
+                    // Add label
+                    ctx.fillStyle = 'rgba(220, 53, 69, 0.9)';
+                    ctx.font = 'bold 12px system-ui';
+                    const labelText = criticalViz === 'loglog' ? 'Slope 2/3' : 'Classical Bound';
+                    ctx.fillText(labelText, canvas.width - padding - 80, padding + 50);
+                }
+                
+                // Draw data points
+                errorData.forEach((d, i) => {
+                    let x, y, color, pointSize = 4;
+                    
+                    if (criticalViz === 'error') {
+                        x = mapX(d.R);
+                        y = mapY(d.error);
+                        color = colorBySign ? (d.error > 0 ? 'rgba(0, 102, 204, 0.7)' : 'rgba(220, 53, 69, 0.7)') : 'rgba(0, 102, 204, 0.7)';
+                    } else if (criticalViz === 'normalized') {
+                        x = mapX(d.R);
+                        y = mapY(d.error / Math.sqrt(d.R));
+                        color = colorBySign ? (d.error > 0 ? 'rgba(0, 102, 204, 0.7)' : 'rgba(220, 53, 69, 0.7)') : 'rgba(0, 102, 204, 0.7)';
+                    } else if (criticalViz === 'loglog') {
+                        if (d.absError > 0) {
+                            x = mapX(d.R);
+                            y = mapY(d.absError);
+                            const ratio = d.normalizedError / maxNormalizedError;
+                            const hue = 240 - ratio * 240;
+                            color = `hsla(${hue}, 70%, 50%, 0.7)`;
+                        } else return;
+                    } else if (criticalViz === 'bounds') {
+                        x = mapX(d.R);
+                        y = mapY(d.absError);
                         const ratio = d.absError / maxAbsError;
-                        const hue = 240 - ratio * 240; // Blue (low) to red (high)
+                        const hue = 240 - ratio * 240;
                         color = `hsla(${hue}, 70%, 50%, 0.7)`;
-                    } else {
-                        color = d.error > 0 ? 'rgba(0, 102, 204, 0.6)' : 'rgba(220, 53, 69, 0.6)';
                     }
                     
                     ctx.fillStyle = color;
@@ -3210,50 +4075,98 @@
                     ctx.arc(x, y, pointSize, 0, 2*Math.PI);
                     ctx.fill();
                     
-                    // Store for click detection
+                    // Store screen coordinates for click detection
                     d.screenX = x;
                     d.screenY = y;
                 });
                 
-                // Store data globally for click handling
+                // Store data globally
                 window.criticalStripData = errorData;
                 
-                // Labels
+                // Axis labels
                 ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
-                ctx.font = '14px system-ui';
+                ctx.font = 'bold 14px system-ui';
                 ctx.textAlign = 'center';
                 
-                // Real axis labels
-                ctx.fillText('Re(s) = 0', padding, canvas.height - padding + 30);
-                ctx.fillText('Re(s) = 1/2', canvas.width/2, canvas.height - padding + 30);
-                ctx.fillText('Re(s) = 1', canvas.width - padding, canvas.height - padding + 30);
+                ctx.fillText(xLabel, canvas.width / 2, canvas.height - 20);
                 
-                // Imaginary axis labels
                 ctx.save();
-                ctx.translate(padding - 50, canvas.height/2);
+                ctx.translate(20, canvas.height / 2);
                 ctx.rotate(-Math.PI/2);
-                ctx.fillText('Im (Error normalized)', 0, 0);
+                ctx.fillText(yLabel, 0, 0);
                 ctx.restore();
                 
+                // Title
+                ctx.font = 'bold 16px system-ui';
+                const problemTitle = criticalProblem === 'all' ? 'Gauss Circle Problem' : 'Primitive Lattice Points';
+                const vizTitle = {
+                    'error': 'Error Term',
+                    'normalized': 'Normalized Error',
+                    'loglog': 'Log-Log Error',
+                    'bounds': 'Error with Bounds'
+                }[criticalViz];
+                ctx.fillText(`${problemTitle}: ${vizTitle}`, canvas.width / 2, padding - 40);
+                
+                // Tick marks and labels
+                ctx.font = '12px system-ui';
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text2');
+                
+                // X-axis ticks
+                const numXTicks = 5;
+                for (let i = 0; i <= numXTicks; i++) {
+                    const val = xMin + (xMax - xMin) * i / numXTicks;
+                    const x = mapX(criticalViz === 'loglog' ? Math.pow(10, val) : val);
+                    ctx.beginPath();
+                    ctx.moveTo(x, canvas.height - padding);
+                    ctx.lineTo(x, canvas.height - padding + 5);
+                    ctx.stroke();
+                    
+                    const label = criticalViz === 'loglog' ? 
+                        Math.pow(10, val).toFixed(0) : 
+                        val.toFixed(criticalViz === 'normalized' || criticalViz === 'error' ? 0 : 1);
+                    ctx.fillText(label, x, canvas.height - padding + 20);
+                }
+                
+                // Y-axis ticks
+                const numYTicks = 5;
+                for (let i = 0; i <= numYTicks; i++) {
+                    const val = yMin + (yMax - yMin) * i / numYTicks;
+                    const y = mapY(criticalViz === 'loglog' ? Math.pow(10, val) : val);
+                    ctx.beginPath();
+                    ctx.moveTo(padding - 5, y);
+                    ctx.lineTo(padding, y);
+                    ctx.stroke();
+                    
+                    const label = criticalViz === 'loglog' ? 
+                        Math.pow(10, val).toExponential(0) : 
+                        val.toFixed(1);
+                    ctx.textAlign = 'right';
+                    ctx.fillText(label, padding - 10, y + 4);
+                    ctx.textAlign = 'center';
+                }
+                
                 // Update stats
-                const avgError = errorData.length > 0 ? sumAbsError / errorData.length : 0;
+                const rmsError = Math.sqrt(sumSqError / errorData.length);
+                const avgError = sumAbsError / errorData.length;
+                
                 document.getElementById('criticalPoints').textContent = errorData.length;
                 animateValue('criticalMaxErr', 0, maxAbsError);
                 animateValue('criticalAvgErr', 0, avgError);
-                document.getElementById('criticalPositive').textContent = positiveCount;
-                document.getElementById('criticalNegative').textContent = negativeCount;
+                animateValue('criticalRMSErr', 0, rmsError);
+                document.getElementById('criticalMaxNorm').textContent = maxNormalizedError.toFixed(3);
                 
                 document.getElementById('loadCritical').classList.remove('active');
             }, 100);
         }
 
         function exportCriticalData() {
-            if (!window.criticalStripData) { alert('Generate critical strip projection first'); return; }
-            let csv = 'radius,error,real_part,imaginary_part,abs_error\n';
+            if (!window.criticalStripData) { alert('Generate critical strip analysis first'); return; }
+            const problemType = criticalProblem === 'all' ? 'all_points' : 'primitive_points';
+            let csv = 'radius,actual_count,predicted_count,error,abs_error,normalized_error\n';
             window.criticalStripData.forEach(d => {
-                csv += `${d.R},${d.error},${d.re},${d.im},${d.absError}\n`;
+                csv += `${d.R},${d.actualCount},${d.predicted.toFixed(4)},${d.error.toFixed(4)},${d.absError.toFixed(4)},${d.normalizedError.toFixed(6)}\n`;
             });
-            downloadCSV(csv, 'critical-strip-data.csv');
+            downloadCSV(csv, `critical-strip-${problemType}-data.csv`);
         }
 
         // Init
@@ -3261,117 +4174,15 @@
         const tb = document.getElementById('tbl');
         for (let k = 2; k <= 12; k++) {
             const z = zeta(k);
+            const precision = k > 6 ? 17 : 6;
             const v = k % 2 === 0 ? 
-                (Math.PI**(k/2) / factorial(k/2)).toFixed(4) :
-                (2 * factorial((k-1)/2) * Math.PI**((k-1)/2) / factorial(k)).toFixed(4);
-            tb.innerHTML += `<tr><td>${k}</td><td>${z.toFixed(4)}</td><td>${(1/z).toFixed(4)}</td><td>${v}</td></tr>`;
+                (Math.PI**(k/2) / factorial(k/2)) :
+                (2 * factorial((k-1)/2) * Math.PI**((k-1)/2) / factorial(k));
+            tb.innerHTML += `<tr><td>${k}</td><td>${formatPrecise(z, precision)}</td><td>${formatPrecise(1/z, precision)}</td><td>${formatPrecise(v, precision)}</td></tr>`;
         }
         
         document.getElementById('helpModal').addEventListener('click', e => {
             if (e.target.id === 'helpModal') closeHelp();
-        });
-        
-        // Add click handlers for interactive canvases
-        document.getElementById('heatmapCanvas').addEventListener('click', function(e) {
-            const rect = this.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Find closest point
-            let closestPoint = null;
-            let minDist = Infinity;
-            
-            heatmapPointsData.forEach(pt => {
-                const dist = Math.sqrt((x - pt.screenX)**2 + (y - pt.screenY)**2);
-                if (dist < minDist && dist < 15) {
-                    minDist = dist;
-                    closestPoint = pt;
-                }
-            });
-            
-            if (closestPoint) {
-                const factors = primeFactors(closestPoint.gcd);
-                const fc = {};
-                factors.forEach(p => fc[p] = (fc[p]||0) + 1);
-                const factorStr = Object.entries(fc).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ');
-                
-                const isPrimitive = closestPoint.gcd === 1;
-                const reducedX = closestPoint.x / closestPoint.gcd;
-                const reducedY = closestPoint.y / closestPoint.gcd;
-                
-                const infoDiv = document.getElementById('pointInfo');
-                infoDiv.classList.add('point-info-active');
-                setTimeout(() => infoDiv.classList.remove('point-info-active'), 500);
-                
-                infoDiv.innerHTML = `
-                    <h3 style="color:var(--blue); margin-bottom:15px;">Point: (${closestPoint.x}, ${closestPoint.y})</h3>
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
-                        <div>
-                            <p><b>GCD:</b> ${closestPoint.gcd}</p>
-                            <p><b>Prime factorization:</b> ${factorStr || '1'}</p>
-                            <p><b>Distance:</b> ${closestPoint.dist.toFixed(4)}</p>
-                        </div>
-                        <div>
-                            <p><b>Type:</b> <span style="color:${isPrimitive ? 'var(--green)' : 'var(--red)'}">${isPrimitive ? '✓ Primitive' : '✗ Non-Primitive'}</span></p>
-                            ${!isPrimitive ? `<p><b>Reduced form:</b> (${reducedX}, ${reducedY})</p>` : ''}
-                            ${!isPrimitive ? `<p><b>Relationship:</b> ${closestPoint.gcd} × (${reducedX}, ${reducedY})</p>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-        });
-        
-        document.getElementById('criticalCanvas').addEventListener('click', function(e) {
-            if (!window.criticalStripData) return;
-            
-            const rect = this.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Find closest point
-            let closestPoint = null;
-            let minDist = Infinity;
-            
-            window.criticalStripData.forEach(d => {
-                const dist = Math.sqrt((x - d.screenX)**2 + (y - d.screenY)**2);
-                if (dist < minDist && dist < 20) {
-                    minDist = dist;
-                    closestPoint = d;
-                }
-            });
-            
-            if (closestPoint) {
-                const predicted = (Math.PI * closestPoint.R * closestPoint.R / zeta(2)).toFixed(2);
-                const actual = (parseFloat(predicted) + closestPoint.error).toFixed(2);
-                const errorPercent = ((Math.abs(closestPoint.error) / parseFloat(predicted)) * 100).toFixed(4);
-                
-                const infoDiv = document.getElementById('criticalPointInfo');
-                infoDiv.classList.add('point-info-active');
-                setTimeout(() => infoDiv.classList.remove('point-info-active'), 500);
-                
-                infoDiv.innerHTML = `
-                    <h3 style="color:var(--blue); margin-bottom:15px;">Radius R = ${closestPoint.R}</h3>
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
-                        <div>
-                            <p><b>Predicted N(R):</b> ${predicted}</p>
-                            <p><b>Actual N(R):</b> ${actual}</p>
-                            <p><b>Error Δ(R):</b> <span style="color:${closestPoint.error > 0 ? 'var(--green)' : 'var(--red)'}">${closestPoint.error > 0 ? '+' : ''}${closestPoint.error.toFixed(2)}</span></p>
-                        </div>
-                        <div>
-                            <p><b>Relative Error:</b> ${errorPercent}%</p>
-                            <p><b>Complex projection:</b></p>
-                            <p>Re(s) ≈ ${closestPoint.re.toFixed(4)}</p>
-                            <p>Im (normalized) ≈ ${closestPoint.im.toFixed(4)}</p>
-                        </div>
-                    </div>
-                    <div style="margin-top:15px; padding:10px; background:var(--bg); border-radius:6px;">
-                        <p style="font-size:0.9em; color:var(--text2);">
-                            <b>Note:</b> ${closestPoint.error > 0 ? 'Positive error indicates more primitive points than predicted.' : 'Negative error indicates fewer primitive points than predicted.'}
-                            The error oscillates around zero as R increases, consistent with RH predictions.
-                        </p>
-                    </div>
-                `;
-            }
         });
     </script>
 </body>
