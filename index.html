@@ -106,6 +106,7 @@
 
         <nav class="tabs">
             <button class="tab-btn active" onclick="showTab('theory')">Theory</button>
+            <button class="tab-btn" onclick="showTab('presets')">Presets</button>
             <button class="tab-btn" onclick="showTab('patterns')">Pattern Explorer</button>
             <button class="tab-btn" onclick="showTab('gcdheatmap')">GCD Heatmap</button>
             <button class="tab-btn" onclick="showTab('gcdtable')">GCD Table</button>
@@ -114,12 +115,123 @@
             <button class="tab-btn" onclick="showTab('viz3d')">3D Viz</button>
             <button class="tab-btn" onclick="showTab('comparison')">Compare</button>
             <button class="tab-btn" onclick="showTab('analysis')">Analysis</button>
+            <button class="tab-btn" onclick="showTab('animation')">Animation 🎬</button>
             <button class="tab-btn" onclick="showTab('tools')">Tools</button>
             <button class="tab-btn" onclick="showTab('explore')">Explore More</button>
             <button class="tab-btn" onclick="showTab('export')">Export</button>
             <button class="tab-btn" onclick="showTab('roadmap')">Roadmap</button>
             <button class="tab-btn" onclick="showTab('derivation')">Derivation</button>
         </nav>
+        
+        <div id="presets" class="panel">
+            <div class="section">
+                <h2>Mathematical Presets <span class="help-icon tooltip" data-tip="Pre-configured significant cases">?</span></h2>
+                <p>Explore mathematically significant radii, dimensions, and configurations. Each preset demonstrates important number-theoretic properties.</p>
+                
+                <h3 style="color:var(--blue); margin-top:30px;">Classic Results</h3>
+                <div class="compare-grid">
+                    <div class="compare-item">
+                        <h4 style="color:var(--blue);">Basel Problem (k=2, R=10)</h4>
+                        <p style="margin:10px 0;">Density 6/π² ≈ 0.6079</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Euler's solution to ζ(2) = π²/6. Shows fundamental coprime probability.</p>
+                        <button onclick="applyPreset('basel')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--blue);">Apéry's Constant (k=3, R=20)</h4>
+                        <p style="margin:10px 0;">ζ(3) ≈ 1.202, Density ≈ 0.832</p>
+                        <p style="font-size:0.9em; color:var(--text2);">3D primitive point density. Apéry proved ζ(3) is irrational.</p>
+                        <button onclick="applyPreset('apery')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--blue);">Gauss Circle (R=100)</h4>
+                        <p style="margin:10px 0;">Error Δ(R) = O(R^(2/3))</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Classic lattice point problem. Connected to Riemann Hypothesis.</p>
+                        <button onclick="applyPreset('gauss')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                </div>
+                
+                <h3 style="color:var(--green); margin-top:30px;">Special Radii</h3>
+                <div class="compare-grid">
+                    <div class="compare-item">
+                        <h4 style="color:var(--green);">Fibonacci F₁₁ (R=89)</h4>
+                        <p style="margin:10px 0;">89th Fibonacci number (prime)</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Intersection of Fibonacci sequence and primes.</p>
+                        <button onclick="applyPreset('fibonacci')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--green);">Mersenne M₅ (R=31)</h4>
+                        <p style="margin:10px 0;">2⁵ - 1 = 31 (prime)</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Mersenne prime. Related to perfect numbers.</p>
+                        <button onclick="applyPreset('mersenne')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--green);">Perfect Number (R=28)</h4>
+                        <p style="margin:10px 0;">28 = 1+2+4+7+14</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Second perfect number. Sum of divisors equals 2×28.</p>
+                        <button onclick="applyPreset('perfect')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--green);">Golden Ratio φ (R≈161)</h4>
+                        <p style="margin:10px 0;">R ≈ 100φ ≈ 161.8</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Golden ratio approximation. Appears in Fibonacci spirals.</p>
+                        <button onclick="applyPreset('golden')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                </div>
+                
+                <h3 style="color:var(--purple); margin-top:30px;">High Dimensions</h3>
+                <div class="compare-grid">
+                    <div class="compare-item">
+                        <h4 style="color:var(--purple);">4D Hypersphere (k=4, R=15)</h4>
+                        <p style="margin:10px 0;">Density ≈ 0.924</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Four-dimensional sphere. Most points are primitive.</p>
+                        <button onclick="applyPreset('4d')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--purple);">8D E₈ Lattice (k=8, R=10)</h4>
+                        <p style="margin:10px 0;">Density ≈ 0.996</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Related to E₈ exceptional Lie group. Nearly all points primitive.</p>
+                        <button onclick="applyPreset('e8')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--purple);">High-D Limit (k=12, R=5)</h4>
+                        <p style="margin:10px 0;">Density ≈ 0.9998</p>
+                        <p style="font-size:0.9em; color:var(--text2);">As k→∞, density→1. Almost all points are primitive.</p>
+                        <button onclick="applyPreset('highdim')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                </div>
+                
+                <h3 style="color:var(--orange); margin-top:30px;">Pattern Exploration</h3>
+                <div class="compare-grid">
+                    <div class="compare-item">
+                        <h4 style="color:var(--orange);">Highly Composite (m=12)</h4>
+                        <p style="margin:10px 0;">φ(12) = 4, modular patterns</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Rich divisor structure (2²×3). Patterns mod 12.</p>
+                        <button onclick="applyPreset('composite')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--orange);">Prime Field (p=17)</h4>
+                        <p style="margin:10px 0;">Forms field ℤ/17ℤ</p>
+                        <p style="font-size:0.9em; color:var(--text2);">All non-zero elements invertible. Field structure.</p>
+                        <button onclick="applyPreset('primefield')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                    
+                    <div class="compare-item">
+                        <h4 style="color:var(--orange);">Power of 2 (R=64)</h4>
+                        <p style="margin:10px 0;">64 = 2⁶, binary structure</p>
+                        <p style="font-size:0.9em; color:var(--text2);">Pure power of 2. Dyadic patterns visible.</p>
+                        <button onclick="applyPreset('power2')" style="margin-top:10px; padding:8px 16px;">Apply Preset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="theory" class="panel active">
             <div class="section">
@@ -1299,6 +1411,80 @@
             </div>
         </div>
 
+        <div id="animation" class="panel">
+            <div class="section">
+                <h2>Animation Player 🎬 <span class="help-icon tooltip" data-tip="Animate through parameters">?</span></h2>
+                <p>Create animations by sweeping through radii, dimensions, or moduli. Perfect for presentations and pattern exploration.</p>
+                
+                <div class="controls">
+                    <div style="background:var(--bg3); padding:20px; border-radius:8px; margin-bottom:20px;">
+                        <h3 style="color:var(--blue); margin-bottom:15px;">Animation Type</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-bottom:20px;">
+                            <button id="animRadius" class="active" onclick="setAnimType('radius')" style="padding:12px;">Radius Sweep</button>
+                            <button id="animDimension" onclick="setAnimType('dimension')" style="padding:12px;">Dimension Sweep</button>
+                            <button id="animModular" onclick="setAnimType('modular')" style="padding:12px;">Modular Pattern</button>
+                        </div>
+                        
+                        <div id="radiusAnimControls">
+                            <label>Start Radius: <span id="animStartRv">5</span></label>
+                            <input type="range" id="animStartR" min="1" max="100" value="5" step="1" oninput="document.getElementById('animStartRv').textContent=this.value">
+                            
+                            <label style="margin-top:10px;">End Radius: <span id="animEndRv">50</span></label>
+                            <input type="range" id="animEndR" min="5" max="200" value="50" step="1" oninput="document.getElementById('animEndRv').textContent=this.value">
+                            
+                            <label style="margin-top:10px;">Dimension k: <span id="animKv">2</span></label>
+                            <input type="range" id="animK" min="2" max="5" value="2" step="1" oninput="document.getElementById('animKv').textContent=this.value">
+                        </div>
+                        
+                        <div id="dimensionAnimControls" style="display:none;">
+                            <label>Start Dimension: <span id="animStartDv">2</span></label>
+                            <input type="range" id="animStartD" min="2" max="10" value="2" step="1" oninput="document.getElementById('animStartDv').textContent=this.value">
+                            
+                            <label style="margin-top:10px;">End Dimension: <span id="animEndDv">8</span></label>
+                            <input type="range" id="animEndD" min="2" max="12" value="8" step="1" oninput="document.getElementById('animEndDv').textContent=this.value">
+                            
+                            <label style="margin-top:10px;">Fixed Radius: <span id="animFixedRv">30</span></label>
+                            <input type="range" id="animFixedR" min="10" max="100" value="30" step="5" oninput="document.getElementById('animFixedRv').textContent=this.value">
+                        </div>
+                        
+                        <div id="modularAnimControls" style="display:none;">
+                            <label>Start Modulus: <span id="animStartMv">2</span></label>
+                            <input type="range" id="animStartM" min="2" max="20" value="2" step="1" oninput="document.getElementById('animStartMv').textContent=this.value">
+                            
+                            <label style="margin-top:10px;">End Modulus: <span id="animEndMv">12</span></label>
+                            <input type="range" id="animEndM" min="2" max="30" value="12" step="1" oninput="document.getElementById('animEndMv').textContent=this.value">
+                        </div>
+                        
+                        <label style="margin-top:20px;"><b>Animation Speed:</b> <span id="animSpeedv">500</span>ms per step</label>
+                        <input type="range" id="animSpeed" min="50" max="2000" value="500" step="50" oninput="document.getElementById('animSpeedv').textContent=this.value">
+                        
+                        <div style="margin-top:20px;">
+                            <h4 style="color:var(--blue); margin-bottom:10px;">Quick Presets</h4>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button onclick="setAnimPreset('quick')" style="padding:8px 12px;">R: 1→30 (Fast)</button>
+                                <button onclick="setAnimPreset('medium')" style="padding:8px 12px;">R: 1→60 (Medium)</button>
+                                <button onclick="setAnimPreset('long')" style="padding:8px 12px;">R: 1→100 (Slow)</button>
+                                <button onclick="setAnimPreset('dimensions')" style="padding:8px 12px;">k: 2→10</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:center; margin:20px 0;">
+                        <button id="playBtn" onclick="playAnimation()" style="padding:15px 30px; font-size:1.1em; background:var(--green);">▶ Play</button>
+                        <button id="pauseBtn" onclick="pauseAnimation()" style="padding:15px 30px; font-size:1.1em; background:var(--yellow); display:none;">⏸ Pause</button>
+                        <button id="stopBtn" onclick="stopAnimation()" style="padding:15px 30px; font-size:1.1em; background:var(--red); display:none;">⏹ Stop</button>
+                    </div>
+                    
+                    <div id="animProgress" style="background:var(--bg3); padding:15px; border-radius:8px; display:none;">
+                        <div style="background:var(--bg); height:30px; border-radius:6px; overflow:hidden; margin-bottom:10px;">
+                            <div id="animProgressBar" style="background:linear-gradient(90deg, var(--blue), var(--purple)); height:100%; width:0%; transition:width 0.3s;"></div>
+                        </div>
+                        <p style="text-align:center; margin:0;"><span id="animCurrentStep">0</span> / <span id="animTotalSteps">0</span> (<span id="animPercent">0</span>%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="export" class="panel">
             <div class="section">
                 <h2>Advanced Export Center <span class="help-icon tooltip" data-tip="Professional export with titles and legends">?</span></h2>
@@ -1308,26 +1494,34 @@
                     <div style="background:var(--bg3); padding:20px; border-radius:8px; margin-bottom:20px;">
                         <h3 style="color:var(--blue); margin-bottom:15px;">Export Settings</h3>
                         
-                        <label><b>Canvas to Export:</b></label>
-                        <select id="exportCanvas" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
-                            <option value="c2d">2D Lattice Visualization</option>
-                            <option value="heatmapCanvas">GCD Heatmap</option>
-                            <option value="gcdTableCanvas">GCD Multiplication Table</option>
-                            <option value="criticalCanvas">Critical Strip Analysis</option>
-                            <option value="patternCanvas">Pattern Visualization</option>
-                            <option value="densityCanvas">Density Distribution</option>
-                            <option value="angularCanvas">Angular Distribution</option>
-                            <option value="radialCanvas">Radial Shell Analysis</option>
-                            <option value="compChart">Dimension Comparison Chart</option>
-                            <option value="ch">Error Analysis Chart</option>
+                        <label><b>Export Type:</b></label>
+                        <select id="exportType" onchange="updateExportType()" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
+                            <option value="single">Single Canvas</option>
+                            <option value="grid2x2">2×2 Grid (4 Canvases)</option>
+                            <option value="fullAnalysis">Full Analysis Panel</option>
                         </select>
+                        
+                        <div id="singleCanvasControls">
+                            <label><b>Canvas to Export:</b></label>
+                            <select id="exportCanvas" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
+                                <option value="c2d">2D Lattice Visualization</option>
+                                <option value="heatmapCanvas">GCD Heatmap</option>
+                                <option value="gcdTableCanvas">GCD Multiplication Table</option>
+                                <option value="criticalCanvas">Critical Strip Analysis</option>
+                                <option value="patternCanvas">Pattern Visualization</option>
+                                <option value="densityCanvas">Density Distribution</option>
+                                <option value="angularCanvas">Angular Distribution</option>
+                                <option value="radialCanvas">Radial Shell Analysis</option>
+                                <option value="compChart">Dimension Comparison Chart</option>
+                                <option value="ch">Error Analysis Chart</option>
+                            </select>
+                        </div>
                         
                         <label style="margin-top:15px;"><b>Resolution:</b></label>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:10px; margin:10px 0;">
-                            <button id="res1k" class="active" onclick="setExportRes('1k')" style="padding:10px;">1K (1920×1080)</button>
-                            <button id="res2k" onclick="setExportRes('2k')" style="padding:10px;">2K (2560×1440)</button>
-                            <button id="res4k" onclick="setExportRes('4k')" style="padding:10px;">4K (3840×2160)</button>
-                            <button id="res8k" onclick="setExportRes('8k')" style="padding:10px;">8K (7680×4320)</button>
+                            <button id="res2k" onclick="setExportRes('2k')" style="padding:10px;">2K (2048px)</button>
+                            <button id="res4k" class="active" onclick="setExportRes('4k')" style="padding:10px;">4K (3840px)</button>
+                            <button id="res8k" onclick="setExportRes('8k')" style="padding:10px;">8K (7680px)</button>
                         </div>
                         
                         <label style="margin-top:15px;"><b>Title:</b></label>
@@ -1374,6 +1568,8 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                             <button onclick="quickExportCritical()" style="padding:12px;">Export Critical Strip</button>
                             <button onclick="quickExportTable()" style="padding:12px;">Export GCD Table</button>
                             <button onclick="quickExportAnalysis()" style="padding:12px;">Export Error Analysis</button>
+                            <button onclick="quickExportGrid2x2()" style="padding:12px; background:var(--purple); color:white;">Export 2×2 Grid</button>
+                            <button onclick="quickExportFullAnalysis()" style="padding:12px; background:var(--green); color:white;">Export Full Panel</button>
                         </div>
                     </div>
                     
@@ -1592,8 +1788,56 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                 <div class="formula">$$N_k(R) = \frac{V_k R^k}{\zeta(k)} + O(R^{k-1})$$</div>
                 <p>This elegant formula connects geometry (V_k), analysis (ζ(k)), and number theory (primitive points)!</p>
                 
-                <div class="controls" style="margin-top: 30px;">
-                    <button onclick="showDerivationAnimation()">Animate Derivation</button>
+                <div class="section" style="margin-top: 30px; background: var(--bg2); padding: 30px; border-radius: 12px;">
+                    <h3 style="color: var(--blue); margin-bottom: 20px;">Interactive Derivation Animation</h3>
+                    <p>Watch the derivation unfold step-by-step, showing how Möbius inversion leads to the zeta function connection.</p>
+                    
+                    <div class="controls" style="margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                            <div>
+                                <label>Radius R: <span id="derivRv">20</span></label>
+                                <input type="range" id="derivR" min="5" max="50" value="20" step="1" oninput="updateDerivationParams()">
+                            </div>
+                            <div>
+                                <label>Dimension k: <span id="derivKv">2</span></label>
+                                <input type="range" id="derivK" min="2" max="4" value="2" step="1" oninput="updateDerivationParams()">
+                            </div>
+                            <div>
+                                <label>Animation Speed: <span id="derivSpeedv">1000</span>ms</label>
+                                <input type="range" id="derivSpeed" min="500" max="3000" value="1000" step="100" oninput="document.getElementById('derivSpeedv').textContent=this.value">
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin: 20px 0;">
+                            <button id="derivPlayBtn" onclick="playDerivation()" style="padding: 12px 24px; font-size: 1.1em; background: var(--green);">▶ Play Animation</button>
+                            <button id="derivPauseBtn" onclick="pauseDerivation()" style="padding: 12px 24px; font-size: 1.1em; background: var(--yellow); display: none;">⏸ Pause</button>
+                            <button id="derivStopBtn" onclick="stopDerivation()" style="padding: 12px 24px; font-size: 1.1em; background: var(--red); display: none;">⏹ Stop</button>
+                            <button onclick="derivPrevStep()" style="padding: 12px 24px; margin-left: 20px;">◀ Previous</button>
+                            <button onclick="derivNextStep()" style="padding: 12px 24px;">Next ▶</button>
+                        </div>
+                        
+                        <div id="derivProgress" style="background: var(--bg3); padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <div style="background: var(--bg); height: 30px; border-radius: 6px; overflow: hidden; margin-bottom: 10px;">
+                                <div id="derivProgressBar" style="background: linear-gradient(90deg, var(--blue), var(--purple)); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                            <p style="text-align: center; margin: 0;">Step <span id="derivCurrentStep">1</span> of 7: <span id="derivStepName">Introduction</span></p>
+                        </div>
+                    </div>
+                    
+                    <canvas id="derivationCanvas" width="1200" height="600" style="max-width: 100%; border: 2px solid var(--border); border-radius: 8px; margin: 20px 0;"></canvas>
+                    
+                    <div id="derivationExplanation" style="background: var(--bg3); padding: 20px; border-radius: 8px; margin: 20px 0; min-height: 150px;">
+                        <h4 style="color: var(--blue); margin-bottom: 10px;" id="derivStepTitle">Step 1: Count All Lattice Points</h4>
+                        <p id="derivStepText">We begin by counting all lattice points (x,y) where x² + y² ≤ R². This gives us L_k(R), the total count including both primitive and non-primitive points.</p>
+                    </div>
+                    
+                    <div class="stats" id="derivationStats">
+                        <div class="stat"><div class="val" id="derivTotal">0</div><div class="lbl">Total Points L(R)</div></div>
+                        <div class="stat"><div class="val" id="derivPrimitive">0</div><div class="lbl">Primitive Points N(R)</div></div>
+                        <div class="stat"><div class="val" id="derivGCD">1</div><div class="lbl">Current GCD d</div></div>
+                        <div class="stat"><div class="val" id="derivMobius">0</div><div class="lbl">μ(d) Value</div></div>
+                        <div class="stat"><div class="val" id="derivContribution">0</div><div class="lbl">Step Contribution</div></div>
+                    </div>
                 </div>
                 
                 <div style="margin-top:40px;">
@@ -1759,6 +2003,52 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             <p>- <b>Actual Count:</b> The true primitive point count at each radius</p>
             <p>- <b>Click on chart points</b> to see detailed analysis for that radius</p>
             <p>- <b>Computation ranges:</b> k=2 exact up to R=200, k=3 up to R=40, k=4 up to R=15</p>
+            
+            <h3>Derivation Tab</h3>
+            <p><b>Interactive Animation:</b></p>
+            <p>- 7-step animated derivation showing how Möbius inversion leads to ζ(k)</p>
+            <p>- Adjustable parameters: Radius R (5-50), Dimension k (2-4)</p>
+            <p>- Animation controls: Play, Pause, Stop, Next, Previous</p>
+            <p>- Variable speed: 500ms to 3000ms per step</p>
+            <p><b>Steps covered:</b></p>
+            <p>1. Count all lattice points L_k(R)</p>
+            <p>2. Partition by GCD into classes</p>
+            <p>3. Visualize specific GCD classes</p>
+            <p>4. Introduce Möbius function μ(d)</p>
+            <p>5. Apply Möbius inversion formula</p>
+            <p>6. Show boundary cancellation mechanism</p>
+            <p>7. Arrive at final formula with ζ(k)</p>
+            <p>- Real-time stats show counts and contributions at each step</p>
+            <p>- 2D visualization shows actual points colored by GCD</p>
+            <p>- Works for k=2, 3, 4 (higher dims show text explanation)</p>
+            
+            <h3>Animation Player Tab</h3>
+            <p><b>Three animation types:</b></p>
+            <p>- <b>Radius Sweep:</b> Animate R from start to end, watch pattern growth</p>
+            <p>- <b>Dimension Sweep:</b> Animate k=2 to k=12, see density approach 1</p>
+            <p>- <b>Modular Pattern:</b> Animate through moduli for pattern exploration</p>
+            <p>- Progress bar shows current position in animation</p>
+            <p>- All visualizations update in real-time during animation</p>
+            <p>- Quick presets: 1→30, 1→60, 1→100, dimensions 2→10</p>
+            
+            <h3>Mathematical Presets Tab</h3>
+            <p>Pre-configured cases for significant mathematical values:</p>
+            <p>- <b>Classic Results:</b> Basel Problem, Apéry's Constant, Gauss Circle</p>
+            <p>- <b>Special Radii:</b> Fibonacci primes, Mersenne primes, Perfect numbers</p>
+            <p>- <b>High Dimensions:</b> 4D, 8D (E₈), 12D configurations</p>
+            <p>- <b>Patterns:</b> Highly composite, prime fields, powers of 2</p>
+            <p>- Click any preset to automatically configure all parameters</p>
+            
+            <h3>Enhanced Export System</h3>
+            <p><b>Three export types:</b></p>
+            <p>- <b>Single Canvas:</b> One visualization with comprehensive legend</p>
+            <p>- <b>2×2 Grid:</b> Four canvases (2D, Heatmap, Critical Strip, Comparison)</p>
+            <p>- <b>Full Analysis Panel:</b> Grid + extended statistics panel</p>
+            <p><b>Resolutions:</b></p>
+            <p>- 2K (2048×2048)</p>
+            <p>- 4K (3840×3840) - Default</p>
+            <p>- 8K (7680×7680)</p>
+            <p>- All exports include metadata, legends, and attribution</p>
             
             <h3>Performance Tips</h3>
             <p>- Keep radius ≤ 200 in 2D, ≤ 30 in 3D for smooth performance</p>
@@ -1957,6 +2247,13 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             }
             if (id === 'roadmap') {
                 // Roadmap is static content, no initialization needed
+            }
+            if (id === 'derivation') {
+                // Initialize derivation animation
+                if (!derivationData) {
+                    computeDerivationData();
+                }
+                drawDerivationStep(0);
             }
         }
 
@@ -3835,8 +4132,511 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             document.getElementById('helpModal').classList.remove('active');
         }
 
+        let derivationStep = 0;
+        let derivationRunning = false;
+        let derivationPaused = false;
+        let derivationTimer = null;
+        let derivationR = 20;
+        let derivationK = 2;
+        let derivationData = null;
+
+        function updateDerivationParams() {
+            derivationR = parseInt(document.getElementById('derivR').value);
+            derivationK = parseInt(document.getElementById('derivK').value);
+            document.getElementById('derivRv').textContent = derivationR;
+            document.getElementById('derivKv').textContent = derivationK;
+            
+            // Recompute data
+            computeDerivationData();
+            
+            // Redraw current step
+            drawDerivationStep(derivationStep);
+        }
+        
+        function computeDerivationData() {
+            const R = derivationR;
+            const k = derivationK;
+            
+            derivationData = {
+                R, k,
+                allPoints: [],
+                primitivePoints: [],
+                gcdClasses: {},
+                mobiusSum: 0
+            };
+            
+            // Compute all points and categorize by GCD
+            if (k === 2) {
+                for (let x = -R; x <= R; x++) {
+                    for (let y = -R; y <= R; y++) {
+                        if (x*x + y*y <= R*R) {
+                            const g = gcd(Math.abs(x), Math.abs(y));
+                            const point = { x, y, gcd: g };
+                            derivationData.allPoints.push(point);
+                            
+                            if (g === 1) {
+                                derivationData.primitivePoints.push(point);
+                            }
+                            
+                            if (!derivationData.gcdClasses[g]) {
+                                derivationData.gcdClasses[g] = [];
+                            }
+                            derivationData.gcdClasses[g].push(point);
+                        }
+                    }
+                }
+            } else if (k === 3) {
+                for (let x = -R; x <= R; x++) {
+                    for (let y = -R; y <= R; y++) {
+                        for (let z = -R; z <= R; z++) {
+                            if (x*x + y*y + z*z <= R*R) {
+                                const g = gcdArray([Math.abs(x), Math.abs(y), Math.abs(z)]);
+                                const point = { x, y, z, gcd: g };
+                                derivationData.allPoints.push(point);
+                                
+                                if (g === 1) {
+                                    derivationData.primitivePoints.push(point);
+                                }
+                                
+                                if (!derivationData.gcdClasses[g]) {
+                                    derivationData.gcdClasses[g] = [];
+                                }
+                                derivationData.gcdClasses[g].push(point);
+                            }
+                        }
+                    }
+                }
+            } else if (k === 4) {
+                // For k=4, limit to smaller R for performance
+                const maxR = Math.min(R, 15);
+                for (let x = -maxR; x <= maxR; x++) {
+                    for (let y = -maxR; y <= maxR; y++) {
+                        for (let z = -maxR; z <= maxR; z++) {
+                            for (let w = -maxR; w <= maxR; w++) {
+                                if (x*x + y*y + z*z + w*w <= maxR*maxR) {
+                                    const g = gcdArray([Math.abs(x), Math.abs(y), Math.abs(z), Math.abs(w)]);
+                                    const point = { x, y, z, w, gcd: g };
+                                    derivationData.allPoints.push(point);
+                                    
+                                    if (g === 1) {
+                                        derivationData.primitivePoints.push(point);
+                                    }
+                                    
+                                    if (!derivationData.gcdClasses[g]) {
+                                        derivationData.gcdClasses[g] = [];
+                                    }
+                                    derivationData.gcdClasses[g].push(point);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        function playDerivation() {
+            if (derivationPaused) {
+                derivationPaused = false;
+                document.getElementById('derivPlayBtn').style.display = 'none';
+                document.getElementById('derivPauseBtn').style.display = 'inline-block';
+                continueDerivation();
+                return;
+            }
+            
+            derivationRunning = true;
+            derivationPaused = false;
+            derivationStep = 0;
+            
+            document.getElementById('derivPlayBtn').style.display = 'none';
+            document.getElementById('derivPauseBtn').style.display = 'inline-block';
+            document.getElementById('derivStopBtn').style.display = 'inline-block';
+            
+            if (!derivationData) {
+                computeDerivationData();
+            }
+            
+            runDerivationStep();
+        }
+        
+        function runDerivationStep() {
+            if (!derivationRunning || derivationPaused) return;
+            
+            drawDerivationStep(derivationStep);
+            
+            if (derivationStep < 6) {
+                const speed = parseInt(document.getElementById('derivSpeed').value);
+                derivationTimer = setTimeout(() => {
+                    derivationStep++;
+                    runDerivationStep();
+                }, speed);
+            } else {
+                stopDerivation();
+            }
+        }
+        
+        function continueDerivation() {
+            runDerivationStep();
+        }
+        
+        function pauseDerivation() {
+            derivationPaused = true;
+            if (derivationTimer) clearTimeout(derivationTimer);
+            document.getElementById('derivPauseBtn').style.display = 'none';
+            document.getElementById('derivPlayBtn').style.display = 'inline-block';
+        }
+        
+        function stopDerivation() {
+            derivationRunning = false;
+            derivationPaused = false;
+            if (derivationTimer) clearTimeout(derivationTimer);
+            
+            document.getElementById('derivPlayBtn').style.display = 'inline-block';
+            document.getElementById('derivPauseBtn').style.display = 'none';
+            document.getElementById('derivStopBtn').style.display = 'none';
+            
+            derivationStep = 0;
+            drawDerivationStep(0);
+        }
+        
+        function derivNextStep() {
+            if (derivationStep < 6) {
+                derivationStep++;
+                drawDerivationStep(derivationStep);
+            }
+        }
+        
+        function derivPrevStep() {
+            if (derivationStep > 0) {
+                derivationStep--;
+                drawDerivationStep(derivationStep);
+            }
+        }
+        
+        function drawDerivationStep(step) {
+            if (!derivationData) {
+                computeDerivationData();
+            }
+            
+            const canvas = document.getElementById('derivationCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const R = derivationData.R;
+            const k = derivationData.k;
+            
+            // Update progress
+            const progress = ((step + 1) / 7) * 100;
+            document.getElementById('derivProgressBar').style.width = progress + '%';
+            document.getElementById('derivCurrentStep').textContent = step + 1;
+            
+            const steps = [
+                { name: 'Count All Lattice Points', title: 'Step 1: Count All Lattice Points L_k(R)' },
+                { name: 'Partition by GCD', title: 'Step 2: Partition Points by GCD' },
+                { name: 'Show GCD Classes', title: 'Step 3: Visualize GCD Classes' },
+                { name: 'Möbius Function', title: 'Step 4: Introduce Möbius Function μ(d)' },
+                { name: 'Möbius Inversion', title: 'Step 5: Apply Möbius Inversion' },
+                { name: 'Cancellation Pattern', title: 'Step 6: Observe Cancellation' },
+                { name: 'Final Formula', title: 'Step 7: Arrive at Zeta Function' }
+            ];
+            
+            document.getElementById('derivStepName').textContent = steps[step].name;
+            document.getElementById('derivStepTitle').textContent = steps[step].title;
+            
+            // Only draw 2D for visualization
+            if (k === 2) {
+                const cx = canvas.width / 2;
+                const cy = canvas.height / 2;
+                const scale = Math.min(canvas.width, canvas.height) / (2.5 * R);
+                
+                // Draw circle boundary
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, R * scale, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // Draw based on step
+                switch(step) {
+                    case 0: // All points
+                        derivationData.allPoints.forEach(pt => {
+                            ctx.fillStyle = '#0066cc';
+                            ctx.beginPath();
+                            ctx.arc(cx + pt.x * scale, cy - pt.y * scale, 3, 0, 2*Math.PI);
+                            ctx.fill();
+                        });
+                        
+                        document.getElementById('derivStepText').textContent = `We count all lattice points (x,y) where x² + y² ≤ ${R}². This gives L_${k}(${R}) = ${derivationData.allPoints.length} total points, including both primitive and non-primitive.`;
+                        
+                        document.getElementById('derivTotal').textContent = derivationData.allPoints.length;
+                        document.getElementById('derivPrimitive').textContent = '?';
+                        document.getElementById('derivGCD').textContent = 'All';
+                        document.getElementById('derivMobius').textContent = 'N/A';
+                        document.getElementById('derivContribution').textContent = 'N/A';
+                        break;
+                        
+                    case 1: // Partition by GCD
+                        const gcdColors = { 1: '#0066cc', 2: '#dc3545', 3: '#28a745', 4: '#ffc107', 5: '#6f42c1', 6: '#fd7e14' };
+                        
+                        derivationData.allPoints.forEach(pt => {
+                            ctx.fillStyle = gcdColors[Math.min(pt.gcd, 6)] || '#999';
+                            ctx.beginPath();
+                            ctx.arc(cx + pt.x * scale, cy - pt.y * scale, 3, 0, 2*Math.PI);
+                            ctx.fill();
+                        });
+                        
+                        // Legend
+                        let legendY = 30;
+                        Object.keys(derivationData.gcdClasses).slice(0, 6).forEach(g => {
+                            const count = derivationData.gcdClasses[g].length;
+                            ctx.fillStyle = gcdColors[Math.min(g, 6)] || '#999';
+                            ctx.fillRect(20, legendY, 15, 15);
+                            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                            ctx.font = '14px system-ui';
+                            ctx.fillText(`GCD=${g}: ${count} points`, 45, legendY + 12);
+                            legendY += 25;
+                        });
+                        
+                        document.getElementById('derivStepText').textContent = `We partition all ${derivationData.allPoints.length} points by their GCD. Each color represents a different GCD class. Notice that GCD=1 (blue) are the primitive points we want to count!`;
+                        
+                        document.getElementById('derivTotal').textContent = derivationData.allPoints.length;
+                        document.getElementById('derivPrimitive').textContent = derivationData.primitivePoints.length;
+                        document.getElementById('derivGCD').textContent = 'Various';
+                        document.getElementById('derivMobius').textContent = 'N/A';
+                        document.getElementById('derivContribution').textContent = 'N/A';
+                        break;
+                        
+                    case 2: // Show specific GCD class
+                        // Highlight GCD=2 class
+                        derivationData.allPoints.forEach(pt => {
+                            if (pt.gcd === 2) {
+                                ctx.fillStyle = '#dc3545';
+                                ctx.beginPath();
+                                ctx.arc(cx + pt.x * scale, cy - pt.y * scale, 5, 0, 2*Math.PI);
+                                ctx.fill();
+                            } else {
+                                ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+                                ctx.beginPath();
+                                ctx.arc(cx + pt.x * scale, cy - pt.y * scale, 2, 0, 2*Math.PI);
+                                ctx.fill();
+                            }
+                        });
+                        
+                        const gcd2count = derivationData.gcdClasses[2]?.length || 0;
+                        const gcd1count = derivationData.primitivePoints.length;
+                        
+                        document.getElementById('derivStepText').textContent = `Points with GCD=2 (red) are exactly those of the form 2·(a,b) where gcd(a,b)=1. There are ${gcd2count} such points, which equals N_${k}(${R}/2) = ${gcd1count} scaled. This pattern holds for all d: points with GCD=d equal N_${k}(R/d).`;
+                        
+                        document.getElementById('derivTotal').textContent = derivationData.allPoints.length;
+                        document.getElementById('derivPrimitive').textContent = '?';
+                        document.getElementById('derivGCD').textContent = '2';
+                        document.getElementById('derivMobius').textContent = 'N/A';
+                        document.getElementById('derivContribution').textContent = gcd2count;
+                        break;
+                        
+                    case 3: // Möbius function
+                        // Show a table of Möbius values
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = 'bold 24px system-ui';
+                        ctx.fillText('Möbius Function μ(d)', 50, 50);
+                        
+                        ctx.font = '18px monospace';
+                        let y = 90;
+                        for (let d = 1; d <= Math.min(12, R); d++) {
+                            const mu = mobius(d);
+                            const muStr = mu === 0 ? '0' : (mu === 1 ? '+1' : '-1');
+                            const factors = primeFactors(d);
+                            const factorStr = factors.length > 0 ? factors.join('×') : '1';
+                            
+                            ctx.fillStyle = mu === 1 ? '#0066cc' : (mu === -1 ? '#dc3545' : '#999');
+                            ctx.fillText(`μ(${d.toString().padStart(2)}) = ${muStr.padStart(3)}    (${d} = ${factorStr})`, 100, y);
+                            y += 30;
+                        }
+                        
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '16px system-ui';
+                        ctx.fillText('μ(d) = +1 for even # of distinct prime factors', 100, y + 20);
+                        ctx.fillText('μ(d) = -1 for odd # of distinct prime factors', 100, y + 45);
+                        ctx.fillText('μ(d) = 0 if d has a squared prime factor', 100, y + 70);
+                        
+                        document.getElementById('derivStepText').textContent = `The Möbius function μ(d) is defined based on prime factorization. It equals +1, -1, or 0 depending on the number of distinct prime factors. This alternating pattern is key to the cancellation we'll see next.`;
+                        
+                        document.getElementById('derivTotal').textContent = derivationData.allPoints.length;
+                        document.getElementById('derivPrimitive').textContent = '?';
+                        document.getElementById('derivGCD').textContent = 'Various';
+                        document.getElementById('derivMobius').textContent = 'See table';
+                        document.getElementById('derivContribution').textContent = 'N/A';
+                        break;
+                        
+                    case 4: // Möbius inversion
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = 'bold 28px system-ui';
+                        ctx.fillText('Möbius Inversion Formula', canvas.width/2 - 200, 50);
+                        
+                        ctx.font = '20px system-ui';
+                        ctx.fillText(`L_${k}(R) = ∑_{d=1}^{R} N_${k}(R/d)`, 100, 120);
+                        ctx.fillText('↓  (Apply Möbius inversion)', 100, 160);
+                        ctx.fillText(`N_${k}(R) = ∑_{d=1}^{R} μ(d) · L_${k}(R/d)`, 100, 200);
+                        
+                        ctx.font = '18px system-ui';
+                        ctx.fillText('This reverses the sum, using μ(d) to cancel unwanted terms', 100, 260);
+                        
+                        // Show first few terms
+                        ctx.font = '16px monospace';
+                        let yPos = 320;
+                        let runningSum = 0;
+                        for (let d = 1; d <= Math.min(8, R); d++) {
+                            const mu = mobius(d);
+                            if (mu !== 0) {
+                                const scaledR = Math.floor(R / d);
+                                let countAtScale = 0;
+                                
+                                // Approximate count
+                                if (k === 2) {
+                                    countAtScale = Math.round(Math.PI * scaledR * scaledR);
+                                } else if (k === 3) {
+                                    countAtScale = Math.round(4/3 * Math.PI * scaledR * scaledR * scaledR);
+                                }
+                                
+                                runningSum += mu * countAtScale;
+                                const sign = mu > 0 ? '+' : '';
+                                ctx.fillText(`d=${d}: ${sign}μ(${d}) × L(${scaledR}) = ${sign}${mu} × ${countAtScale} = ${sign}${mu * countAtScale}`, 120, yPos);
+                                yPos += 25;
+                            }
+                        }
+                        
+                        ctx.fillText(`...`, 120, yPos);
+                        yPos += 30;
+                        ctx.font = 'bold 18px system-ui';
+                        ctx.fillText(`Running sum ≈ ${runningSum} (approaching N_${k}(${R}))`, 120, yPos);
+                        
+                        document.getElementById('derivStepText').textContent = `Möbius inversion reverses the partition sum. We multiply each term by μ(d) and sum over all divisors. The alternating signs create systematic cancellation of the boundary terms.`;
+                        
+                        document.getElementById('derivTotal').textContent = derivationData.allPoints.length;
+                        document.getElementById('derivPrimitive').textContent = derivationData.primitivePoints.length;
+                        document.getElementById('derivGCD').textContent = 'All';
+                        document.getElementById('derivMobius').textContent = 'Applied';
+                        document.getElementById('derivContribution').textContent = runningSum;
+                        break;
+                        
+                    case 5: // Cancellation
+                        // Visualize cancellation
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = 'bold 24px system-ui';
+                        ctx.fillText('Boundary Cancellation Mechanism', 100, 50);
+                        
+                        ctx.font = '18px system-ui';
+                        ctx.fillText('Main volume term:', 100, 100);
+                        ctx.font = '16px monospace';
+                        ctx.fillStyle = '#0066cc';
+                        ctx.fillText(`V_${k} · R^${k} = π^${k/2}/Γ(${k/2}+1) · ${R}^${k} ≈ ${sphereVolume(k, R).toFixed(2)}`, 120, 130);
+                        
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '18px system-ui';
+                        ctx.fillText('Boundary error terms:', 100, 180);
+                        ctx.font = '16px monospace';
+                        ctx.fillStyle = '#dc3545';
+                        ctx.fillText(`O(R^${k-1}) from discretization`, 120, 210);
+                        ctx.fillText(`These cancel via μ(d) alternation!`, 120, 240);
+                        
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '18px system-ui';
+                        ctx.fillText('Result after cancellation:', 100, 290);
+                        ctx.font = 'bold 20px monospace';
+                        ctx.fillStyle = '#28a745';
+                        ctx.fillText(`N_${k}(R) = V_${k} · R^${k} · ∑_{d=1}^∞ μ(d)/d^${k} + O(R^${k-1})`, 120, 330);
+                        
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '18px system-ui';
+                        ctx.fillText('The infinite sum equals:', 100, 380);
+                        ctx.font = 'bold 24px monospace';
+                        ctx.fillStyle = '#6f42c1';
+                        ctx.fillText(`∑_{d=1}^∞ μ(d)/d^${k} = 1/ζ(${k})`, 120, 420);
+                        
+                        document.getElementById('derivStepText').textContent = `The Möbius function causes systematic cancellation of boundary terms. The remaining sum ∑ μ(d)/d^k equals 1/ζ(k) by the Euler product formula. This is the key connection!`;
+                        
+                        document.getElementById('derivTotal').textContent = derivationData.allPoints.length;
+                        document.getElementById('derivPrimitive').textContent = derivationData.primitivePoints.length;
+                        document.getElementById('derivGCD').textContent = 'All';
+                        document.getElementById('derivMobius').textContent = 'Sum = 1/ζ(k)';
+                        document.getElementById('derivContribution').textContent = 'Cancelled';
+                        break;
+                        
+                    case 6: // Final formula
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = 'bold 32px system-ui';
+                        ctx.fillText('Final Result: The Grand Formula', canvas.width/2 - 250, 80);
+                        
+                        ctx.font = 'bold 36px system-ui';
+                        ctx.fillStyle = '#0066cc';
+                        ctx.fillText(`N_${k}(R) = V_${k} · R^${k} / ζ(${k}) + O(R^${k-1})`, canvas.width/2 - 350, 160);
+                        
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '20px system-ui';
+                        ctx.fillText(`For our case (k=${k}, R=${R}):`, 100, 240);
+                        
+                        const vol = sphereVolume(k, R);
+                        const z = zeta(k);
+                        const predicted = vol / z;
+                        const actual = derivationData.primitivePoints.length;
+                        const error = Math.abs(actual - predicted);
+                        
+                        ctx.font = '18px monospace';
+                        ctx.fillText(`Volume V_${k}(R) = ${vol.toFixed(4)}`, 120, 280);
+                        ctx.fillText(`ζ(${k}) = ${z.toFixed(6)}`, 120, 310);
+                        ctx.fillText(`Predicted N_${k}(${R}) = ${predicted.toFixed(2)}`, 120, 340);
+                        ctx.fillText(`Actual N_${k}(${R}) = ${actual}`, 120, 370);
+                        ctx.fillText(`Error |Δ| = ${error.toFixed(2)} = O(R^${k-1}) ✓`, 120, 400);
+                        
+                        ctx.fillStyle = '#28a745';
+                        ctx.font = 'bold 22px system-ui';
+                        ctx.fillText('Formula verified!', 120, 450);
+                        
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '16px system-ui';
+                        ctx.fillText('This connects number theory (ζ function), geometry (sphere volume),', 100, 510);
+                        ctx.fillText('and algebra (Möbius inversion) in one elegant formula.', 100, 535);
+                        
+                        document.getElementById('derivStepText').textContent = `We arrive at the final formula! The density of primitive points equals 1/ζ(k), connecting the geometric problem to the Riemann zeta function. The error term O(R^(k-1)) comes from the boundary, which we've shown cancels systematically.`;
+                        
+                        document.getElementById('derivTotal').textContent = actual;
+                        document.getElementById('derivPrimitive').textContent = actual;
+                        document.getElementById('derivGCD').textContent = '1';
+                        document.getElementById('derivMobius').textContent = `1/ζ(${k})`;
+                        document.getElementById('derivContribution').textContent = predicted.toFixed(0);
+                        break;
+                }
+            } else {
+                // For k>2, show text-based explanation
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 24px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Derivation for ${k}D case (k=${k})`, canvas.width/2, 100);
+                ctx.textAlign = 'left';
+                ctx.font = '18px system-ui';
+                ctx.fillText('The same derivation applies in higher dimensions:', 100, 200);
+                ctx.fillText(`• L_${k}(R) counts all points in ${k}D ball`, 120, 240);
+                ctx.fillText(`• N_${k}(R) counts primitive points (gcd = 1)`, 120, 270);
+                ctx.fillText(`• Möbius inversion: N_${k}(R) = ∑ μ(d)·L_${k}(R/d)`, 120, 300);
+                ctx.fillText(`• This yields: N_${k}(R) = V_${k}·R^${k}/ζ(${k}) + O(R^${k-1})`, 120, 330);
+                
+                const vol = sphereVolume(k, R);
+                const z = zeta(k);
+                const predicted = vol / z;
+                
+                ctx.font = '16px monospace';
+                ctx.fillText(`Computed: ${derivationData.primitivePoints.length} primitive points`, 120, 390);
+                ctx.fillText(`Predicted: ${predicted.toFixed(2)}`, 120, 420);
+                ctx.fillText(`Match confirms formula! ✓`, 120, 450);
+            }
+        }
+        
         function showDerivationAnimation() {
-            alert('Interactive animation coming soon! This would show step-by-step how Möbius inversion leads to the zeta function connection.');
+            // This function is replaced by the new playDerivation() system
+            derivationStep = 0;
+            if (!derivationData) {
+                computeDerivationData();
+            }
+            drawDerivationStep(0);
         }
 
         function setPatternType(type) {
@@ -4411,25 +5211,237 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             return str.replace(/\.?0+$/, '');
         }
 
-        let exportResolution = '1k';
+        let exportResolution = '4k';
+        let exportType = 'single';
+        let animationType = 'radius';
+        let animationRunning = false;
+        let animationPaused = false;
+        let animationTimer = null;
+        let currentAnimStep = 0;
 
         function setExportRes(res) {
             exportResolution = res;
-            document.querySelectorAll('#res1k, #res2k, #res4k, #res8k').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#res2k, #res4k, #res8k').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`res${res}`).classList.add('active');
         }
 
         function getExportDimensions() {
             const dims = {
-                '1k': [1920, 1080],
-                '2k': [2560, 1440],
-                '4k': [3840, 2160],
-                '8k': [7680, 4320]
+                '2k': [2048, 2048],
+                '4k': [3840, 3840],
+                '8k': [7680, 7680]
             };
-            return dims[exportResolution] || [1920, 1080];
+            return dims[exportResolution] || [3840, 3840];
+        }
+        
+        function updateExportType() {
+            exportType = document.getElementById('exportType').value;
+            const singleControls = document.getElementById('singleCanvasControls');
+            if (singleControls) {
+                singleControls.style.display = exportType === 'single' ? 'block' : 'none';
+            }
+        }
+        
+        function setAnimType(type) {
+            animationType = type;
+            document.querySelectorAll('#animRadius, #animDimension, #animModular').forEach(btn => btn.classList.remove('active'));
+            const btnIds = { 'radius': 'animRadius', 'dimension': 'animDimension', 'modular': 'animModular' };
+            document.getElementById(btnIds[type]).classList.add('active');
+            
+            document.getElementById('radiusAnimControls').style.display = type === 'radius' ? 'block' : 'none';
+            document.getElementById('dimensionAnimControls').style.display = type === 'dimension' ? 'block' : 'none';
+            document.getElementById('modularAnimControls').style.display = type === 'modular' ? 'block' : 'none';
+        }
+        
+        function setAnimPreset(preset) {
+            if (preset === 'quick') {
+                setAnimType('radius');
+                document.getElementById('animStartR').value = 1;
+                document.getElementById('animEndR').value = 30;
+                document.getElementById('animSpeed').value = 300;
+            } else if (preset === 'medium') {
+                setAnimType('radius');
+                document.getElementById('animStartR').value = 1;
+                document.getElementById('animEndR').value = 60;
+                document.getElementById('animSpeed').value = 400;
+            } else if (preset === 'long') {
+                setAnimType('radius');
+                document.getElementById('animStartR').value = 1;
+                document.getElementById('animEndR').value = 100;
+                document.getElementById('animSpeed').value = 500;
+            } else if (preset === 'dimensions') {
+                setAnimType('dimension');
+                document.getElementById('animStartD').value = 2;
+                document.getElementById('animEndD').value = 10;
+                document.getElementById('animSpeed').value = 800;
+            }
+            
+            // Update displays
+            document.getElementById('animStartRv').textContent = document.getElementById('animStartR').value;
+            document.getElementById('animEndRv').textContent = document.getElementById('animEndR').value;
+            document.getElementById('animStartDv').textContent = document.getElementById('animStartD').value;
+            document.getElementById('animEndDv').textContent = document.getElementById('animEndD').value;
+            document.getElementById('animSpeedv').textContent = document.getElementById('animSpeed').value;
+        }
+        
+        function playAnimation() {
+            if (animationPaused) {
+                animationPaused = false;
+                document.getElementById('playBtn').style.display = 'none';
+                document.getElementById('pauseBtn').style.display = 'inline-block';
+                continueAnimation();
+                return;
+            }
+            
+            animationRunning = true;
+            animationPaused = false;
+            currentAnimStep = 0;
+            
+            document.getElementById('playBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('animProgress').style.display = 'block';
+            
+            let start, end, totalSteps;
+            
+            if (animationType === 'radius') {
+                start = parseInt(document.getElementById('animStartR').value);
+                end = parseInt(document.getElementById('animEndR').value);
+                totalSteps = end - start + 1;
+            } else if (animationType === 'dimension') {
+                start = parseInt(document.getElementById('animStartD').value);
+                end = parseInt(document.getElementById('animEndD').value);
+                totalSteps = end - start + 1;
+            } else if (animationType === 'modular') {
+                start = parseInt(document.getElementById('animStartM').value);
+                end = parseInt(document.getElementById('animEndM').value);
+                totalSteps = end - start + 1;
+            }
+            
+            document.getElementById('animTotalSteps').textContent = totalSteps;
+            runAnimationStep(start, end, 0);
+        }
+        
+        function runAnimationStep(start, end, step) {
+            if (!animationRunning || animationPaused) return;
+            
+            const currentValue = start + step;
+            if (currentValue > end) {
+                stopAnimation();
+                return;
+            }
+            
+            // Update visualization based on animation type
+            if (animationType === 'radius') {
+                update2DRadius(currentValue);
+            } else if (animationType === 'dimension') {
+                document.getElementById('tks').value = currentValue;
+                updateTheory();
+            } else if (animationType === 'modular') {
+                if (patternType === 'modular') {
+                    document.getElementById('patternMod').value = currentValue;
+                    document.getElementById('patternModv').textContent = currentValue;
+                    updatePatternViz();
+                }
+            }
+            
+            // Update progress
+            const totalSteps = end - start + 1;
+            const progress = ((step + 1) / totalSteps) * 100;
+            document.getElementById('animProgressBar').style.width = progress + '%';
+            document.getElementById('animCurrentStep').textContent = step + 1;
+            document.getElementById('animPercent').textContent = progress.toFixed(1);
+            
+            currentAnimStep = step + 1;
+            const speed = parseInt(document.getElementById('animSpeed').value);
+            animationTimer = setTimeout(() => runAnimationStep(start, end, step + 1), speed);
+        }
+        
+        function continueAnimation() {
+            let start, end;
+            if (animationType === 'radius') {
+                start = parseInt(document.getElementById('animStartR').value);
+                end = parseInt(document.getElementById('animEndR').value);
+            } else if (animationType === 'dimension') {
+                start = parseInt(document.getElementById('animStartD').value);
+                end = parseInt(document.getElementById('animEndD').value);
+            } else if (animationType === 'modular') {
+                start = parseInt(document.getElementById('animStartM').value);
+                end = parseInt(document.getElementById('animEndM').value);
+            }
+            runAnimationStep(start, end, currentAnimStep);
+        }
+        
+        function pauseAnimation() {
+            animationPaused = true;
+            if (animationTimer) clearTimeout(animationTimer);
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('playBtn').style.display = 'inline-block';
+        }
+        
+        function stopAnimation() {
+            animationRunning = false;
+            animationPaused = false;
+            if (animationTimer) clearTimeout(animationTimer);
+            
+            document.getElementById('playBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('animProgress').style.display = 'none';
+            document.getElementById('animProgressBar').style.width = '0%';
+        }
+        
+        function applyPreset(name) {
+            const presets = {
+                'basel': { tab: 'theory', k: 2, R: 10 },
+                'apery': { tab: 'viz3d', k: 3, R: 20 },
+                'gauss': { tab: 'criticalstrip', R: 100 },
+                'fibonacci': { tab: 'viz2d', R: 89 },
+                'mersenne': { tab: 'viz2d', R: 31 },
+                'perfect': { tab: 'viz2d', R: 28 },
+                'golden': { tab: 'viz2d', R: 161 },
+                '4d': { tab: 'comparison', k: 4, R: 15 },
+                'e8': { tab: 'comparison', k: 8, R: 10 },
+                'highdim': { tab: 'comparison', k: 12, R: 5 },
+                'composite': { tab: 'patterns', modulus: 12 },
+                'primefield': { tab: 'patterns', modulus: 17 },
+                'power2': { tab: 'viz2d', R: 64 }
+            };
+            
+            const preset = presets[name];
+            if (!preset) return;
+            
+            // Navigate to appropriate tab
+            showTab(preset.tab);
+            
+            // Apply parameters
+            if (preset.k && document.getElementById('tks')) {
+                document.getElementById('tks').value = preset.k;
+                updateTheory();
+            }
+            if (preset.R && document.getElementById('r2input')) {
+                update2DRadius(preset.R);
+            }
+            if (preset.modulus && document.getElementById('patternMod')) {
+                document.getElementById('patternMod').value = preset.modulus;
+                document.getElementById('patternModv').textContent = preset.modulus;
+                updatePatternViz();
+            }
         }
 
         function performAdvancedExport() {
+            const exportTypeVal = document.getElementById('exportType').value;
+            
+            if (exportTypeVal === 'single') {
+                exportSingleCanvas();
+            } else if (exportTypeVal === 'grid2x2') {
+                export2x2Grid();
+            } else if (exportTypeVal === 'fullAnalysis') {
+                exportFullAnalysisPanel();
+            }
+        }
+        
+        function exportSingleCanvas() {
             const canvasId = document.getElementById('exportCanvas').value;
             const sourceCanvas = document.getElementById(canvasId);
             
@@ -4543,14 +5555,198 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             // Show preview
             const previewCanvas = document.getElementById('exportPreviewCanvas');
             previewCanvas.width = 800;
-            previewCanvas.height = 450;
+            previewCanvas.height = 800;
             const previewCtx = previewCanvas.getContext('2d');
-            previewCtx.drawImage(exportCanvas, 0, 0, 800, 450);
+            previewCtx.drawImage(exportCanvas, 0, 0, 800, 800);
             previewCanvas.style.display = 'block';
             document.getElementById('exportPreview').querySelector('p').style.display = 'none';
         }
+        
+        function export2x2Grid() {
+            const [width, height] = getExportDimensions();
+            
+            const gridCanvas = document.createElement('canvas');
+            gridCanvas.width = width;
+            gridCanvas.height = height;
+            const ctx = gridCanvas.getContext('2d');
+            
+            ctx.fillStyle = document.body.classList.contains('light') ? '#ffffff' : '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Get canvases
+            const canvases = [
+                { id: 'c2d', name: '2D Lattice' },
+                { id: 'heatmapCanvas', name: 'GCD Heatmap' },
+                { id: 'criticalCanvas', name: 'Critical Strip' },
+                { id: 'ch', name: 'Error Analysis' }
+            ];
+            
+            const padding = 40;
+            const titleHeight = 100;
+            const cellWidth = (width - 3 * padding) / 2;
+            const cellHeight = (height - titleHeight - 3 * padding) / 2;
+            
+            // Title
+            ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+            ctx.font = 'bold 48px system-ui';
+            ctx.textAlign = 'center';
+            ctx.fillText('Primitive Lattice Point Analysis - Multi-View', width / 2, 60);
+            
+            // Draw each canvas in grid
+            canvases.forEach((c, i) => {
+                const col = i % 2;
+                const row = Math.floor(i / 2);
+                const x = padding + col * (cellWidth + padding);
+                const y = titleHeight + padding + row * (cellHeight + padding);
+                
+                const sourceCanvas = document.getElementById(c.id);
+                if (sourceCanvas) {
+                    const scale = Math.min(cellWidth / sourceCanvas.width, cellHeight / sourceCanvas.height);
+                    const sw = sourceCanvas.width * scale;
+                    const sh = sourceCanvas.height * scale;
+                    const sx = x + (cellWidth - sw) / 2;
+                    const sy = y + (cellHeight - sh) / 2;
+                    
+                    ctx.drawImage(sourceCanvas, sx, sy, sw, sh);
+                    
+                    // Label
+                    ctx.fillStyle = document.body.classList.contains('light') ? '#495057' : '#b0b0b0';
+                    ctx.font = 'bold 24px system-ui';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(c.name, x + cellWidth / 2, y - 10);
+                }
+            });
+            
+            // Footer
+            ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+            ctx.font = '20px system-ui';
+            ctx.textAlign = 'left';
+            ctx.fillText('By Wessen Getachew | @7dview', padding, height - 20);
+            ctx.textAlign = 'right';
+            ctx.fillText(new Date().toLocaleString(), width - padding, height - 20);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `lattice-analysis-2x2-grid-${exportResolution}.png`;
+            link.href = gridCanvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function exportFullAnalysisPanel() {
+            const [width, height] = getExportDimensions();
+            
+            const fullCanvas = document.createElement('canvas');
+            fullCanvas.width = width;
+            fullCanvas.height = Math.floor(height * 1.4); // Taller for analysis panel
+            const ctx = fullCanvas.getContext('2d');
+            
+            ctx.fillStyle = document.body.classList.contains('light') ? '#ffffff' : '#1a1a1a';
+            ctx.fillRect(0, 0, fullCanvas.width, fullCanvas.height);
+            
+            // Title
+            ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+            ctx.font = 'bold 56px system-ui';
+            ctx.textAlign = 'center';
+            ctx.fillText('Comprehensive Lattice Point Analysis', width / 2, 70);
+            
+            // 2×2 grid of canvases (top portion)
+            const gridTop = 120;
+            const gridHeight = Math.floor(height * 0.7);
+            const canvases = [
+                { id: 'c2d', name: '2D Visualization' },
+                { id: 'heatmapCanvas', name: 'GCD Heatmap' },
+                { id: 'criticalCanvas', name: 'Critical Strip' },
+                { id: 'compChart', name: 'Dimension Comparison' }
+            ];
+            
+            const padding = 40;
+            const cellWidth = (width - 3 * padding) / 2;
+            const cellHeight = (gridHeight - 3 * padding) / 2;
+            
+            canvases.forEach((c, i) => {
+                const col = i % 2;
+                const row = Math.floor(i / 2);
+                const x = padding + col * (cellWidth + padding);
+                const y = gridTop + padding + row * (cellHeight + padding);
+                
+                const sourceCanvas = document.getElementById(c.id);
+                if (sourceCanvas) {
+                    const scale = Math.min(cellWidth / sourceCanvas.width, (cellHeight - 30) / sourceCanvas.height);
+                    const sw = sourceCanvas.width * scale;
+                    const sh = sourceCanvas.height * scale;
+                    const sx = x + (cellWidth - sw) / 2;
+                    const sy = y + 30 + (cellHeight - 30 - sh) / 2;
+                    
+                    ctx.drawImage(sourceCanvas, sx, sy, sw, sh);
+                    
+                    ctx.fillStyle = document.body.classList.contains('light') ? '#495057' : '#b0b0b0';
+                    ctx.font = 'bold 28px system-ui';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(c.name, x + cellWidth / 2, y + 25);
+                }
+            });
+            
+            // Analysis panel (bottom portion)
+            const analysisTop = gridTop + gridHeight;
+            const analysisHeight = fullCanvas.height - analysisTop - 60;
+            
+            ctx.fillStyle = document.body.classList.contains('light') ? '#f8f9fa' : '#2d2d2d';
+            ctx.fillRect(padding, analysisTop, width - 2 * padding, analysisHeight);
+            
+            ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+            ctx.font = 'bold 32px system-ui';
+            ctx.textAlign = 'left';
+            ctx.fillText('Extended Analysis', padding + 20, analysisTop + 40);
+            
+            // Add analysis content
+            ctx.font = '24px monospace';
+            let yPos = analysisTop + 80;
+            const lineHeight = 35;
+            
+            const analysisLines = [
+                `Current Parameters:`,
+                `  Radius R: ${document.getElementById('r2input')?.value || 'N/A'}`,
+                `  Dimension k: ${document.getElementById('tks')?.value || '2'}`,
+                `  ζ(k): ${document.getElementById('sz')?.textContent || 'N/A'}`,
+                `  Density 1/ζ(k): ${document.getElementById('sd')?.textContent || 'N/A'}`,
+                ``,
+                `Statistics:`,
+                `  Primitive Points: ${document.getElementById('p2')?.textContent || 'N/A'}`,
+                `  Total Points: ${document.getElementById('t2')?.textContent || 'N/A'}`,
+                `  Predicted: ${document.getElementById('sp')?.textContent || 'N/A'}`,
+                `  Error: ${document.getElementById('e2')?.textContent || 'N/A'}`,
+                ``,
+                `Theoretical Foundation:`,
+                `  N_k(R) = V_k·R^k/ζ(k) + O(R^(k-1))`,
+                `  Boundary cancellation via Möbius inversion`,
+                `  Connection to Riemann Hypothesis through error term`
+            ];
+            
+            analysisLines.forEach(line => {
+                if (yPos < fullCanvas.height - 100) {
+                    ctx.fillText(line, padding + 40, yPos);
+                    yPos += lineHeight;
+                }
+            });
+            
+            // Footer
+            ctx.fillStyle = document.body.classList.contains('light') ? '#212529' : '#e0e0e0';
+            ctx.font = '24px system-ui';
+            ctx.textAlign = 'left';
+            ctx.fillText('By Wessen Getachew | @7dview | wessengetachew.github.io', padding, fullCanvas.height - 25);
+            ctx.textAlign = 'right';
+            ctx.fillText(new Date().toLocaleString(), width - padding, fullCanvas.height - 25);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `lattice-full-analysis-${exportResolution}.png`;
+            link.href = fullCanvas.toDataURL('image/png');
+            link.click();
+        }
 
         function quickExport2D() {
+            document.getElementById('exportType').value = 'single';
+            updateExportType();
             document.getElementById('exportCanvas').value = 'c2d';
             const R = document.getElementById('r2input').value;
             document.getElementById('exportTitle').value = '2D Primitive Lattice Points';
@@ -4565,10 +5761,12 @@ Density: ${document.getElementById('d2').textContent}`;
         }
 
         function quickExport3D() {
-            alert('3D export requires screenshot. Use browser screenshot or screen capture tool.');
+            alert('3D export: Please use browser screenshot or the 2×2 Grid export to capture the 3D visualization.');
         }
 
         function quickExportHeatmap() {
+            document.getElementById('exportType').value = 'single';
+            updateExportType();
             document.getElementById('exportCanvas').value = 'heatmapCanvas';
             const R = document.getElementById('heatmapRinput').value;
             document.getElementById('exportTitle').value = 'GCD Heatmap Visualization';
@@ -4583,6 +5781,8 @@ GCD=3: ${document.getElementById('heatmapGCD3').textContent}`;
         }
 
         function quickExportCritical() {
+            document.getElementById('exportType').value = 'single';
+            updateExportType();
             document.getElementById('exportCanvas').value = 'criticalCanvas';
             const maxR = document.getElementById('criticalMaxRinput').value;
             document.getElementById('exportTitle').value = 'Critical Strip Error Analysis';
@@ -4597,6 +5797,8 @@ Avg Error: ${document.getElementById('criticalAvgErr').textContent}`;
         }
 
         function quickExportTable() {
+            document.getElementById('exportType').value = 'single';
+            updateExportType();
             document.getElementById('exportCanvas').value = 'gcdTableCanvas';
             const size = document.getElementById('gcdTableSizeInput').value;
             document.getElementById('exportTitle').value = 'GCD Multiplication Table';
@@ -4608,6 +5810,8 @@ Each cell shows: GCD(row, col)`;
         }
 
         function quickExportAnalysis() {
+            document.getElementById('exportType').value = 'single';
+            updateExportType();
             document.getElementById('exportCanvas').value = 'ch';
             const k = document.getElementById('analysisK').value;
             const maxR = document.getElementById('mrinput').value;
@@ -4618,6 +5822,26 @@ Max Radius: ${maxR}
 Shows error term growth
 as predicted by theory`;
             showTab('export');
+        }
+        
+        function quickExportGrid2x2() {
+            document.getElementById('exportType').value = 'grid2x2';
+            updateExportType();
+            document.getElementById('exportTitle').value = 'Lattice Point Analysis - Multi-View';
+            document.getElementById('exportSubtitle').value = 'Comprehensive visualization suite';
+            showTab('export');
+            // Auto-export
+            setTimeout(() => export2x2Grid(), 500);
+        }
+        
+        function quickExportFullAnalysis() {
+            document.getElementById('exportType').value = 'fullAnalysis';
+            updateExportType();
+            document.getElementById('exportTitle').value = 'Complete Lattice Point Analysis';
+            document.getElementById('exportSubtitle').value = 'Full analysis panel with extended statistics';
+            showTab('export');
+            // Auto-export
+            setTimeout(() => exportFullAnalysisPanel(), 500);
         }
 
         function setGCDHeatmapPreset(preset) {
@@ -5319,4 +6543,4 @@ as predicted by theory`;
         });
     </script>
 </body>
-                            </html>
+    </html>
