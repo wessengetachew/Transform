@@ -117,6 +117,7 @@
             <button class="tab-btn" onclick="showTab('tools')">Tools</button>
             <button class="tab-btn" onclick="showTab('explore')">Explore More</button>
             <button class="tab-btn" onclick="showTab('export')">Export</button>
+            <button class="tab-btn" onclick="showTab('roadmap')">Roadmap</button>
             <button class="tab-btn" onclick="showTab('derivation')">Derivation</button>
         </nav>
 
@@ -124,7 +125,7 @@
             <div class="section">
                 <h2>Abstract</h2>
                 <p>We develop a comprehensive study of primitive lattice points in Z^n, generalizing the classical 2-dimensional coprime lattice problem. Using geometric decomposition into primitive rays and the Möbius inversion formula, we rigorously derive the asymptotic density of coprime points in any dimension. The framework connects number theory, geometry of numbers, and classical constants like the Riemann zeta function, providing both intuition and formal proofs.</p>
-/div>
+            </div>
             
             <div class="section">
                 <h2>Introduction</h2>
@@ -1293,157 +1294,7 @@
                     </div>
                     <input type="text" id="psi" placeholder="3, 4 (finds if primitive)" style="width:100%; padding:10px">
                     <button onclick="searchPoint()">Search</button>
-                    <div id="psr" style="margin-top:15px">                    </div>
-                </div>
-            </div>
-            
-            <div class="section" style="margin-top:50px;">
-                <h2>Research Roadmap & Future Directions</h2>
-                <p>This platform is comprehensive, but mathematical research is infinite. Here's what could enhance this work:</p>
-                
-                <h3 style="color:var(--blue); margin-top:30px;">High Priority - Core Mathematics</h3>
-                <div class="formula">
-                    <p><b>1. Farey Sequences & Ford Circles</b></p>
-                    <p>- Visualization of Farey fractions F_n = {a/b : 0 ≤ a ≤ b ≤ n, gcd(a,b)=1}</p>
-                    <p>- Ford circles tangent to primitive fractions</p>
-                    <p>- Connection to continued fractions and Stern-Brocot tree</p>
-                    <p>- Cayley transform mapping to hyperbolic geometry</p>
-                    
-                    <p style="margin-top:15px;"><b>2. Visible Lattice Points (Visibility Graph)</b></p>
-                    <p>- Points visible from origin (exactly the primitive points)</p>
-                    <p>- Angular gap distribution between visible points</p>
-                    <p>- Connection to coprime probability</p>
-                    
-                    <p style="margin-top:15px;"><b>3. Diophantine Approximation</b></p>
-                    <p>- Best rational approximations to irrationals</p>
-                    <p>- Continued fraction convergents</p>
-                    <p>- Dirichlet's approximation theorem visualization</p>
-                    
-                    <p style="margin-top:15px;"><b>4. Pick's Theorem & Lattice Polygons</b></p>
-                    <p>- Area = Interior + Boundary/2 - 1</p>
-                    <p>- Interactive polygon builder on lattice</p>
-                    <p>- Connection to Euler's formula</p>
-                </div>
-                
-                <h3 style="color:var(--green); margin-top:30px;">Advanced Visualizations</h3>
-                <div class="formula">
-                    <p><b>5. Voronoi Diagrams & Delaunay Triangulation</b></p>
-                    <p>- Voronoi cells around primitive points</p>
-                    <p>- Dual Delaunay triangulation</p>
-                    <p>- Nearest primitive point queries</p>
-                    
-                    <p style="margin-top:15px;"><b>6. Minkowski's Theorem Visualization</b></p>
-                    <p>- Convex symmetric regions containing lattice points</p>
-                    <p>- Volume threshold: V > 2^k guarantees interior point</p>
-                    <p>- Applications to algebraic number theory</p>
-                    
-                    <p style="margin-top:15px;"><b>7. Lattice Reduction Algorithms</b></p>
-                    <p>- LLL algorithm animation</p>
-                    <p>- Gaussian lattice reduction (2D)</p>
-                    <p>- Shortest vector problem visualization</p>
-                </div>
-                
-                <h3 style="color:var(--purple); margin-top:30px;">Deep Number Theory Connections</h3>
-                <div class="formula">
-                    <p><b>8. Explicit Formulas Using Zeta Zeros</b></p>
-                    <p>- N(R) = Main Term + Σ (contribution from each zeta zero)</p>
-                    <p>- Visualize oscillations from imaginary parts of zeros</p>
-                    <p>- Connection between zero spacing and error term</p>
-                    
-                    <p style="margin-top:15px;"><b>9. Prime Number Connections</b></p>
-                    <p>- Lattice points with prime coordinates</p>
-                    <p>- Distribution of primes in lattice</p>
-                    <p>- Connection to prime number theorem</p>
-                    
-                    <p style="margin-top:15px;"><b>10. Modular Forms & L-functions</b></p>
-                    <p>- Theta functions counting lattice points</p>
-                    <p>- Connection to elliptic curves</p>
-                    <p>- Modular symmetry visualization</p>
-                    
-                    <p style="margin-top:15px;"><b>11. Euler Products & Multiplicative Functions</b></p>
-                    <p>- ζ(s) = Π (1 - p^(-s))^(-1) visualization</p>
-                    <p>- Connection between prime factors and GCD patterns</p>
-                    <p>- Dirichlet series for various arithmetic functions</p>
-                </div>
-                
-                <h3 style="color:var(--orange); margin-top:30px;">Platform Enhancements</h3>
-                <div class="formula">
-                    <p><b>12. Research Session Management</b></p>
-                    <p>- Save/load current state and parameters</p>
-                    <p>- Bookmark interesting configurations</p>
-                    <p>- Research notes and annotations</p>
-                    <p>- Export complete research sessions</p>
-                    
-                    <p style="margin-top:15px;"><b>13. Batch Processing & Parameter Sweeps</b></p>
-                    <p>- Automated exploration of parameter space</p>
-                    <p>- Generate data for multiple (k, R) combinations</p>
-                    <p>- Statistical analysis across parameter ranges</p>
-                    <p>- Parallel computation for large datasets</p>
-                    
-                    <p style="margin-top:15px;"><b>14. Advanced Statistical Tools</b></p>
-                    <p>- Correlation analysis between metrics</p>
-                    <p>- Hypothesis testing framework</p>
-                    <p>- Regression analysis for error bounds</p>
-                    <p>- Monte Carlo simulations</p>
-                    
-                    <p style="margin-top:15px;"><b>15. Educational Features</b></p>
-                    <p>- Step-by-step guided tours</p>
-                    <p>- Interactive tutorials for each concept</p>
-                    <p>- Problem sets with solutions</p>
-                    <p>- Historical context and references</p>
-                </div>
-                
-                <h3 style="color:var(--red); margin-top:30px;">Advanced Topics</h3>
-                <div class="formula">
-                    <p><b>16. Quaternion & Octonion Lattices</b></p>
-                    <p>- Generalization beyond integer lattices</p>
-                    <p>- Hurwitz quaternions and E₈ lattice</p>
-                    <p>- Sphere packing connections</p>
-                    
-                    <p style="margin-top:15px;"><b>17. Algebraic Number Theory</b></p>
-                    <p>- Lattices in number fields</p>
-                    <p>- Units and class groups</p>
-                    <p>- Ideal lattices</p>
-                    
-                    <p style="margin-top:15px;"><b>18. Computational Complexity</b></p>
-                    <p>- Algorithm efficiency analysis</p>
-                    <p>- Optimization techniques</p>
-                    <p>- GPU acceleration for large R</p>
-                    
-                    <p style="margin-top:15px;"><b>19. Machine Learning Integration</b></p>
-                    <p>- Pattern recognition in lattice structures</p>
-                    <p>- Predicting error term behavior</p>
-                    <p>- Neural networks for lattice problems</p>
-                    
-                    <p style="margin-top:15px;"><b>20. Collaborative Research Features</b></p>
-                    <p>- Share configurations via URL</p>
-                    <p>- Real-time collaboration mode</p>
-                    <p>- Community contributions database</p>
-                    <p>- Discussion forums for specific phenomena</p>
-                </div>
-                
-                <div style="background:var(--bg3); padding:20px; border-radius:8px; margin-top:30px;">
-                    <h3 style="color:var(--blue);">What This Platform Currently Has</h3>
-                    <p>- Complete primitive lattice point theory (k=2 to 12)</p>
-                    <p>- 2D/3D interactive visualizations with multiple coloring modes</p>
-                    <p>- GCD heatmaps and multiplication tables</p>
-                    <p>- Critical strip error analysis (Gauss Circle Problem)</p>
-                    <p>- Pattern explorer (modular, angular, radial, density)</p>
-                    <p>- Dimension comparison tools</p>
-                    <p>- Professional export system (up to 8K resolution)</p>
-                    <p>- Point labeling and zoom controls</p>
-                    <p>- High-precision calculations (up to 17 decimals)</p>
-                    <p>- Comprehensive mathematical tools (GCD, Möbius, primes)</p>
-                    <p>- Full derivation and theoretical framework</p>
-                    <p>- Extensive parameter controls (R up to 2000 in 2D)</p>
-                    <p>- Links to 15+ related number theory visualizations</p>
-                </div>
-                
-                <div style="background:var(--bg2); padding:20px; border-radius:8px; margin-top:20px; border-left:4px solid var(--blue);">
-                    <h3>Suggestions for Next Steps</h3>
-                    <p><b>Immediate:</b> Farey sequences, Ford circles, visible points</p>
-                    <p><b>Short-term:</b> Voronoi diagrams, lattice reduction, Pick's theorem</p>
-                    <p><b>Long-term:</b> Explicit formulas with zeros, modular forms, collaborative features</p>
+                    <div id="psr" style="margin-top:15px"></div>
                 </div>
             </div>
         </div>
@@ -5468,4 +5319,4 @@ as predicted by theory`;
         });
     </script>
 </body>
-    </html>
+                            </html>
