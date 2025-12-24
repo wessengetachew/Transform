@@ -5823,26 +5823,6 @@ Shows error term growth
 as predicted by theory`;
             showTab('export');
         }
-        
-        function quickExportGrid2x2() {
-            document.getElementById('exportType').value = 'grid2x2';
-            updateExportType();
-            document.getElementById('exportTitle').value = 'Lattice Point Analysis - Multi-View';
-            document.getElementById('exportSubtitle').value = 'Comprehensive visualization suite';
-            showTab('export');
-            // Auto-export
-            setTimeout(() => export2x2Grid(), 500);
-        }
-        
-        function quickExportFullAnalysis() {
-            document.getElementById('exportType').value = 'fullAnalysis';
-            updateExportType();
-            document.getElementById('exportTitle').value = 'Complete Lattice Point Analysis';
-            document.getElementById('exportSubtitle').value = 'Full analysis panel with extended statistics';
-            showTab('export');
-            // Auto-export
-            setTimeout(() => exportFullAnalysisPanel(), 500);
-        }
 
         function setGCDHeatmapPreset(preset) {
             const presets = { 'small': 15, 'medium': 30, 'large': 50 };
@@ -6009,7 +5989,7 @@ as predicted by theory`;
             
             document.getElementById('criticalMaxRv').textContent = maxR;
             document.getElementById('criticalStepv').textContent = step;
-            document.getElementById('criticalMaxR').value = Math.min(maxR, 300);
+            document.getElementById('criticalMaxR').value = Math.min(maxR, 500);
             document.getElementById('criticalMaxRinput').value = maxR;
             
             const showZeroLine = document.getElementById('showZeroLine').checked;
@@ -6024,44 +6004,59 @@ as predicted by theory`;
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Setup coordinate system
-                const padding = 80;
-                const plotWidth = canvas.width - 2*padding;
-                const plotHeight = canvas.height - 2*padding;
+                // Background
+                ctx.fillStyle = document.body.classList.contains('light') ? '#ffffff' : '#0a0e1a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Collect error data
+                // Setup coordinate system with more padding for labels
+                const paddingLeft = 100;
+                const paddingRight = 80;
+                const paddingTop = 120;
+                const paddingBottom = 80;
+                const plotWidth = canvas.width - paddingLeft - paddingRight;
+                const plotHeight = canvas.height - paddingTop - paddingBottom;
+                
+                // Collect error data with EXACT computation where possible
                 const errorData = [];
                 let maxAbsError = 0, sumAbsError = 0, sumSqError = 0;
                 let maxNormalizedError = 0;
+                let minError = Infinity, maxError = -Infinity;
                 
                 for (let R = step; R <= maxR; R += step) {
-                    // Calculate actual count
+                    // Calculate actual count with EXACT COMPUTATION for reasonable R
                     let actualCount = 0;
                     
-                    if (R <= 80) {
-                        // Exact computation for small R
-                        for (let x = -R; x <= R; x++) {
-                            for (let y = -R; y <= R; y++) {
-                                const distSq = x*x + y*y;
-                                if (distSq <= R*R) {
-                                    if (criticalProblem === 'all') {
-                                        actualCount++;
-                                    } else if (gcd(Math.abs(x), Math.abs(y)) === 1) {
+                    if (criticalProblem === 'all') {
+                        // Gauss Circle Problem - exact count for R <= 200
+                        if (R <= 200) {
+                            for (let x = -R; x <= R; x++) {
+                                for (let y = -R; y <= R; y++) {
+                                    if (x*x + y*y <= R*R) {
                                         actualCount++;
                                     }
                                 }
                             }
+                        } else {
+                            // Use approximation for large R
+                            actualCount = Math.round(Math.PI * R * R);
                         }
                     } else {
-                        // Approximation for large R
-                        if (criticalProblem === 'all') {
-                            actualCount = Math.round(Math.PI * R * R);
+                        // Primitive points only - exact count for R <= 100
+                        if (R <= 100) {
+                            for (let x = -R; x <= R; x++) {
+                                for (let y = -R; y <= R; y++) {
+                                    if (x*x + y*y <= R*R && gcd(Math.abs(x), Math.abs(y)) === 1) {
+                                        actualCount++;
+                                    }
+                                }
+                            }
                         } else {
+                            // Use approximation for large R
                             actualCount = Math.round(Math.PI * R * R / zeta(2));
                         }
                     }
                     
-                    // Predicted value
+                    // Predicted value (smooth asymptotic formula)
                     let predicted;
                     if (criticalProblem === 'all') {
                         predicted = Math.PI * R * R;
@@ -6077,6 +6072,8 @@ as predicted by theory`;
                     sumAbsError += absError;
                     sumSqError += error * error;
                     maxNormalizedError = Math.max(maxNormalizedError, normalizedError);
+                    minError = Math.min(minError, error);
+                    maxError = Math.max(maxError, error);
                     
                     errorData.push({ 
                         R, 
@@ -6092,225 +6089,354 @@ as predicted by theory`;
                 let xMin, xMax, yMin, yMax, xLabel, yLabel;
                 
                 if (criticalViz === 'error') {
-                    xMin = 0; xMax = maxR;
-                    const maxErrorForPlot = Math.max(...errorData.map(d => Math.abs(d.error)));
-                    yMin = -maxErrorForPlot * 1.1;
-                    yMax = maxErrorForPlot * 1.1;
+                    xMin = 0; 
+                    xMax = maxR;
+                    const margin = (maxError - minError) * 0.1;
+                    yMin = minError - margin;
+                    yMax = maxError + margin;
                     xLabel = 'Radius R';
-                    yLabel = 'Error Δ(R)';
+                    yLabel = 'Error Δ(R) = N(R) - πR²' + (criticalProblem === 'primitive' ? '/ζ(2)' : '');
                 } else if (criticalViz === 'normalized') {
-                    xMin = 0; xMax = maxR;
+                    xMin = 0; 
+                    xMax = maxR;
                     yMin = -maxNormalizedError * 1.2;
                     yMax = maxNormalizedError * 1.2;
                     xLabel = 'Radius R';
-                    yLabel = 'Normalized Error Δ(R)/R^(1/2)';
+                    yLabel = 'Normalized Error Δ(R)/√R';
                 } else if (criticalViz === 'loglog') {
                     xMin = Math.log10(step);
                     xMax = Math.log10(maxR);
-                    yMin = Math.log10(Math.min(...errorData.filter(d => d.absError > 0).map(d => d.absError)));
-                    yMax = Math.log10(maxAbsError) * 1.1;
+                    const validErrors = errorData.filter(d => d.absError > 0);
+                    if (validErrors.length > 0) {
+                        yMin = Math.log10(Math.min(...validErrors.map(d => d.absError)));
+                        yMax = Math.log10(maxAbsError) * 1.1;
+                    } else {
+                        yMin = -1; yMax = 1;
+                    }
                     xLabel = 'log₁₀(R)';
                     yLabel = 'log₁₀(|Δ(R)|)';
                 } else if (criticalViz === 'bounds') {
-                    xMin = 0; xMax = maxR;
+                    xMin = 0; 
+                    xMax = maxR;
                     yMin = 0;
-                    yMax = Math.max(
-                        maxAbsError,
-                        Math.pow(maxR, 2/3) * 2,
-                        Math.sqrt(maxR) * 10
-                    ) * 1.1;
+                    const rhBound = Math.sqrt(maxR) * 5;
+                    const classicalBound = Math.pow(maxR, 2/3) * 2;
+                    yMax = Math.max(maxAbsError, rhBound, classicalBound) * 1.15;
                     xLabel = 'Radius R';
-                    yLabel = '|Δ(R)|';
+                    yLabel = '|Δ(R)| Absolute Error';
                 }
                 
-                // Draw axes
-                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text2');
+                // Draw grid lines FIRST (behind everything)
+                ctx.strokeStyle = 'rgba(128, 128, 128, 0.15)';
+                ctx.lineWidth = 1;
+                const numGridLines = 10;
+                
+                // Vertical grid lines
+                for (let i = 0; i <= numGridLines; i++) {
+                    const x = paddingLeft + (i / numGridLines) * plotWidth;
+                    ctx.beginPath();
+                    ctx.moveTo(x, paddingTop);
+                    ctx.lineTo(x, canvas.height - paddingBottom);
+                    ctx.stroke();
+                }
+                
+                // Horizontal grid lines
+                for (let i = 0; i <= numGridLines; i++) {
+                    const y = paddingTop + (i / numGridLines) * plotHeight;
+                    ctx.beginPath();
+                    ctx.moveTo(paddingLeft, y);
+                    ctx.lineTo(canvas.width - paddingRight, y);
+                    ctx.stroke();
+                }
+                
+                // Draw main axes
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text');
                 ctx.lineWidth = 2;
                 
                 // X-axis
                 ctx.beginPath();
-                ctx.moveTo(padding, canvas.height - padding);
-                ctx.lineTo(canvas.width - padding, canvas.height - padding);
+                ctx.moveTo(paddingLeft, canvas.height - paddingBottom);
+                ctx.lineTo(canvas.width - paddingRight, canvas.height - paddingBottom);
                 ctx.stroke();
                 
                 // Y-axis
                 ctx.beginPath();
-                ctx.moveTo(padding, padding);
-                ctx.lineTo(padding, canvas.height - padding);
+                ctx.moveTo(paddingLeft, paddingTop);
+                ctx.lineTo(paddingLeft, canvas.height - paddingBottom);
                 ctx.stroke();
                 
                 // Helper function to map data to screen coordinates
                 function mapX(val) {
-                    if (criticalViz === 'loglog') val = Math.log10(val);
-                    return padding + ((val - xMin) / (xMax - xMin)) * plotWidth;
+                    if (criticalViz === 'loglog' && val > 0) val = Math.log10(val);
+                    const normalized = (val - xMin) / (xMax - xMin);
+                    return paddingLeft + normalized * plotWidth;
                 }
                 
                 function mapY(val) {
                     if (criticalViz === 'loglog' && val > 0) val = Math.log10(val);
-                    return canvas.height - padding - ((val - yMin) / (yMax - yMin)) * plotHeight;
+                    const normalized = (val - yMin) / (yMax - yMin);
+                    return canvas.height - paddingBottom - normalized * plotHeight;
                 }
                 
                 // Draw zero line
                 if (showZeroLine && (criticalViz === 'error' || criticalViz === 'normalized')) {
                     ctx.strokeStyle = 'rgba(128, 128, 128, 0.5)';
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2;
                     ctx.setLineDash([5, 5]);
                     ctx.beginPath();
-                    ctx.moveTo(padding, mapY(0));
-                    ctx.lineTo(canvas.width - padding, mapY(0));
+                    const y0 = mapY(0);
+                    ctx.moveTo(paddingLeft, y0);
+                    ctx.lineTo(canvas.width - paddingRight, y0);
                     ctx.stroke();
                     ctx.setLineDash([]);
+                    
+                    // Label the zero line
+                    ctx.fillStyle = 'rgba(128, 128, 128, 0.8)';
+                    ctx.font = 'bold 14px system-ui';
+                    ctx.textAlign = 'right';
+                    ctx.fillText('Δ(R) = 0', paddingLeft - 10, y0 + 5);
                 }
                 
                 // Draw theoretical bounds
                 if (showRHBound && (criticalViz === 'bounds' || criticalViz === 'loglog')) {
-                    ctx.strokeStyle = 'rgba(111, 66, 193, 0.7)';
+                    ctx.strokeStyle = 'rgba(111, 66, 193, 0.8)';
                     ctx.lineWidth = 3;
                     ctx.setLineDash([10, 5]);
                     ctx.beginPath();
                     
-                    for (let R = step; R <= maxR; R += Math.max(1, step)) {
-                        const bound = Math.sqrt(R) * (criticalViz === 'loglog' ? 3 : 5);
+                    let firstPoint = true;
+                    for (let R = step; R <= maxR; R += Math.max(1, Math.floor(step * 2))) {
+                        const bound = Math.sqrt(R) * (criticalViz === 'loglog' ? 1 : 5);
                         const x = mapX(R);
                         const y = mapY(bound);
-                        if (R === step) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
+                        if (firstPoint) {
+                            ctx.moveTo(x, y);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
                     }
                     ctx.stroke();
                     ctx.setLineDash([]);
                     
-                    // Add label
+                    // Add label with formula
                     ctx.fillStyle = 'rgba(111, 66, 193, 0.9)';
-                    ctx.font = 'bold 12px system-ui';
-                    const labelText = criticalViz === 'loglog' ? 'Slope 1/2 (RH)' : 'RH Bound';
-                    ctx.fillText(labelText, canvas.width - padding - 80, padding + 30);
+                    ctx.font = 'bold 16px system-ui';
+                    ctx.textAlign = 'right';
+                    const labelText = criticalViz === 'loglog' ? '1/2 slope (RH bound)' : '5√R (RH conjecture)';
+                    ctx.fillText(labelText, canvas.width - paddingRight - 10, paddingTop + 30);
+                    
+                    // Draw small legend box
+                    ctx.setLineDash([10, 5]);
+                    ctx.strokeStyle = 'rgba(111, 66, 193, 0.8)';
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width - paddingRight - 150, paddingTop + 20);
+                    ctx.lineTo(canvas.width - paddingRight - 110, paddingTop + 20);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
                 }
                 
                 if (showClassicalBound && (criticalViz === 'bounds' || criticalViz === 'loglog')) {
-                    ctx.strokeStyle = 'rgba(220, 53, 69, 0.7)';
+                    ctx.strokeStyle = 'rgba(220, 53, 69, 0.8)';
                     ctx.lineWidth = 3;
                     ctx.setLineDash([5, 10]);
                     ctx.beginPath();
                     
-                    for (let R = step; R <= maxR; R += Math.max(1, step)) {
-                        const bound = Math.pow(R, 2/3) * (criticalViz === 'loglog' ? 1.5 : 2);
+                    let firstPoint = true;
+                    for (let R = step; R <= maxR; R += Math.max(1, Math.floor(step * 2))) {
+                        const bound = Math.pow(R, 2/3) * (criticalViz === 'loglog' ? 1 : 2);
                         const x = mapX(R);
                         const y = mapY(bound);
-                        if (R === step) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
+                        if (firstPoint) {
+                            ctx.moveTo(x, y);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
                     }
                     ctx.stroke();
                     ctx.setLineDash([]);
                     
                     // Add label
                     ctx.fillStyle = 'rgba(220, 53, 69, 0.9)';
-                    ctx.font = 'bold 12px system-ui';
-                    const labelText = criticalViz === 'loglog' ? 'Slope 2/3' : 'Classical Bound';
-                    ctx.fillText(labelText, canvas.width - padding - 80, padding + 50);
+                    ctx.font = 'bold 16px system-ui';
+                    ctx.textAlign = 'right';
+                    const labelText = criticalViz === 'loglog' ? '2/3 slope (proven)' : '2R^(2/3) (van der Corput)';
+                    ctx.fillText(labelText, canvas.width - paddingRight - 10, paddingTop + 60);
+                    
+                    ctx.setLineDash([5, 10]);
+                    ctx.strokeStyle = 'rgba(220, 53, 69, 0.8)';
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width - paddingRight - 150, paddingTop + 50);
+                    ctx.lineTo(canvas.width - paddingRight - 110, paddingTop + 50);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
                 }
                 
-                // Draw data points
+                // Draw data points with proper click detection coordinates
                 errorData.forEach((d, i) => {
-                    let x, y, color, pointSize = 4;
+                    let x, y, color;
+                    const pointSize = 5;
                     
                     if (criticalViz === 'error') {
                         x = mapX(d.R);
                         y = mapY(d.error);
-                        color = colorBySign ? (d.error > 0 ? 'rgba(0, 102, 204, 0.7)' : 'rgba(220, 53, 69, 0.7)') : 'rgba(0, 102, 204, 0.7)';
+                        color = colorBySign ? 
+                            (d.error > 0 ? 'rgba(0, 102, 204, 0.8)' : 'rgba(220, 53, 69, 0.8)') : 
+                            'rgba(0, 102, 204, 0.8)';
                     } else if (criticalViz === 'normalized') {
                         x = mapX(d.R);
                         y = mapY(d.error / Math.sqrt(d.R));
-                        color = colorBySign ? (d.error > 0 ? 'rgba(0, 102, 204, 0.7)' : 'rgba(220, 53, 69, 0.7)') : 'rgba(0, 102, 204, 0.7)';
+                        color = colorBySign ? 
+                            (d.error > 0 ? 'rgba(0, 102, 204, 0.8)' : 'rgba(220, 53, 69, 0.8)') : 
+                            'rgba(0, 102, 204, 0.8)';
                     } else if (criticalViz === 'loglog') {
                         if (d.absError > 0) {
                             x = mapX(d.R);
                             y = mapY(d.absError);
                             const ratio = d.normalizedError / maxNormalizedError;
                             const hue = 240 - ratio * 240;
-                            color = `hsla(${hue}, 70%, 50%, 0.7)`;
-                        } else return;
+                            color = `hsla(${hue}, 70%, 50%, 0.8)`;
+                        } else {
+                            return; // Skip points with zero error in log-log plot
+                        }
                     } else if (criticalViz === 'bounds') {
                         x = mapX(d.R);
                         y = mapY(d.absError);
                         const ratio = d.absError / maxAbsError;
                         const hue = 240 - ratio * 240;
-                        color = `hsla(${hue}, 70%, 50%, 0.7)`;
+                        color = `hsla(${hue}, 70%, 50%, 0.8)`;
                     }
                     
+                    // Draw point
                     ctx.fillStyle = color;
                     ctx.beginPath();
                     ctx.arc(x, y, pointSize, 0, 2*Math.PI);
                     ctx.fill();
                     
-                    // Store screen coordinates for click detection
+                    // Add subtle outline for better visibility
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Store EXACT screen coordinates for click detection
                     d.screenX = x;
                     d.screenY = y;
+                    d.screenRadius = pointSize + 5; // Larger hit area for easier clicking
                 });
-                
-                // Store data globally
-                window.criticalStripData = errorData;
                 
                 // Axis labels
                 ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
-                ctx.font = 'bold 14px system-ui';
+                ctx.font = 'bold 18px system-ui';
                 ctx.textAlign = 'center';
                 
+                // X-axis label
                 ctx.fillText(xLabel, canvas.width / 2, canvas.height - 20);
                 
+                // Y-axis label (rotated)
                 ctx.save();
-                ctx.translate(20, canvas.height / 2);
+                ctx.translate(25, canvas.height / 2);
                 ctx.rotate(-Math.PI/2);
                 ctx.fillText(yLabel, 0, 0);
                 ctx.restore();
                 
-                // Title
-                ctx.font = 'bold 16px system-ui';
-                const problemTitle = criticalProblem === 'all' ? 'Gauss Circle Problem' : 'Primitive Lattice Points';
-                const vizTitle = {
-                    'error': 'Error Term',
-                    'normalized': 'Normalized Error',
-                    'loglog': 'Log-Log Error',
-                    'bounds': 'Error with Bounds'
-                }[criticalViz];
-                ctx.fillText(`${problemTitle}: ${vizTitle}`, canvas.width / 2, padding - 40);
+                // Title with formula
+                ctx.font = 'bold 20px system-ui';
+                ctx.textAlign = 'center';
+                const problemTitle = criticalProblem === 'all' ? 
+                    'Gauss Circle Problem: N(R) = πR² + Δ(R)' : 
+                    'Primitive Points: N(R) = πR²/ζ(2) + Δ(R)';
+                ctx.fillText(problemTitle, canvas.width / 2, 30);
                 
-                // Tick marks and labels
-                ctx.font = '12px system-ui';
+                ctx.font = '16px system-ui';
                 ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text2');
+                const vizTitle = {
+                    'error': 'Error Term Δ(R) vs Radius',
+                    'normalized': 'Normalized Error Δ(R)/√R (should be bounded if RH true)',
+                    'loglog': 'Log-Log Plot (slope reveals growth rate)',
+                    'bounds': 'Absolute Error with Theoretical Bounds'
+                }[criticalViz];
+                ctx.fillText(vizTitle, canvas.width / 2, 55);
+                
+                // Description box
+                ctx.fillStyle = document.body.classList.contains('light') ? 'rgba(248, 249, 250, 0.95)' : 'rgba(26, 30, 42, 0.95)';
+                ctx.fillRect(paddingLeft + 10, paddingTop + 100, 380, 120);
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+                ctx.lineWidth = 2;
+                ctx.strokeRect(paddingLeft + 10, paddingTop + 100, 380, 120);
+                
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 14px system-ui';
+                ctx.textAlign = 'left';
+                ctx.fillText('What This Shows:', paddingLeft + 20, paddingTop + 120);
+                
+                ctx.font = '13px system-ui';
+                const description = criticalViz === 'error' ? 
+                    ['• Δ(R) oscillates around zero', '• Positive: overcounting vs smooth formula', '• Negative: undercounting vs smooth formula', '• Click any point for detailed analysis'] :
+                    criticalViz === 'normalized' ?
+                    ['• Δ(R)/√R should stay bounded', '• If RH true: O(R^(1/2+ε)) for any ε>0', '• Unbounded growth would disprove RH', '• Click points to see normalized values'] :
+                    criticalViz === 'loglog' ?
+                    ['• Log-log reveals power law exponent', '• Slope = growth rate of error', '• RH: slope < 1/2 (+ ε)', '• Classical bound: slope < 2/3'] :
+                    ['• Shows |Δ(R)| with theoretical bounds', '• Purple: RH conjecture 5√R', '• Red: Proven bound 2R^(2/3)', '• Click to compare error to bounds'];
+                
+                let yPos = paddingTop + 145;
+                description.forEach(line => {
+                    ctx.fillText(line, paddingLeft + 20, yPos);
+                    yPos += 20;
+                });
+                
+                // Tick marks and labels with better formatting
+                ctx.font = '13px system-ui';
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.lineWidth = 2;
                 
                 // X-axis ticks
-                const numXTicks = 5;
+                const numXTicks = Math.min(10, Math.floor(maxR / step));
                 for (let i = 0; i <= numXTicks; i++) {
                     const val = xMin + (xMax - xMin) * i / numXTicks;
+                    const displayVal = criticalViz === 'loglog' ? Math.pow(10, val) : val;
                     const x = mapX(criticalViz === 'loglog' ? Math.pow(10, val) : val);
+                    
+                    // Tick mark
                     ctx.beginPath();
-                    ctx.moveTo(x, canvas.height - padding);
-                    ctx.lineTo(x, canvas.height - padding + 5);
+                    ctx.moveTo(x, canvas.height - paddingBottom);
+                    ctx.lineTo(x, canvas.height - paddingBottom + 8);
                     ctx.stroke();
                     
+                    // Label
+                    ctx.textAlign = 'center';
                     const label = criticalViz === 'loglog' ? 
-                        Math.pow(10, val).toFixed(0) : 
-                        val.toFixed(criticalViz === 'normalized' || criticalViz === 'error' ? 0 : 1);
-                    ctx.fillText(label, x, canvas.height - padding + 20);
+                        displayVal.toFixed(0) : 
+                        displayVal.toFixed(0);
+                    ctx.fillText(label, x, canvas.height - paddingBottom + 25);
                 }
                 
                 // Y-axis ticks
-                const numYTicks = 5;
+                const numYTicks = 8;
                 for (let i = 0; i <= numYTicks; i++) {
                     const val = yMin + (yMax - yMin) * i / numYTicks;
+                    const displayVal = criticalViz === 'loglog' ? Math.pow(10, val) : val;
                     const y = mapY(criticalViz === 'loglog' ? Math.pow(10, val) : val);
+                    
+                    // Tick mark
                     ctx.beginPath();
-                    ctx.moveTo(padding - 5, y);
-                    ctx.lineTo(padding, y);
+                    ctx.moveTo(paddingLeft - 8, y);
+                    ctx.lineTo(paddingLeft, y);
                     ctx.stroke();
                     
-                    const label = criticalViz === 'loglog' ? 
-                        Math.pow(10, val).toExponential(0) : 
-                        val.toFixed(1);
+                    // Label
                     ctx.textAlign = 'right';
-                    ctx.fillText(label, padding - 10, y + 4);
-                    ctx.textAlign = 'center';
+                    const label = criticalViz === 'loglog' ? 
+                        displayVal.toExponential(0) : 
+                        displayVal.toFixed(1);
+                    ctx.fillText(label, paddingLeft - 12, y + 5);
                 }
+                
+                // Store data globally for click detection
+                window.criticalStripData = errorData;
+                window.criticalStripMapX = mapX;
+                window.criticalStripMapY = mapY;
                 
                 // Update stats
                 const rmsError = Math.sqrt(sumSqError / errorData.length);
@@ -6543,4 +6669,4 @@ as predicted by theory`;
         });
     </script>
 </body>
-    </html>
+                                                                                                                                           </html>
