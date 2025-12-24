@@ -119,7 +119,8 @@
             <button class="tab-btn" onclick="showTab('tools')">Tools</button>
             <button class="tab-btn" onclick="showTab('explore')">Explore More</button>
             <button class="tab-btn" onclick="showTab('export')">Export</button>
-            <button class="tab-btn" onclick="showTab('roadmap')">Roadmap</button>
+            <button class="tab-btn" onclick="showTab('farey')">Farey Sequences</button>
+            <button class="tab-btn" onclick="showTab('session')">Save/Load</button>
             <button class="tab-btn" onclick="showTab('derivation')">Derivation</button>
         </nav>
         
@@ -424,7 +425,10 @@
                             <input type="range" id="patternMod" min="2" max="20" value="7" step="1" oninput="updatePatternViz()">
                             
                             <label style="margin-top:15px;">Radius R: <span id="patternRv">30</span></label>
-                            <input type="range" id="patternR" min="10" max="100" value="30" step="5" oninput="updatePatternViz()">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="range" id="patternR" min="10" max="100" value="30" step="5" oninput="document.getElementById('patternRv').textContent=this.value; document.getElementById('patternRInput').value=this.value;" style="flex:1;">
+                                <input type="number" id="patternRInput" min="10" max="200" value="30" style="width:80px; padding:8px;" oninput="document.getElementById('patternRv').textContent=this.value; document.getElementById('patternR').value=Math.min(this.value,100);">
+                            </div>
                             
                             <div style="margin-top:15px;">
                                 <label><input type="checkbox" id="showExpected" checked onchange="updatePatternViz()"> Show Expected Distribution</label>
@@ -482,7 +486,10 @@
                             <input type="range" id="numSectors" min="4" max="32" value="16" step="1" oninput="updatePatternViz()">
                             
                             <label style="margin-top:15px;">Radius: <span id="angularRv">40</span></label>
-                            <input type="range" id="angularR" min="10" max="100" value="40" step="5" oninput="updatePatternViz()">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="range" id="angularR" min="10" max="100" value="40" step="5" oninput="document.getElementById('angularRv').textContent=this.value; document.getElementById('angularRInput').value=this.value;" style="flex:1;">
+                                <input type="number" id="angularRInput" min="10" max="200" value="40" style="width:80px; padding:8px;" oninput="document.getElementById('angularRv').textContent=this.value; document.getElementById('angularR').value=Math.min(this.value,100);">
+                            </div>
                         </div>
                         
                         <button onclick="updatePatternViz()" style="padding:12px 24px; margin:10px 0;">Analyze Angular Distribution</button>
@@ -503,7 +510,10 @@
                             <input type="range" id="shellThick" min="1" max="10" value="2" step="1" oninput="updatePatternViz()">
                             
                             <label style="margin-top:15px;">Maximum Radius: <span id="radialMaxRv">60</span></label>
-                            <input type="range" id="radialMaxR" min="20" max="100" value="60" step="5" oninput="updatePatternViz()">
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="range" id="radialMaxR" min="20" max="100" value="60" step="5" oninput="document.getElementById('radialMaxRv').textContent=this.value; document.getElementById('radialMaxRInput').value=this.value;" style="flex:1;">
+                                <input type="number" id="radialMaxRInput" min="20" max="200" value="60" style="width:80px; padding:8px;" oninput="document.getElementById('radialMaxRv').textContent=this.value; document.getElementById('radialMaxR').value=Math.min(this.value,100);">
+                            </div>
                         </div>
                         
                         <button onclick="updatePatternViz()" style="padding:12px 24px; margin:10px 0;">Compute Radial Distribution</button>
@@ -530,13 +540,15 @@
                             <button onclick="setGCDHeatmapPreset('small')" style="padding:6px 12px; font-size:0.9em;">Small (R=15)</button>
                             <button onclick="setGCDHeatmapPreset('medium')" style="padding:6px 12px; font-size:0.9em;">Medium (R=30)</button>
                             <button onclick="setGCDHeatmapPreset('large')" style="padding:6px 12px; font-size:0.9em;">Large (R=50)</button>
+                            <button onclick="setGCDHeatmapPreset('xlarge')" style="padding:6px 12px; font-size:0.9em;">X-Large (R=100)</button>
+                            <button onclick="setGCDHeatmapPreset('huge')" style="padding:6px 12px; font-size:0.9em;">Huge (R=200)</button>
                         </div>
                     </div>
                     
                     <label>Radius: <span id="heatmapRv">25</span></label>
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
-                        <input type="range" id="heatmapR" min="5" max="100" value="25" step="1" oninput="updateHeatmapR()" style="flex:1;">
-                        <input type="number" id="heatmapRinput" min="5" max="1000" value="25" style="width:100px; padding:8px;" oninput="updateHeatmapR()">
+                        <input type="range" id="heatmapR" min="5" max="200" value="25" step="1" oninput="updateHeatmapR()" style="flex:1;">
+                        <input type="number" id="heatmapRinput" min="5" max="500" value="25" style="width:100px; padding:8px;" oninput="updateHeatmapR()">
                     </div>
                     
                     <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
@@ -599,32 +611,59 @@
 
         <div id="gcdtable" class="panel">
             <div class="section">
-                <h2>GCD Multiplication Table <span class="help-icon tooltip" data-tip="Interactive GCD grid visualization">?</span></h2>
-                <p>Explore GCD patterns in a multiplication table format. Each cell shows gcd(row, column) with color-coding by value.</p>
+                <h2>Modular Arithmetic Tables <span class="help-icon tooltip" data-tip="Interactive algebraic structure visualization">?</span></h2>
+                <p>Explore various algebraic structures and patterns in modular arithmetic. Choose different table types to visualize GCD, addition, multiplication, and structural properties.</p>
                 
                 <div class="controls">
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Table Type:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:8px;">
+                            <button id="tableTypeGCD" class="active" onclick="setTableType('gcd')" style="padding:10px;">GCD Table</button>
+                            <button id="tableTypeAdd" onclick="setTableType('addition')" style="padding:10px;">Addition Mod n</button>
+                            <button id="tableTypeMult" onclick="setTableType('multiplication')" style="padding:10px;">Multiplication Mod n</button>
+                            <button id="tableTypeZeroDiv" onclick="setTableType('zerodivisors')" style="padding:10px;">Zero Divisors</button>
+                            <button id="tableTypeUnits" onclick="setTableType('units')" style="padding:10px;">Units (Invertible)</button>
+                            <button id="tableTypeTotient" onclick="setTableType('totient')" style="padding:10px;">Euler's φ</button>
+                        </div>
+                    </div>
+                    
                     <div style="margin-bottom:10px;">
                         <label><b>Presets:</b></label>
                         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:5px;">
                             <button onclick="setGCDTablePreset('small')" style="padding:6px 12px; font-size:0.9em;">Small (20×20)</button>
                             <button onclick="setGCDTablePreset('medium')" style="padding:6px 12px; font-size:0.9em;">Medium (50×50)</button>
                             <button onclick="setGCDTablePreset('large')" style="padding:6px 12px; font-size:0.9em;">Large (100×100)</button>
+                            <button onclick="setGCDTablePreset('xlarge')" style="padding:6px 12px; font-size:0.9em;">X-Large (200×200)</button>
+                            <button onclick="setGCDTablePreset('huge')" style="padding:6px 12px; font-size:0.9em;">Huge (500×500)</button>
                         </div>
                     </div>
                     
                     <label>Grid Size: <span id="gcdTableSizev">30</span></label>
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
-                        <input type="range" id="gcdTableSize" min="5" max="150" value="30" step="1" oninput="updateGCDTable()" style="flex:1;">
-                        <input type="number" id="gcdTableSizeInput" min="5" max="200" value="30" style="width:100px; padding:8px;" oninput="updateGCDTable()">
+                        <input type="range" id="gcdTableSize" min="5" max="500" value="30" step="1" oninput="updateGCDTableSize()" style="flex:1;">
+                        <input type="number" id="gcdTableSizeInput" min="5" max="1000" value="30" style="width:100px; padding:8px;" oninput="updateGCDTableSize()">
                     </div>
                     
                     <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
                         <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Color Scheme:</b></label>
                         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:8px;">
                             <button id="gcdTableHeat" class="active" onclick="setGCDTableColor('heat')" style="padding:10px;">Heat Map</button>
-                            <button id="gcdTableDiscrete" onclick="setGCDTableColor('discrete')" style="padding:10px;">Discrete GCD</button>
+                            <button id="gcdTableDiscrete" onclick="setGCDTableColor('discrete')" style="padding:10px;">Discrete Values</button>
                             <button id="gcdTablePrime" onclick="setGCDTableColor('prime')" style="padding:10px;">Prime Powers</button>
+                            <button id="gcdTableBinary" onclick="setGCDTableColor('binary')" style="padding:10px;">Binary (Yes/No)</button>
+                            <button id="gcdTableRainbow" onclick="setGCDTableColor('rainbow')" style="padding:10px;">Rainbow</button>
                         </div>
+                    </div>
+                    
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Grid Rotation:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+                            <button id="gcdTableRot0" class="active" onclick="setGCDTableRotation(0)" style="padding:10px;">0°</button>
+                            <button id="gcdTableRot90" onclick="setGCDTableRotation(90)" style="padding:10px;">90°</button>
+                            <button id="gcdTableRot180" onclick="setGCDTableRotation(180)" style="padding:10px;">180°</button>
+                            <button id="gcdTableRot270" onclick="setGCDTableRotation(270)" style="padding:10px;">270°</button>
+                        </div>
+                        <p style="font-size:0.85em; color:var(--text2); margin-top:8px;">Rotate to view table from different quadrants</p>
                     </div>
                     
                     <label style="display:flex; align-items:center; gap:8px; margin:10px 0;">
@@ -648,13 +687,18 @@
                     <p style="color:var(--text2); font-style:italic;">Click on a cell to see GCD(row, col) details</p>
                 </div>
                 
-                <div class="formula" style="margin-top:20px;">
+                <div class="formula" id="tableFormula" style="margin-top:20px;">
                     <p><b>Patterns to Observe:</b></p>
-                    <p>• Diagonal elements: gcd(n, n) = n (perfect squares in intensity)</p>
-                    <p>• Symmetry: gcd(a, b) = gcd(b, a) - table is symmetric</p>
-                    <p>• Rows/columns of primes: mostly 1s except at multiples</p>
-                    <p>• Coprimality appears as value 1 (darkest cells in heat map)</p>
-                    <p>• Patterns reveal divisibility relationships at a glance</p>
+                    <p id="tablePatternInfo">Loading...</p>
+                    <p style="margin-top:15px; padding:10px; background:var(--bg); border-radius:6px;">
+                        <b>About Grid Rotation:</b><br>
+                        Rotating the table by 90° increments reveals different symmetries and patterns:<br>
+                        • <b>0°:</b> Standard view - rows increase downward, columns increase rightward<br>
+                        • <b>90°:</b> Rotated clockwise - observe vertical symmetry patterns<br>
+                        • <b>180°:</b> Upside down - reveals inverse patterns and reflections<br>
+                        • <b>270°:</b> Rotated counter-clockwise - horizontal symmetry emphasis<br>
+                        Perfect for analyzing table structure from all four quadrants!
+                    </p>
                 </div>
             </div>
         </div>
@@ -804,6 +848,7 @@
                             <button onclick="set2DPreset('medium')" style="padding:6px 12px; font-size:0.9em;">Medium (R=50)</button>
                             <button onclick="set2DPreset('large')" style="padding:6px 12px; font-size:0.9em;">Large (R=100)</button>
                             <button onclick="set2DPreset('xlarge')" style="padding:6px 12px; font-size:0.9em;">X-Large (R=200)</button>
+                            <button onclick="set2DPreset('huge')" style="padding:6px 12px; font-size:0.9em;">Huge (R=500)</button>
                         </div>
                     </div>
                     <label>Radius: <span id="r2v">20</span></label>
@@ -1482,6 +1527,26 @@
                         <p style="text-align:center; margin:0;"><span id="animCurrentStep">0</span> / <span id="animTotalSteps">0</span> (<span id="animPercent">0</span>%)</p>
                     </div>
                 </div>
+                
+                <div style="margin-top:20px;">
+                    <h3 style="color:var(--blue); margin-bottom:15px;">Animation Preview</h3>
+                    <canvas id="animCanvas" width="800" height="800" style="max-width:100%; border:2px solid var(--border); border-radius:8px;"></canvas>
+                    
+                    <div class="stats" id="animStats" style="margin-top:20px;">
+                        <div class="stat"><div class="val" id="animParamVal">-</div><div class="lbl" id="animParamLabel">Current Value</div></div>
+                        <div class="stat"><div class="val" id="animPrimCount">0</div><div class="lbl">Primitive Points</div></div>
+                        <div class="stat"><div class="val" id="animTotalCount">0</div><div class="lbl">Total Points</div></div>
+                        <div class="stat"><div class="val" id="animDensity">0%</div><div class="lbl">Density</div></div>
+                        <div class="stat"><div class="val" id="animZeta">-</div><div class="lbl">ζ(k) or 1/ζ(k)</div></div>
+                    </div>
+                </div>
+                
+                <div class="formula" style="margin-top:20px;">
+                    <p><b>Animation Types:</b></p>
+                    <p>• <b>Radius Sweep:</b> Watch primitive lattice points grow as radius increases from start to end</p>
+                    <p>• <b>Dimension Sweep:</b> See how density approaches 100% as dimension k increases</p>
+                    <p>• <b>Modular Pattern:</b> Observe how residue class distributions change with modulus</p>
+                </div>
             </div>
         </div>
 
@@ -1607,154 +1672,101 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             </div>
         </div>
 
+        <div id="farey" class="panel">
+            <div class="section">
+                <h2>Farey Sequences & Visible Points <span class="help-icon tooltip" data-tip="Rational approximations and coprime fractions">?</span></h2>
+                <p>The Farey sequence F_n contains all reduced fractions p/q where 0 ≤ p ≤ q ≤ n. These correspond to primitive lattice points and visible points from the origin.</p>
+                
+                <div class="controls">
+                    <label>Order n: <span id="fareyNv">10</span></label>
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                        <input type="range" id="fareyN" min="2" max="100" value="10" step="1" oninput="updateFareyN()" style="flex:1;">
+                        <input type="number" id="fareyNInput" min="2" max="200" value="10" style="width:100px; padding:8px;" oninput="updateFareyN()">
+                    </div>
+                    
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-bottom:15px;">
+                        <label style="font-size:1.1em; color:var(--blue); margin-bottom:10px; display:block;"><b>Visualization:</b></label>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:8px;">
+                            <button id="fareyList" class="active" onclick="setFareyViz('list')" style="padding:10px;">Sequence List</button>
+                            <button id="fareyCircle" onclick="setFareyViz('circle')" style="padding:10px;">Ford Circles</button>
+                            <button id="fareyTree" onclick="setFareyViz('tree')" style="padding:10px;">Stern-Brocot Tree</button>
+                        </div>
+                    </div>
+                    
+                    <button onclick="computeFarey()">Generate Sequence</button>
+                    <button onclick="exportFareyData()">Export Data</button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat"><div class="val" id="fareyCount">0</div><div class="lbl">Fractions in F_n</div></div>
+                    <div class="stat"><div class="val" id="fareySum">0</div><div class="lbl">Sum of φ(k)</div></div>
+                    <div class="stat"><div class="val" id="fareyDensity">0%</div><div class="lbl">Density</div></div>
+                    <div class="stat"><div class="val" id="fareyMediant">N/A</div><div class="lbl">Sample Mediant</div></div>
+                </div>
+                
+                <canvas id="fareyCanvas" width="1200" height="600" style="max-width:100%;"></canvas>
+                
+                <div class="formula" style="margin-top:20px;">
+                    <p><b>Farey Sequence Properties:</b></p>
+                    <p>• F_n = {p/q : 0 ≤ p ≤ q ≤ n, gcd(p,q) = 1}</p>
+                    <p>• |F_n| = 1 + Σ_{k=1}^n φ(k) where φ is Euler's totient</p>
+                    <p>• Mediant property: If p/q and r/s are consecutive in F_n, then (p+r)/(q+s) appears in F_{q+s}</p>
+                    <p>• Connection to continued fractions and best rational approximations</p>
+                    <p>• Ford circles: Circle at p/q with radius 1/(2q²) - consecutive circles are tangent</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="session" class="panel">
+            <div class="section">
+                <h2>Save & Load Session <span class="help-icon tooltip" data-tip="Preserve your exploration state">?</span></h2>
+                <p>Save your current parameters and visualization state to continue your research later or share configurations with others.</p>
+                
+                <div class="controls">
+                    <h3 style="color:var(--blue);">Save Current Session</h3>
+                    <label>Session Name:</label>
+                    <input type="text" id="sessionName" placeholder="My Research - 2024-12-24" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);">
+                    
+                    <label>Description (optional):</label>
+                    <textarea id="sessionDesc" placeholder="Exploring primitive points with R=100, investigating GCD patterns..." style="width:100%; padding:10px; margin:10px 0; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border); min-height:80px;"></textarea>
+                    
+                    <div style="margin:20px 0;">
+                        <button onclick="saveSession()" style="padding:12px 30px; background:var(--green);">💾 Save Session</button>
+                        <button onclick="exportSession()" style="padding:12px 30px; background:var(--blue);">📥 Export to File</button>
+                    </div>
+                    
+                    <h3 style="color:var(--blue); margin-top:30px;">Load Session</h3>
+                    <label>Import from File:</label>
+                    <input type="file" id="sessionFile" accept=".json" onchange="importSession()" style="margin:10px 0; padding:10px;">
+                    
+                    <div style="background:var(--bg3); padding:15px; border-radius:8px; margin-top:20px;">
+                        <h4 style="color:var(--blue);">Saved Sessions</h4>
+                        <div id="savedSessions" style="margin-top:10px;">
+                            <p style="color:var(--text2); font-style:italic;">No saved sessions yet</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top:20px;">
+                        <button onclick="clearAllSessions()" style="padding:10px 20px; background:var(--red);">🗑️ Clear All Sessions</button>
+                    </div>
+                </div>
+                
+                <div class="formula" style="margin-top:20px;">
+                    <p><b>What Gets Saved:</b></p>
+                    <p>• All radius and dimension parameters</p>
+                    <p>• Color modes and visualization settings</p>
+                    <p>• Active tab and display preferences</p>
+                    <p>• Table sizes and configurations</p>
+                    <p>• Label and zoom settings</p>
+                    <p><b>Note:</b> Sessions are stored in your browser's local storage and persist between visits.</p>
+                </div>
+            </div>
+        </div>
+
         <div id="roadmap" class="panel">
             <div class="section">
-                <h2>Research Roadmap & Missing Features</h2>
-                <p>This platform is comprehensive, but mathematical research is infinite. Here's what could enhance this work:</p>
-                
-                <h3 style="color:var(--blue); margin-top:30px;">High Priority - Core Mathematics</h3>
-                <div class="formula">
-                    <p><b>1. Farey Sequences & Ford Circles</b></p>
-                    <p>• Visualization of Farey fractions F_n = {a/b : 0 ≤ a ≤ b ≤ n, gcd(a,b)=1}</p>
-                    <p>• Ford circles tangent to primitive fractions</p>
-                    <p>• Connection to continued fractions and Stern-Brocot tree</p>
-                    <p>• Cayley transform mapping to hyperbolic geometry</p>
-                    
-                    <p style="margin-top:15px;"><b>2. Visible Lattice Points (Visibility Graph)</b></p>
-                    <p>• Points visible from origin (exactly the primitive points)</p>
-                    <p>• Angular gap distribution between visible points</p>
-                    <p>• Connection to coprime probability</p>
-                    
-                    <p style="margin-top:15px;"><b>3. Diophantine Approximation</b></p>
-                    <p>• Best rational approximations to irrationals</p>
-                    <p>• Continued fraction convergents</p>
-                    <p>• Dirichlet's approximation theorem visualization</p>
-                    
-                    <p style="margin-top:15px;"><b>4. Pick's Theorem & Lattice Polygons</b></p>
-                    <p>• Area = Interior + Boundary/2 - 1</p>
-                    <p>• Interactive polygon builder on lattice</p>
-                    <p>• Connection to Euler's formula</p>
-                </div>
-                
-                <h3 style="color:var(--green); margin-top:30px;">Advanced Visualizations</h3>
-                <div class="formula">
-                    <p><b>5. Voronoi Diagrams & Delaunay Triangulation</b></p>
-                    <p>• Voronoi cells around primitive points</p>
-                    <p>• Dual Delaunay triangulation</p>
-                    <p>• Nearest primitive point queries</p>
-                    
-                    <p style="margin-top:15px;"><b>6. Minkowski's Theorem Visualization</b></p>
-                    <p>• Convex symmetric regions containing lattice points</p>
-                    <p>• Volume threshold: V > 2^k guarantees interior point</p>
-                    <p>• Applications to algebraic number theory</p>
-                    
-                    <p style="margin-top:15px;"><b>7. Lattice Reduction Algorithms</b></p>
-                    <p>• LLL algorithm animation</p>
-                    <p>• Gaussian lattice reduction (2D)</p>
-                    <p>• Shortest vector problem visualization</p>
-                </div>
-                
-                <h3 style="color:var(--purple); margin-top:30px;">Deep Number Theory Connections</h3>
-                <div class="formula">
-                    <p><b>8. Explicit Formulas Using Zeta Zeros</b></p>
-                    <p>• N(R) = Main Term + Σ (contribution from each zeta zero)</p>
-                    <p>• Visualize oscillations from imaginary parts of zeros</p>
-                    <p>• Connection between zero spacing and error term</p>
-                    
-                    <p style="margin-top:15px;"><b>9. Prime Number Connections</b></p>
-                    <p>• Lattice points with prime coordinates</p>
-                    <p>• Distribution of primes in lattice</p>
-                    <p>• Connection to prime number theorem</p>
-                    
-                    <p style="margin-top:15px;"><b>10. Modular Forms & L-functions</b></p>
-                    <p>• Theta functions counting lattice points</p>
-                    <p>• Connection to elliptic curves</p>
-                    <p>• Modular symmetry visualization</p>
-                    
-                    <p style="margin-top:15px;"><b>11. Euler Products & Multiplicative Functions</b></p>
-                    <p>• ζ(s) = Π (1 - p^(-s))^(-1) visualization</p>
-                    <p>• Connection between prime factors and GCD patterns</p>
-                    <p>• Dirichlet series for various arithmetic functions</p>
-                </div>
-                
-                <h3 style="color:var(--orange); margin-top:30px;">Platform Enhancements</h3>
-                <div class="formula">
-                    <p><b>12. Research Session Management</b></p>
-                    <p>• Save/load current state and parameters</p>
-                    <p>• Bookmark interesting configurations</p>
-                    <p>• Research notes and annotations</p>
-                    <p>• Export complete research sessions</p>
-                    
-                    <p style="margin-top:15px;"><b>13. Batch Processing & Parameter Sweeps</b></p>
-                    <p>• Automated exploration of parameter space</p>
-                    <p>• Generate data for multiple (k, R) combinations</p>
-                    <p>• Statistical analysis across parameter ranges</p>
-                    <p>• Parallel computation for large datasets</p>
-                    
-                    <p style="margin-top:15px;"><b>14. Advanced Statistical Tools</b></p>
-                    <p>• Correlation analysis between metrics</p>
-                    <p>• Hypothesis testing framework</p>
-                    <p>• Regression analysis for error bounds</p>
-                    <p>• Monte Carlo simulations</p>
-                    
-                    <p style="margin-top:15px;"><b>15. Educational Features</b></p>
-                    <p>• Step-by-step guided tours</p>
-                    <p>• Interactive tutorials for each concept</p>
-                    <p>• Problem sets with solutions</p>
-                    <p>• Historical context and references</p>
-                </div>
-                
-                <h3 style="color:var(--red); margin-top:30px;">Advanced Topics</h3>
-                <div class="formula">
-                    <p><b>16. Quaternion & Octonion Lattices</b></p>
-                    <p>• Generalization beyond integer lattices</p>
-                    <p>• Hurwitz quaternions and E₈ lattice</p>
-                    <p>• Sphere packing connections</p>
-                    
-                    <p style="margin-top:15px;"><b>17. Algebraic Number Theory</b></p>
-                    <p>• Lattices in number fields</p>
-                    <p>• Units and class groups</p>
-                    <p>• Ideal lattices</p>
-                    
-                    <p style="margin-top:15px;"><b>18. Computational Complexity</b></p>
-                    <p>• Algorithm efficiency analysis</p>
-                    <p>• Optimization techniques</p>
-                    <p>• GPU acceleration for large R</p>
-                    
-                    <p style="margin-top:15px;"><b>19. Machine Learning Integration</b></p>
-                    <p>• Pattern recognition in lattice structures</p>
-                    <p>• Predicting error term behavior</p>
-                    <p>• Neural networks for lattice problems</p>
-                    
-                    <p style="margin-top:15px;"><b>20. Collaborative Research Features</b></p>
-                    <p>• Share configurations via URL</p>
-                    <p>• Real-time collaboration mode</p>
-                    <p>• Community contributions database</p>
-                    <p>• Discussion forums for specific phenomena</p>
-                </div>
-                
-                <div style="background:var(--bg3); padding:20px; border-radius:8px; margin-top:30px;">
-                    <h3 style="color:var(--blue);">What This Platform Currently Has</h3>
-                    <p>- Complete primitive lattice point theory (k=2 to 12)</p>
-                    <p>- 2D/3D interactive visualizations with multiple coloring modes</p>
-                    <p>- GCD heatmaps and multiplication tables</p>
-                    <p>- Critical strip error analysis (Gauss Circle Problem)</p>
-                    <p>- Pattern explorer (modular, angular, radial, density)</p>
-                    <p>- Dimension comparison tools</p>
-                    <p>- Professional export system (up to 8K resolution)</p>
-                    <p>- Point labeling and zoom controls</p>
-                    <p>- High-precision calculations (up to 17 decimals)</p>
-                    <p>- Comprehensive mathematical tools (GCD, Möbius, primes)</p>
-                    <p>- Full derivation and theoretical framework</p>
-                    <p>- Extensive parameter controls (R up to 2000 in 2D)</p>
-                </div>
-                
-                <div style="background:var(--bg2); padding:20px; border-radius:8px; margin-top:20px; border-left:4px solid var(--blue);">
-                    <h3>Suggestions for Next Steps</h3>
-                    <p><b>Immediate:</b> Farey sequences, Ford circles, visible points</p>
-                    <p><b>Short-term:</b> Voronoi diagrams, lattice reduction, Pick's theorem</p>
-                    <p><b>Long-term:</b> Explicit formulas with zeros, modular forms, collaborative features</p>
-                </div>
+                <h2>This tab has been removed</h2>
+                <p>Features from the roadmap have been implemented throughout the platform. See the Farey Sequences tab and Save/Load Session tab for newly added functionality.</p>
             </div>
         </div>
 
@@ -1914,7 +1926,21 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             <p>- Three color schemes: heat map, discrete GCD, prime powers</p>
             <p>- Toggle value display and diagonal highlighting</p>
             <p>- Observe symmetry and patterns in divisibility</p>
-            <p>- Grid sizes from 5×5 up to 200×200</p>
+            <p>- Grid sizes from 5×5 up to 500×500</p>
+            
+            <h3>Modular Arithmetic Tables</h3>
+            <p><b>Six different table types available:</b></p>
+            <p>- <b>GCD Table:</b> Shows gcd(i,j) for all pairs</p>
+            <p>- <b>Addition Mod n:</b> Cayley table for (ℤ/nℤ, +)</p>
+            <p>- <b>Multiplication Mod n:</b> Shows (i×j) mod n</p>
+            <p>- <b>Zero Divisors:</b> Highlights pairs where i×j ≡ 0 (mod n)</p>
+            <p>- <b>Units:</b> Shows invertible elements (coprime to modulus)</p>
+            <p>- <b>Euler's φ:</b> Displays φ(gcd(i,j))</p>
+            <p><b>Five color schemes:</b> Heat Map, Discrete, Prime Powers, Binary, Rainbow</p>
+            <p><b>Grid Rotation:</b> Rotate by 90° increments (0°, 90°, 180°, 270°) to view table from different quadrants and reveal symmetries</p>
+            <p>- All tables support sizes up to 500×500</p>
+            <p>- Click cells for detailed algebraic information</p>
+            <p>- Export data for further analysis</p>
             
             <h3>2D Visualizations</h3>
             <p><b>Point Labeling Options:</b></p>
@@ -2051,11 +2077,14 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             <p>- All exports include metadata, legends, and attribution</p>
             
             <h3>Performance Tips</h3>
+            <p>- All radius sliders support values up to 500 via number input</p>
             <p>- Keep radius ≤ 200 in 2D, ≤ 30 in 3D for smooth performance</p>
             <p>- Use zoom slider in 2D to focus on specific regions</p>
             <p>- Limit number of labels for large radius values</p>
             <p>- Use Export tab for high-resolution outputs</p>
             <p>- Compare mode shows multiple dimensions simultaneously</p>
+            <p>- Modular arithmetic tables support sizes up to 500×500</p>
+            <p>- For very large values, use number input boxes (not sliders)</p>
             
             <h3>Export Features</h3>
             <p><b>Advanced Export Center:</b></p>
@@ -2306,7 +2335,7 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
 
         function update2DRadius(value) {
             const R = parseInt(value);
-            if (R < 1 || R > 1000 || isNaN(R)) return;
+            if (R < 1 || R > 2000 || isNaN(R)) return;
             
             document.getElementById('r2v').textContent = R;
             document.getElementById('r2').value = Math.min(R, 500);
@@ -2316,6 +2345,12 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             document.getElementById('warn2d').style.display = R > 200 ? 'block' : 'none';
             
             draw2D();
+        }
+        
+        function updateAllRadiusDisplays() {
+            // Sync all radius displays
+            const r2val = document.getElementById('r2input').value;
+            document.getElementById('r2v').textContent = r2val;
         }
 
         function draw2D() {
@@ -3082,6 +3117,605 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             exportCanvas('compChart', 'dimension-comparison-chart');
         }
 
+        let fareyViz = 'list';
+        let fareyData = null;
+        
+        function updateFareyN() {
+            const val = parseInt(document.getElementById('fareyNInput').value) || parseInt(document.getElementById('fareyN').value);
+            document.getElementById('fareyNv').textContent = val;
+            document.getElementById('fareyN').value = Math.min(val, 100);
+            document.getElementById('fareyNInput').value = val;
+        }
+        
+        function setFareyViz(mode) {
+            fareyViz = mode;
+            document.querySelectorAll('#fareyList, #fareyCircle, #fareyTree').forEach(btn => btn.classList.remove('active'));
+            const btnIds = { 'list': 'fareyList', 'circle': 'fareyCircle', 'tree': 'fareyTree' };
+            document.getElementById(btnIds[mode]).classList.add('active');
+            if (fareyData) drawFareyViz();
+        }
+        
+        function computeFarey() {
+            const n = parseInt(document.getElementById('fareyNInput').value) || parseInt(document.getElementById('fareyN').value);
+            
+            // Generate Farey sequence F_n
+            const fractions = [];
+            
+            for (let q = 1; q <= n; q++) {
+                for (let p = 0; p <= q; p++) {
+                    if (gcd(p, q) === 1) {
+                        fractions.push({ p, q, value: p / q });
+                    }
+                }
+            }
+            
+            // Sort by value
+            fractions.sort((a, b) => a.value - b.value);
+            
+            // Calculate sum of phi
+            let sumPhi = 1; // for 0/1
+            for (let k = 1; k <= n; k++) {
+                sumPhi += eulerPhi(k);
+            }
+            
+            // Sample mediant
+            const sampleMediant = fractions.length > 2 ? 
+                `(${fractions[1].p}+${fractions[2].p})/(${fractions[1].q}+${fractions[2].q}) = ${fractions[1].p + fractions[2].p}/${fractions[1].q + fractions[2].q}` : 
+                'N/A';
+            
+            fareyData = {
+                n,
+                fractions,
+                count: fractions.length,
+                sumPhi,
+                sampleMediant
+            };
+            
+            // Update stats
+            animateValue('fareyCount', 0, fareyData.count);
+            animateValue('fareySum', 0, sumPhi);
+            document.getElementById('fareyDensity').textContent = ((fareyData.count / (n * (n + 1) / 2)) * 100).toFixed(2) + '%';
+            document.getElementById('fareyMediant').textContent = sampleMediant;
+            
+            drawFareyViz();
+        }
+        
+        function drawFareyViz() {
+            if (!fareyData) return;
+            
+            const canvas = document.getElementById('fareyCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = document.body.classList.contains('light') ? '#ffffff' : '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (fareyViz === 'list') {
+                // Draw as a number line with fractions
+                const padding = 60;
+                const lineY = 100;
+                const lineWidth = canvas.width - 2 * padding;
+                
+                // Draw number line
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(padding, lineY);
+                ctx.lineTo(canvas.width - padding, lineY);
+                ctx.stroke();
+                
+                // Draw fractions
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = '12px system-ui';
+                ctx.textAlign = 'center';
+                
+                const maxDisplay = Math.min(fareyData.fractions.length, 50);
+                const step = Math.ceil(fareyData.fractions.length / maxDisplay);
+                
+                fareyData.fractions.forEach((frac, i) => {
+                    if (i % step === 0 || i === 0 || i === fareyData.fractions.length - 1) {
+                        const x = padding + frac.value * lineWidth;
+                        
+                        // Tick mark
+                        ctx.beginPath();
+                        ctx.moveTo(x, lineY - 10);
+                        ctx.lineTo(x, lineY + 10);
+                        ctx.stroke();
+                        
+                        // Label
+                        ctx.fillText(`${frac.p}/${frac.q}`, x, lineY + 30);
+                        ctx.fillText(frac.value.toFixed(3), x, lineY + 45);
+                    }
+                });
+                
+                // Draw list of fractions
+                ctx.font = '14px monospace';
+                ctx.textAlign = 'left';
+                let yPos = 180;
+                const cols = 8;
+                const colWidth = canvas.width / cols;
+                
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--blue');
+                ctx.font = 'bold 16px system-ui';
+                ctx.fillText(`Farey Sequence F_${fareyData.n} (${fareyData.count} fractions):`, 20, 160);
+                
+                ctx.font = '13px monospace';
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                
+                fareyData.fractions.forEach((frac, i) => {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const x = 20 + col * colWidth;
+                    const y = yPos + row * 20;
+                    
+                    if (y < canvas.height - 20) {
+                        ctx.fillText(`${frac.p}/${frac.q}`, x, y);
+                    }
+                });
+                
+            } else if (fareyViz === 'circle') {
+                // Ford circles visualization
+                const baseY = canvas.height - 50;
+                const scale = canvas.width - 100;
+                
+                // Draw x-axis
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(50, baseY);
+                ctx.lineTo(canvas.width - 50, baseY);
+                ctx.stroke();
+                
+                // Draw Ford circles
+                const maxQ = Math.min(fareyData.n, 20); // Limit for visibility
+                
+                fareyData.fractions.forEach(frac => {
+                    if (frac.q <= maxQ) {
+                        const centerX = 50 + frac.value * scale;
+                        const radius = scale / (2 * frac.q * frac.q);
+                        const centerY = baseY - radius;
+                        
+                        if (radius > 1) {
+                            // Draw circle
+                            const hue = (frac.q / maxQ) * 240;
+                            ctx.strokeStyle = `hsl(${hue}, 70%, 50%)`;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                            ctx.stroke();
+                            
+                            // Label
+                            if (radius > 15) {
+                                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                                ctx.font = `${Math.min(12, radius / 2)}px system-ui`;
+                                ctx.textAlign = 'center';
+                                ctx.fillText(`${frac.p}/${frac.q}`, centerX, centerY + 4);
+                            }
+                        }
+                    }
+                });
+                
+                // Title and explanation
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 18px system-ui';
+                ctx.textAlign = 'left';
+                ctx.fillText('Ford Circles', 20, 30);
+                ctx.font = '14px system-ui';
+                ctx.fillText(`Circle at p/q has radius 1/(2q²)`, 20, 55);
+                ctx.fillText(`Consecutive Farey fractions have tangent circles`, 20, 75);
+                
+            } else if (fareyViz === 'tree') {
+                // Stern-Brocot tree
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 18px system-ui';
+                ctx.fillText('Stern-Brocot Tree', 20, 30);
+                ctx.font = '14px system-ui';
+                ctx.fillText('Binary tree of all positive rationals in lowest terms', 20, 55);
+                
+                // Draw tree structure
+                const levels = Math.min(5, Math.floor(Math.log2(fareyData.n)) + 2);
+                const startX = canvas.width / 2;
+                const startY = 100;
+                const levelHeight = 80;
+                
+                function drawNode(p, q, x, y, level, maxLevel, leftP, leftQ, rightP, rightQ) {
+                    if (level > maxLevel || q > fareyData.n) return;
+                    
+                    // Draw node
+                    ctx.fillStyle = '#0066cc';
+                    ctx.beginPath();
+                    ctx.arc(x, y, 20, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // Label
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 12px system-ui';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${p}/${q}`, x, y + 4);
+                    
+                    // Draw children
+                    if (level < maxLevel) {
+                        const leftChildP = p + leftP;
+                        const leftChildQ = q + leftQ;
+                        const rightChildP = p + rightP;
+                        const rightChildQ = q + rightQ;
+                        
+                        const childY = y + levelHeight;
+                        const spread = canvas.width / Math.pow(2, level + 2);
+                        const leftX = x - spread;
+                        const rightX = x + spread;
+                        
+                        // Draw lines to children
+                        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+                        ctx.lineWidth = 2;
+                        
+                        if (leftChildQ <= fareyData.n) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, y + 20);
+                            ctx.lineTo(leftX, childY - 20);
+                            ctx.stroke();
+                            drawNode(leftChildP, leftChildQ, leftX, childY, level + 1, maxLevel, leftP, leftQ, p, q);
+                        }
+                        
+                        if (rightChildQ <= fareyData.n) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, y + 20);
+                            ctx.lineTo(rightX, childY - 20);
+                            ctx.stroke();
+                            drawNode(rightChildP, rightChildQ, rightX, childY, level + 1, maxLevel, p, q, rightP, rightQ);
+                        }
+                    }
+                }
+                
+                // Start with 1/1 as root
+                drawNode(1, 1, startX, startY, 1, levels, 0, 1, 1, 0);
+            }
+        }
+        
+        function exportFareyData() {
+            if (!fareyData) { alert('Generate Farey sequence first'); return; }
+            
+            let csv = `# Farey Sequence F_${fareyData.n}\n`;
+            csv += `# Generated: ${new Date().toISOString()}\n`;
+            csv += `# By Wessen Getachew | @7dview | wessengetachew.github.io\n`;
+            csv += `#\n`;
+            csv += `# Total fractions: ${fareyData.count}\n`;
+            csv += `# Sum of φ(k) for k=1 to ${fareyData.n}: ${fareyData.sumPhi}\n`;
+            csv += `#\n`;
+            csv += `numerator,denominator,decimal_value,continued_fraction\n`;
+            
+            fareyData.fractions.forEach(frac => {
+                // Compute simple continued fraction representation
+                let cf = [];
+                let p = frac.p, q = frac.q;
+                while (q !== 0) {
+                    cf.push(Math.floor(p / q));
+                    [p, q] = [q, p % q];
+                }
+                const cfStr = '[' + cf.join(';') + ']';
+                
+                csv += `${frac.p},${frac.q},${frac.value.toFixed(10)},${cfStr}\n`;
+            });
+            
+            downloadCSV(csv, `farey-sequence-F${fareyData.n}.csv`);
+        }
+        
+        // Save/Load Session functions
+        function saveSession() {
+            const sessionName = document.getElementById('sessionName').value.trim() || `Session ${new Date().toLocaleString()}`;
+            const sessionDesc = document.getElementById('sessionDesc').value.trim();
+            
+            const session = {
+                name: sessionName,
+                description: sessionDesc,
+                timestamp: new Date().toISOString(),
+                data: {
+                    // 2D params
+                    r2: document.getElementById('r2input').value,
+                    view2D: view2D,
+                    colorMode2D: colorMode2D,
+                    labelMode2D: labelMode2D,
+                    zoom2D: zoom2D,
+                    
+                    // 3D params
+                    r3: document.getElementById('r3').value,
+                    shape3D: shape3D,
+                    colorMode3D: colorMode3D,
+                    labelMode3D: labelMode3D,
+                    
+                    // Theory params
+                    theoryK: document.getElementById('tks').value,
+                    theoryR: document.getElementById('trs').value,
+                    
+                    // Heatmap params
+                    heatmapR: document.getElementById('heatmapRinput').value,
+                    heatmapMode: heatmapMode,
+                    heatmapPointSize: document.getElementById('heatmapPS').value,
+                    
+                    // GCD Table params
+                    gcdTableSize: document.getElementById('gcdTableSizeInput').value,
+                    gcdTableType: gcdTableType,
+                    gcdTableColorMode: gcdTableColorMode,
+                    gcdTableRotation: gcdTableRotation,
+                    gcdTableRotation: gcdTableRotation,
+                    
+                    // Critical Strip params
+                    criticalMaxR: document.getElementById('criticalMaxRinput').value,
+                    criticalProblem: criticalProblem,
+                    criticalViz: criticalViz,
+                    
+                    // Pattern params
+                    patternType: patternType,
+                    
+                    // Analysis params
+                    analysisK: document.getElementById('analysisK').value,
+                    analysisMaxR: document.getElementById('mrinput').value,
+                    
+                    // Comparison params
+                    comparisonMode: comparisonMode,
+                    comparisonR: document.getElementById('crinput').value
+                }
+            };
+            
+            // Get existing sessions
+            let sessions = JSON.parse(localStorage.getItem('fareyLattice_sessions') || '[]');
+            
+            // Add new session
+            sessions.push(session);
+            
+            // Keep only last 10 sessions
+            if (sessions.length > 10) {
+                sessions = sessions.slice(-10);
+            }
+            
+            // Save
+            localStorage.setItem('fareyLattice_sessions', JSON.stringify(sessions));
+            
+            alert(`Session "${sessionName}" saved successfully!`);
+            
+            // Clear input fields
+            document.getElementById('sessionName').value = '';
+            document.getElementById('sessionDesc').value = '';
+            
+            // Refresh session list
+            displaySavedSessions();
+        }
+        
+        function loadSession(index) {
+            const sessions = JSON.parse(localStorage.getItem('fareyLattice_sessions') || '[]');
+            
+            if (index < 0 || index >= sessions.length) {
+                alert('Session not found');
+                return;
+            }
+            
+            const session = sessions[index];
+            const data = session.data;
+            
+            // Restore 2D params
+            if (data.r2) update2DRadius(data.r2);
+            if (data.view2D) set2DView(data.view2D);
+            if (data.colorMode2D) set2DColorMode(data.colorMode2D);
+            if (data.labelMode2D) set2DLabelMode(data.labelMode2D);
+            if (data.zoom2D) {
+                zoom2D = data.zoom2D;
+                document.getElementById('zoom2D').value = data.zoom2D;
+                document.getElementById('zoom2Dv').textContent = data.zoom2D;
+            }
+            
+            // Restore 3D params
+            if (data.r3) {
+                document.getElementById('r3').value = data.r3;
+                document.getElementById('r3v').textContent = data.r3;
+            }
+            if (data.shape3D) set3DShape(data.shape3D);
+            if (data.colorMode3D) set3DColorMode(data.colorMode3D);
+            if (data.labelMode3D) set3DLabelMode(data.labelMode3D);
+            
+            // Restore theory params
+            if (data.theoryK) {
+                document.getElementById('tks').value = data.theoryK;
+            }
+            if (data.theoryR) {
+                document.getElementById('trs').value = data.theoryR;
+            }
+            updateTheory();
+            
+            // Restore heatmap params
+            if (data.heatmapR) updateHeatmapR(data.heatmapR);
+            if (data.heatmapMode) setHeatmapMode(data.heatmapMode);
+            if (data.heatmapPointSize) {
+                document.getElementById('heatmapPS').value = data.heatmapPointSize;
+            }
+            
+            // Restore GCD table params
+            if (data.gcdTableSize) {
+                document.getElementById('gcdTableSizeInput').value = data.gcdTableSize;
+                updateGCDTableSize();
+            }
+            if (data.gcdTableType) setTableType(data.gcdTableType);
+            if (data.gcdTableColorMode) setGCDTableColor(data.gcdTableColorMode);
+            if (data.gcdTableRotation !== undefined) setGCDTableRotation(data.gcdTableRotation);
+            
+            // Restore critical strip params
+            if (data.criticalMaxR) updateCriticalMaxR(data.criticalMaxR);
+            if (data.criticalProblem) setCriticalProblem(data.criticalProblem);
+            if (data.criticalViz) setCriticalViz(data.criticalViz);
+            
+            // Restore pattern params
+            if (data.patternType) setPatternType(data.patternType);
+            
+            // Restore analysis params
+            if (data.analysisK) {
+                document.getElementById('analysisK').value = data.analysisK;
+            }
+            if (data.analysisMaxR) updateAnalysisRadius(data.analysisMaxR);
+            
+            // Restore comparison params
+            if (data.comparisonMode) setComparisonMode(data.comparisonMode);
+            if (data.comparisonR) updateComparisonRadius(data.comparisonR);
+            
+            alert(`Session "${session.name}" loaded successfully!`);
+        }
+        
+        function exportSession() {
+            const sessionName = document.getElementById('sessionName').value.trim() || `Session ${new Date().toLocaleString()}`;
+            const sessionDesc = document.getElementById('sessionDesc').value.trim();
+            
+            const session = {
+                name: sessionName,
+                description: sessionDesc,
+                timestamp: new Date().toISOString(),
+                version: '1.0',
+                data: {
+                    r2: document.getElementById('r2input').value,
+                    view2D: view2D,
+                    colorMode2D: colorMode2D,
+                    labelMode2D: labelMode2D,
+                    zoom2D: zoom2D,
+                    r3: document.getElementById('r3').value,
+                    shape3D: shape3D,
+                    colorMode3D: colorMode3D,
+                    labelMode3D: labelMode3D,
+                    theoryK: document.getElementById('tks').value,
+                    theoryR: document.getElementById('trs').value,
+                    heatmapR: document.getElementById('heatmapRinput').value,
+                    heatmapMode: heatmapMode,
+                    heatmapPointSize: document.getElementById('heatmapPS').value,
+                    gcdTableSize: document.getElementById('gcdTableSizeInput').value,
+                    gcdTableType: gcdTableType,
+                    gcdTableColorMode: gcdTableColorMode,
+                    criticalMaxR: document.getElementById('criticalMaxRinput').value,
+                    criticalProblem: criticalProblem,
+                    criticalViz: criticalViz,
+                    patternType: patternType,
+                    analysisK: document.getElementById('analysisK').value,
+                    analysisMaxR: document.getElementById('mrinput').value,
+                    comparisonMode: comparisonMode,
+                    comparisonR: document.getElementById('crinput').value
+                }
+            };
+            
+            const json = JSON.stringify(session, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `lattice-session-${sessionName.replace(/\s+/g, '-')}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importSession() {
+            const fileInput = document.getElementById('sessionFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const session = JSON.parse(e.target.result);
+                    
+                    if (!session.data) {
+                        alert('Invalid session file format');
+                        return;
+                    }
+                    
+                    const data = session.data;
+                    
+                    // Restore all parameters (same as loadSession)
+                    if (data.r2) update2DRadius(data.r2);
+                    if (data.view2D) set2DView(data.view2D);
+                    if (data.colorMode2D) set2DColorMode(data.colorMode2D);
+                    if (data.labelMode2D) set2DLabelMode(data.labelMode2D);
+                    if (data.zoom2D) {
+                        zoom2D = data.zoom2D;
+                        document.getElementById('zoom2D').value = data.zoom2D;
+                        document.getElementById('zoom2Dv').textContent = data.zoom2D;
+                    }
+                    if (data.r3) {
+                        document.getElementById('r3').value = data.r3;
+                        document.getElementById('r3v').textContent = data.r3;
+                    }
+                    if (data.shape3D) set3DShape(data.shape3D);
+                    if (data.colorMode3D) set3DColorMode(data.colorMode3D);
+                    if (data.labelMode3D) set3DLabelMode(data.labelMode3D);
+                    if (data.theoryK) document.getElementById('tks').value = data.theoryK;
+                    if (data.theoryR) document.getElementById('trs').value = data.theoryR;
+                    updateTheory();
+                    if (data.heatmapR) updateHeatmapR(data.heatmapR);
+                    if (data.heatmapMode) setHeatmapMode(data.heatmapMode);
+                    if (data.heatmapPointSize) document.getElementById('heatmapPS').value = data.heatmapPointSize;
+                    if (data.gcdTableSize) {
+                        document.getElementById('gcdTableSizeInput').value = data.gcdTableSize;
+                        updateGCDTableSize();
+                    }
+                    if (data.gcdTableType) setTableType(data.gcdTableType);
+                    if (data.gcdTableColorMode) setGCDTableColor(data.gcdTableColorMode);
+                    if (data.gcdTableRotation !== undefined) setGCDTableRotation(data.gcdTableRotation);
+                    if (data.criticalMaxR) updateCriticalMaxR(data.criticalMaxR);
+                    if (data.criticalProblem) setCriticalProblem(data.criticalProblem);
+                    if (data.criticalViz) setCriticalViz(data.criticalViz);
+                    if (data.patternType) setPatternType(data.patternType);
+                    if (data.analysisK) document.getElementById('analysisK').value = data.analysisK;
+                    if (data.analysisMaxR) updateAnalysisRadius(data.analysisMaxR);
+                    if (data.comparisonMode) setComparisonMode(data.comparisonMode);
+                    if (data.comparisonR) updateComparisonRadius(data.comparisonR);
+                    
+                    alert(`Session "${session.name}" imported successfully!`);
+                } catch (error) {
+                    alert('Error loading session file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function displaySavedSessions() {
+            const sessions = JSON.parse(localStorage.getItem('fareyLattice_sessions') || '[]');
+            const container = document.getElementById('savedSessions');
+            
+            if (sessions.length === 0) {
+                container.innerHTML = '<p style="color:var(--text2); font-style:italic;">No saved sessions yet</p>';
+                return;
+            }
+            
+            let html = '';
+            sessions.forEach((session, index) => {
+                const date = new Date(session.timestamp).toLocaleString();
+                html += `
+                    <div style="background:var(--bg); padding:15px; border-radius:8px; margin-bottom:10px; border:1px solid var(--border);">
+                        <h4 style="color:var(--blue); margin-bottom:8px;">${session.name}</h4>
+                        <p style="font-size:0.9em; color:var(--text2); margin-bottom:8px;">${date}</p>
+                        ${session.description ? `<p style="font-size:0.9em; margin-bottom:10px;">${session.description}</p>` : ''}
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="loadSession(${index})" style="padding:6px 12px; background:var(--green); font-size:0.9em;">Load</button>
+                            <button onclick="deleteSession(${index})" style="padding:6px 12px; background:var(--red); font-size:0.9em;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function deleteSession(index) {
+            if (!confirm('Are you sure you want to delete this session?')) return;
+            
+            let sessions = JSON.parse(localStorage.getItem('fareyLattice_sessions') || '[]');
+            sessions.splice(index, 1);
+            localStorage.setItem('fareyLattice_sessions', JSON.stringify(sessions));
+            displaySavedSessions();
+        }
+        
+        function clearAllSessions() {
+            if (!confirm('Are you sure you want to delete ALL saved sessions? This cannot be undone.')) return;
+            
+            localStorage.removeItem('fareyLattice_sessions');
+            displaySavedSessions();
+            alert('All sessions cleared');
+        }
+
         function updateComparison() {
             const grid = document.getElementById('compGrid');
             const showDensity = document.getElementById('showDensity').checked;
@@ -3571,7 +4205,8 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                 'small': 10,
                 'medium': 50,
                 'large': 100,
-                'xlarge': 200
+                'xlarge': 200,
+                'huge': 500
             };
             update2DRadius(presets[preset]);
         }
@@ -4639,6 +5274,30 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             drawDerivationStep(0);
         }
 
+        function updateRadialMaxR() {
+            const val = parseInt(document.getElementById('radialMaxRInput').value) || parseInt(document.getElementById('radialMaxR').value);
+            document.getElementById('radialMaxRv').textContent = val;
+            document.getElementById('radialMaxR').value = Math.min(val, 200);
+            document.getElementById('radialMaxRInput').value = val;
+            updatePatternViz();
+        }
+
+        function updateAngularR() {
+            const val = parseInt(document.getElementById('angularRInput').value) || parseInt(document.getElementById('angularR').value);
+            document.getElementById('angularRv').textContent = val;
+            document.getElementById('angularR').value = Math.min(val, 200);
+            document.getElementById('angularRInput').value = val;
+            updatePatternViz();
+        }
+
+        function updatePatternR() {
+            const val = parseInt(document.getElementById('patternRInput').value) || parseInt(document.getElementById('patternR').value);
+            document.getElementById('patternRv').textContent = val;
+            document.getElementById('patternR').value = Math.min(val, 200);
+            document.getElementById('patternRInput').value = val;
+            updatePatternViz();
+        }
+
         function setPatternType(type) {
             patternType = type;
             document.querySelectorAll('#patternModular, #patternDensity, #patternAngular, #patternRadial').forEach(btn => btn.classList.remove('active'));
@@ -4661,12 +5320,16 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
 
         function updatePatternViz() {
             if (patternType === 'modular') {
-                const m = parseInt(document.getElementById('patternMod').value);
-                const R = parseInt(document.getElementById('patternR').value);
-                const showExpected = document.getElementById('showExpected').checked;
+                const mEl = document.getElementById('patternMod');
+                const rEl = document.getElementById('patternR');
+                const rInputEl = document.getElementById('patternRInput');
                 
-                document.getElementById('patternModv').textContent = m;
-                document.getElementById('patternRv').textContent = R;
+                const m = mEl ? parseInt(mEl.value) : 7;
+                const R = rInputEl ? parseInt(rInputEl.value) : (rEl ? parseInt(rEl.value) : 30);
+                const showExpected = document.getElementById('showExpected')?.checked ?? true;
+                
+                if (document.getElementById('patternModv')) document.getElementById('patternModv').textContent = m;
+                if (document.getElementById('patternRv')) document.getElementById('patternRv').textContent = R;
                 
                 // Count primitive points by residue class
                 const counts = new Array(m).fill(0);
@@ -4756,11 +5419,16 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                 `;
                 
             } else if (patternType === 'density') {
-                const gridSize = parseInt(document.getElementById('gridSizeInput').value) || parseInt(document.getElementById('gridSize').value);
-                const R = parseInt(document.getElementById('densityRInput').value) || parseInt(document.getElementById('densityR').value);
+                const gridSizeEl = document.getElementById('gridSize');
+                const gridSizeInputEl = document.getElementById('gridSizeInput');
+                const densityREl = document.getElementById('densityR');
+                const densityRInputEl = document.getElementById('densityRInput');
                 
-                document.getElementById('gridSizev').textContent = gridSize;
-                document.getElementById('densityRv').textContent = R;
+                const gridSize = gridSizeInputEl ? parseInt(gridSizeInputEl.value) : (gridSizeEl ? parseInt(gridSizeEl.value) : 10);
+                const R = densityRInputEl ? parseInt(densityRInputEl.value) : (densityREl ? parseInt(densityREl.value) : 50);
+                
+                if (document.getElementById('gridSizev')) document.getElementById('gridSizev').textContent = gridSize;
+                if (document.getElementById('densityRv')) document.getElementById('densityRv').textContent = R;
                 
                 const canvas = document.getElementById('densityCanvas');
                 const ctx = canvas.getContext('2d');
@@ -4823,7 +5491,7 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                 
             } else if (patternType === 'angular') {
                 const numSectors = parseInt(document.getElementById('numSectors').value);
-                const R = parseInt(document.getElementById('angularR').value);
+                const R = parseInt(document.getElementById('angularRInput').value) || parseInt(document.getElementById('angularR').value);
                 
                 document.getElementById('numSectorsv').textContent = numSectors;
                 document.getElementById('angularRv').textContent = R;
@@ -4894,7 +5562,7 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                 
             } else if (patternType === 'radial') {
                 const shellThick = parseInt(document.getElementById('shellThick').value);
-                const maxR = parseInt(document.getElementById('radialMaxR').value);
+                const maxR = parseInt(document.getElementById('radialMaxRInput').value) || parseInt(document.getElementById('radialMaxR').value);
                 
                 document.getElementById('shellThickv').textContent = shellThick;
                 document.getElementById('radialMaxRv').textContent = maxR;
@@ -5032,22 +5700,82 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
         }
 
         function setGCDTablePreset(preset) {
-            const presets = { 'small': 20, 'medium': 50, 'large': 100 };
+            const presets = { 'small': 20, 'medium': 50, 'large': 100, 'xlarge': 200, 'huge': 500 };
             const size = presets[preset];
-            document.getElementById('gcdTableSize').value = size;
+            document.getElementById('gcdTableSize').value = Math.min(size, 500);
             document.getElementById('gcdTableSizeInput').value = size;
             document.getElementById('gcdTableSizev').textContent = size;
             updateGCDTable();
         }
 
-        let gcdTableColorMode = 'heat'; // 'heat', 'discrete', 'prime'
+        let gcdTableColorMode = 'heat'; // 'heat', 'discrete', 'prime', 'binary', 'rainbow'
+        let gcdTableType = 'gcd'; // 'gcd', 'addition', 'multiplication', 'zerodivisors', 'units', 'totient'
+        let gcdTableRotation = 0; // 0, 90, 180, 270 degrees
 
+        function setTableType(type) {
+            gcdTableType = type;
+            document.querySelectorAll('#tableTypeGCD, #tableTypeAdd, #tableTypeMult, #tableTypeZeroDiv, #tableTypeUnits, #tableTypeTotient').forEach(btn => btn.classList.remove('active'));
+            const btnIds = {
+                'gcd': 'tableTypeGCD',
+                'addition': 'tableTypeAdd',
+                'multiplication': 'tableTypeMult',
+                'zerodivisors': 'tableTypeZeroDiv',
+                'units': 'tableTypeUnits',
+                'totient': 'tableTypeTotient'
+            };
+            document.getElementById(btnIds[type]).classList.add('active');
+            updateGCDTable();
+        }
+        
         function setGCDTableColor(mode) {
             gcdTableColorMode = mode;
-            document.querySelectorAll('#gcdTableHeat, #gcdTableDiscrete, #gcdTablePrime').forEach(btn => btn.classList.remove('active'));
-            const btnIds = { 'heat': 'gcdTableHeat', 'discrete': 'gcdTableDiscrete', 'prime': 'gcdTablePrime' };
+            document.querySelectorAll('#gcdTableHeat, #gcdTableDiscrete, #gcdTablePrime, #gcdTableBinary, #gcdTableRainbow').forEach(btn => btn.classList.remove('active'));
+            const btnIds = {
+                'heat': 'gcdTableHeat',
+                'discrete': 'gcdTableDiscrete',
+                'prime': 'gcdTablePrime',
+                'binary': 'gcdTableBinary',
+                'rainbow': 'gcdTableRainbow'
+            };
             document.getElementById(btnIds[mode]).classList.add('active');
             updateGCDTable();
+        }
+        
+        function setGCDTableRotation(degrees) {
+            gcdTableRotation = degrees;
+            document.querySelectorAll('#gcdTableRot0, #gcdTableRot90, #gcdTableRot180, #gcdTableRot270').forEach(btn => btn.classList.remove('active'));
+            const btnIds = {
+                0: 'gcdTableRot0',
+                90: 'gcdTableRot90',
+                180: 'gcdTableRot180',
+                270: 'gcdTableRot270'
+            };
+            document.getElementById(btnIds[degrees]).classList.add('active');
+            updateGCDTable();
+        }
+
+        function updateGCDTableSize() {
+            const val = parseInt(document.getElementById('gcdTableSizeInput').value) || parseInt(document.getElementById('gcdTableSize').value);
+            document.getElementById('gcdTableSizev').textContent = val;
+            document.getElementById('gcdTableSize').value = Math.min(val, 500);
+            document.getElementById('gcdTableSizeInput').value = val;
+            updateGCDTable();
+        }
+        
+        function updateTablePatternInfo() {
+            const infoEl = document.getElementById('tablePatternInfo');
+            if (!infoEl) return;
+            
+            const patterns = {
+                'gcd': '• Diagonal elements: gcd(n, n) = n<br>• Symmetry: gcd(a, b) = gcd(b, a)<br>• Rows/columns of primes: mostly 1s except at multiples<br>• Coprimality appears as value 1<br>• Patterns reveal divisibility relationships<br>• <b>TIP:</b> Rotate to view from different quadrants',
+                'addition': '• Every row/column is a permutation of {0, 1, ..., n-1}<br>• Diagonal shows (i + i) mod n = 2i mod n<br>• Symmetric: (a + b) mod n = (b + a) mod n<br>• Forms an abelian group under addition<br>• Identity element is 0<br>• <b>TIP:</b> Rotation reveals different symmetries',
+                'multiplication': '• Rows/columns for units are permutations<br>• Zero row/column for multiples of n<br>• Symmetric: (a × b) mod n = (b × a) mod n<br>• Identity element is 1<br>• Zero divisors visible as zero entries<br>• <b>TIP:</b> Rotation highlights different structural aspects',
+                'zerodivisors': '• Bright cells: a × b ≡ 0 (mod n)<br>• Shows non-trivial zero divisors<br>• Only exists when n is composite<br>• Symmetric pattern<br>• Related to prime factorization of n<br>• <b>TIP:</b> 4 rotations show complete divisor structure',
+                'units': '• Bright cells: elements coprime to n<br>• Count equals Euler\'s φ(n)<br>• Forms multiplicative group Z/nZ*<br>• Diagonal shows gcd(i, n)<br>• Pattern reveals group structure<br>• <b>TIP:</b> Each rotation emphasizes different coprimality patterns',
+                'totient': '• Shows φ(gcd(i,j)) for each cell<br>• Diagonal: φ(n) values<br>• Related to primitive roots<br>• Symmetric pattern<br>• Connects to Euler\'s theorem<br>• <b>TIP:</b> Rotation reveals totient function symmetries'
+            };
+            
+            infoEl.innerHTML = patterns[gcdTableType] || patterns['gcd'];
         }
 
         function updateGCDTable() {
@@ -5056,21 +5784,54 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             const highlightDiag = document.getElementById('highlightDiagonal').checked;
             
             document.getElementById('gcdTableSizev').textContent = size;
-            document.getElementById('gcdTableSize').value = Math.min(size, 150);
+            document.getElementById('gcdTableSize').value = Math.min(size, 500);
             document.getElementById('gcdTableSizeInput').value = size;
             
             const canvas = document.getElementById('gcdTableCanvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // Save context and apply rotation
+            ctx.save();
+            
+            // Translate to center for rotation
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            ctx.translate(centerX, centerY);
+            ctx.rotate((gcdTableRotation * Math.PI) / 180);
+            ctx.translate(-centerX, -centerY);
+            
             const cellSize = Math.min(canvas.width / (size + 1), 30); // +1 for labels
             const startX = 40, startY = 40;
             
-            // Compute max GCD for normalization
-            let maxGCD = 0;
+            // Compute values and determine range based on table type
+            let maxValue = 0, minValue = 0;
+            const values = [];
+            
             for (let i = 1; i <= size; i++) {
+                values[i] = [];
                 for (let j = 1; j <= size; j++) {
-                    maxGCD = Math.max(maxGCD, gcd(i, j));
+                    let val;
+                    
+                    if (gcdTableType === 'gcd') {
+                        val = gcd(i, j);
+                    } else if (gcdTableType === 'addition') {
+                        val = (i + j) % size;
+                    } else if (gcdTableType === 'multiplication') {
+                        val = (i * j) % size;
+                    } else if (gcdTableType === 'zerodivisors') {
+                        val = ((i * j) % size === 0) ? 1 : 0;
+                    } else if (gcdTableType === 'units') {
+                        val = (gcd(i, size) === 1) ? 1 : 0;
+                    } else if (gcdTableType === 'totient') {
+                        // For totient, we show φ(gcd(i,j))
+                        const g = gcd(i, j);
+                        val = eulerPhi(g);
+                    }
+                    
+                    values[i][j] = val;
+                    maxValue = Math.max(maxValue, val);
+                    minValue = Math.min(minValue, val);
                 }
             }
             
@@ -5080,20 +5841,25 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             // Draw cells
             for (let i = 1; i <= size; i++) {
                 for (let j = 1; j <= size; j++) {
-                    const g = gcd(i, j);
+                    const val = values[i][j];
                     const x = startX + (j - 1) * cellSize;
                     const y = startY + (i - 1) * cellSize;
                     
                     let color;
                     if (gcdTableColorMode === 'heat') {
-                        const intensity = g / maxGCD;
+                        const intensity = maxValue > minValue ? (val - minValue) / (maxValue - minValue) : 0;
                         const hue = 240 - intensity * 240; // Blue to red
                         color = `hsl(${hue}, 70%, 50%)`;
                     } else if (gcdTableColorMode === 'discrete') {
                         const colors = ['#0066cc', '#dc3545', '#28a745', '#ffc107', '#6f42c1', '#fd7e14', '#00d4ff', '#ff006e'];
-                        color = colors[Math.min(g - 1, 7)];
+                        color = colors[Math.min(val, 7)] || '#999';
                     } else if (gcdTableColorMode === 'prime') {
-                        color = isPrime(g) ? '#6f42c1' : (g === 1 ? '#0066cc' : '#dc3545');
+                        color = isPrime(val) ? '#6f42c1' : (val === 1 ? '#0066cc' : val === 0 ? '#333' : '#dc3545');
+                    } else if (gcdTableColorMode === 'binary') {
+                        color = val > 0 ? '#28a745' : '#dc3545';
+                    } else if (gcdTableColorMode === 'rainbow') {
+                        const hue = maxValue > 0 ? (val / maxValue) * 360 : 0;
+                        color = `hsl(${hue}, 70%, 50%)`;
                     }
                     
                     ctx.fillStyle = color;
@@ -5117,11 +5883,17 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                         ctx.font = `${Math.min(cellSize * 0.4, 12)}px system-ui`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(g, x + cellSize/2, y + cellSize/2);
+                        ctx.fillText(val, x + cellSize/2, y + cellSize/2);
                     }
                     
-                    // Store for click detection
-                    window.gcdTableData.push({ i, j, g, x, y, size: cellSize });
+                    // Store for click detection (with inverse rotation applied)
+                    const angle = -(gcdTableRotation * Math.PI) / 180;
+                    const dx = x + cellSize/2 - centerX;
+                    const dy = y + cellSize/2 - centerY;
+                    const rotatedX = centerX + dx * Math.cos(angle) - dy * Math.sin(angle);
+                    const rotatedY = centerY + dx * Math.sin(angle) + dy * Math.cos(angle);
+                    
+                    window.gcdTableData.push({ i, j, val, x: rotatedX - cellSize/2, y: rotatedY - cellSize/2, size: cellSize });
                 }
             }
             
@@ -5132,34 +5904,129 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             ctx.textBaseline = 'middle';
             
             const labelStep = Math.max(1, Math.floor(size / 20));
-            for (let i = 1; i <= size; i += labelStep) {
-                // Row labels
-                ctx.fillText(i, 20, startY + (i - 0.5) * cellSize);
-                // Column labels
-                ctx.fillText(i, startX + (i - 0.5) * cellSize, 20);
+            
+            // Adjust labels based on rotation
+            if (gcdTableRotation === 0) {
+                for (let i = 1; i <= size; i += labelStep) {
+                    // Row labels (left)
+                    ctx.fillText(i, 20, startY + (i - 0.5) * cellSize);
+                    // Column labels (top)
+                    ctx.fillText(i, startX + (i - 0.5) * cellSize, 20);
+                }
+            } else if (gcdTableRotation === 90) {
+                for (let i = 1; i <= size; i += labelStep) {
+                    // Labels rotated 90°
+                    ctx.fillText(i, startX + (i - 0.5) * cellSize, canvas.height - 20);
+                    ctx.fillText(i, 20, startY + (i - 0.5) * cellSize);
+                }
+            } else if (gcdTableRotation === 180) {
+                for (let i = 1; i <= size; i += labelStep) {
+                    // Labels rotated 180°
+                    ctx.fillText(size - i + 1, canvas.width - 20, startY + (i - 0.5) * cellSize);
+                    ctx.fillText(size - i + 1, startX + (i - 0.5) * cellSize, canvas.height - 20);
+                }
+            } else if (gcdTableRotation === 270) {
+                for (let i = 1; i <= size; i += labelStep) {
+                    // Labels rotated 270°
+                    ctx.fillText(size - i + 1, startX + (i - 0.5) * cellSize, 20);
+                    ctx.fillText(size - i + 1, canvas.width - 20, startY + (i - 0.5) * cellSize);
+                }
             }
+            
+            // Restore context
+            ctx.restore();
+            
+            // Update pattern info
+            updateTablePatternInfo();
+        }
+        
+        function eulerPhi(n) {
+            if (n === 1) return 1;
+            let result = n;
+            const primes = [...new Set(primeFactors(n))];
+            primes.forEach(p => {
+                result *= (1 - 1/p);
+            });
+            return Math.floor(result);
         }
 
         function exportGCDTableData() {
             const size = parseInt(document.getElementById('gcdTableSizeInput').value);
             
-            let csv = `# GCD Multiplication Table - ${size}x${size}\n`;
+            const tableNames = {
+                'gcd': 'GCD Table',
+                'addition': 'Addition Modulo Table',
+                'multiplication': 'Multiplication Modulo Table',
+                'zerodivisors': 'Zero Divisors Table',
+                'units': 'Units (Invertible Elements) Table',
+                'totient': 'Euler Totient Table'
+            };
+            
+            let csv = `# ${tableNames[gcdTableType]} - ${size}×${size}\n`;
             csv += `# Generated: ${new Date().toISOString()}\n`;
             csv += `# Color Scheme: ${gcdTableColorMode}\n`;
             csv += `# By Wessen Getachew | @7dview | wessengetachew.github.io\n`;
             csv += `#\n`;
-            csv += '# Each entry shows GCD(row, column)\n';
-            csv += `# Symmetric matrix: GCD(a,b) = GCD(b,a)\n`;
-            csv += `# Diagonal: GCD(n,n) = n\n`;
-            csv += `#\n`;
-            csv += 'row,column,gcd,coprime\n';
-            for (let i = 1; i <= size; i++) {
-                for (let j = 1; j <= size; j++) {
-                    const g = gcd(i, j);
-                    csv += `${i},${j},${g},${g === 1 ? 'true' : 'false'}\n`;
+            
+            if (gcdTableType === 'gcd') {
+                csv += '# Each entry shows GCD(row, column)\n';
+                csv += '# Symmetric matrix: GCD(a,b) = GCD(b,a)\n';
+                csv += '# Diagonal: GCD(n,n) = n\n';
+                csv += 'row,column,gcd,coprime\n';
+                for (let i = 1; i <= size; i++) {
+                    for (let j = 1; j <= size; j++) {
+                        const g = gcd(i, j);
+                        csv += `${i},${j},${g},${g === 1 ? 'true' : 'false'}\n`;
+                    }
+                }
+            } else if (gcdTableType === 'addition') {
+                csv += `# Each entry shows (row + column) mod ${size}\n`;
+                csv += '# Forms abelian group (ℤ/nℤ, +)\n';
+                csv += 'row,column,sum_mod_n\n';
+                for (let i = 1; i <= size; i++) {
+                    for (let j = 1; j <= size; j++) {
+                        csv += `${i},${j},${(i + j) % size}\n`;
+                    }
+                }
+            } else if (gcdTableType === 'multiplication') {
+                csv += `# Each entry shows (row × column) mod ${size}\n`;
+                csv += '# Zero divisors appear as 0 entries\n';
+                csv += 'row,column,product_mod_n,is_zero_divisor\n';
+                for (let i = 1; i <= size; i++) {
+                    for (let j = 1; j <= size; j++) {
+                        const prod = (i * j) % size;
+                        csv += `${i},${j},${prod},${prod === 0 ? 'true' : 'false'}\n`;
+                    }
+                }
+            } else if (gcdTableType === 'zerodivisors') {
+                csv += `# 1 if row × column ≡ 0 (mod ${size}), 0 otherwise\n`;
+                csv += 'row,column,is_zero_divisor_pair\n';
+                for (let i = 1; i <= size; i++) {
+                    for (let j = 1; j <= size; j++) {
+                        const isZero = ((i * j) % size === 0) ? 1 : 0;
+                        csv += `${i},${j},${isZero}\n`;
+                    }
+                }
+            } else if (gcdTableType === 'units') {
+                csv += `# 1 if element is coprime to ${size} (unit), 0 otherwise\n`;
+                csv += `# Units form group (ℤ/${size}ℤ)* under multiplication\n`;
+                csv += 'element,is_unit,gcd_with_modulus\n';
+                for (let i = 1; i <= size; i++) {
+                    const g = gcd(i, size);
+                    csv += `${i},${g === 1 ? 1 : 0},${g}\n`;
+                }
+            } else if (gcdTableType === 'totient') {
+                csv += '# Shows φ(gcd(row, column))\n';
+                csv += 'row,column,gcd,totient_of_gcd\n';
+                for (let i = 1; i <= size; i++) {
+                    for (let j = 1; j <= size; j++) {
+                        const g = gcd(i, j);
+                        csv += `${i},${j},${g},${eulerPhi(g)}\n`;
+                    }
                 }
             }
-            downloadCSV(csv, `gcd-table-${size}x${size}.csv`);
+            
+            downloadCSV(csv, `${gcdTableType}-table-${size}x${size}.csv`);
         }
 
         function updateGridSize() {
@@ -5178,8 +6045,9 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
 
         function updateHeatmapR() {
             const val = parseInt(document.getElementById('heatmapRinput').value) || parseInt(document.getElementById('heatmapR').value);
+            if (val < 5 || val > 500 || isNaN(val)) return;
             document.getElementById('heatmapRv').textContent = val;
-            document.getElementById('heatmapR').value = Math.min(val, 100);
+            document.getElementById('heatmapR').value = Math.min(val, 200);
             document.getElementById('heatmapRinput').value = val;
             updateGCDHeatmap();
         }
@@ -5331,19 +6199,8 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
                 return;
             }
             
-            // Update visualization based on animation type
-            if (animationType === 'radius') {
-                update2DRadius(currentValue);
-            } else if (animationType === 'dimension') {
-                document.getElementById('tks').value = currentValue;
-                updateTheory();
-            } else if (animationType === 'modular') {
-                if (patternType === 'modular') {
-                    document.getElementById('patternMod').value = currentValue;
-                    document.getElementById('patternModv').textContent = currentValue;
-                    updatePatternViz();
-                }
-            }
+            // Draw on the animation canvas
+            drawAnimationFrame(currentValue);
             
             // Update progress
             const totalSteps = end - start + 1;
@@ -5355,6 +6212,214 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             currentAnimStep = step + 1;
             const speed = parseInt(document.getElementById('animSpeed').value);
             animationTimer = setTimeout(() => runAnimationStep(start, end, step + 1), speed);
+        }
+        
+        function drawAnimationFrame(currentValue) {
+            const canvas = document.getElementById('animCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Background
+            ctx.fillStyle = document.body.classList.contains('light') ? '#ffffff' : '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            
+            if (animationType === 'radius') {
+                const R = currentValue;
+                const k = parseInt(document.getElementById('animK').value);
+                const scale = 350 / Math.max(R, 10);
+                
+                // Draw circle boundary
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy, R * scale, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                // Draw points
+                let primCount = 0, totalCount = 0;
+                
+                for (let x = -R; x <= R; x++) {
+                    for (let y = -R; y <= R; y++) {
+                        if (x*x + y*y <= R*R) {
+                            totalCount++;
+                            const g = gcd(Math.abs(x), Math.abs(y));
+                            const isPrim = g === 1;
+                            if (isPrim) primCount++;
+                            
+                            ctx.fillStyle = isPrim ? '#0066cc' : '#dc3545';
+                            ctx.beginPath();
+                            ctx.arc(cx + x*scale, cy - y*scale, Math.max(2, 4 - R/30), 0, 2*Math.PI);
+                            ctx.fill();
+                        }
+                    }
+                }
+                
+                // Update stats
+                document.getElementById('animParamLabel').textContent = 'Radius R';
+                document.getElementById('animParamVal').textContent = R;
+                document.getElementById('animPrimCount').textContent = primCount.toLocaleString();
+                document.getElementById('animTotalCount').textContent = totalCount.toLocaleString();
+                document.getElementById('animDensity').textContent = ((primCount/totalCount)*100).toFixed(2) + '%';
+                document.getElementById('animZeta').textContent = '1/ζ(2) = ' + (1/zeta(2)).toFixed(4);
+                
+                // Draw title
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 24px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText(`R = ${R}`, cx, 40);
+                ctx.font = '16px system-ui';
+                ctx.fillText(`Primitive: ${primCount} | Total: ${totalCount} | Density: ${((primCount/totalCount)*100).toFixed(1)}%`, cx, 70);
+                
+            } else if (animationType === 'dimension') {
+                const k = currentValue;
+                const R = parseInt(document.getElementById('animFixedR').value);
+                const z = zeta(k);
+                const density = 1 / z;
+                
+                // Draw bar chart showing density for each dimension
+                const barWidth = 60;
+                const maxHeight = 500;
+                const startX = 100;
+                const baseY = 650;
+                
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 24px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Dimension k = ${k}`, cx, 40);
+                ctx.font = '16px system-ui';
+                ctx.fillText(`ζ(${k}) = ${z.toFixed(6)} | Density = ${(density*100).toFixed(2)}%`, cx, 70);
+                
+                // Draw bars for dimensions 2 to current
+                for (let dim = 2; dim <= currentValue; dim++) {
+                    const dimZ = zeta(dim);
+                    const dimDensity = 1 / dimZ;
+                    const barHeight = dimDensity * maxHeight;
+                    const x = startX + (dim - 2) * (barWidth + 20);
+                    
+                    // Bar
+                    const hue = 240 - (dimDensity * 240);
+                    ctx.fillStyle = dim === currentValue ? '#0066cc' : `hsl(${hue}, 60%, 50%)`;
+                    ctx.fillRect(x, baseY - barHeight, barWidth, barHeight);
+                    
+                    // Border for current
+                    if (dim === currentValue) {
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, baseY - barHeight, barWidth, barHeight);
+                    }
+                    
+                    // Label
+                    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                    ctx.font = '14px system-ui';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`k=${dim}`, x + barWidth/2, baseY + 20);
+                    ctx.fillText(`${(1/zeta(dim)*100).toFixed(1)}%`, x + barWidth/2, baseY - barHeight - 10);
+                }
+                
+                // Draw 100% reference line
+                ctx.strokeStyle = '#28a745';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(startX - 20, baseY - maxHeight);
+                ctx.lineTo(startX + (currentValue - 1) * (barWidth + 20), baseY - maxHeight);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#28a745';
+                ctx.font = '14px system-ui';
+                ctx.textAlign = 'left';
+                ctx.fillText('100% (limit as k→∞)', startX - 20, baseY - maxHeight - 10);
+                
+                // Update stats
+                document.getElementById('animParamLabel').textContent = 'Dimension k';
+                document.getElementById('animParamVal').textContent = k;
+                const vol = sphereVolume(k, R);
+                const predicted = Math.round(vol / z);
+                document.getElementById('animPrimCount').textContent = predicted.toLocaleString();
+                document.getElementById('animTotalCount').textContent = Math.round(vol).toLocaleString();
+                document.getElementById('animDensity').textContent = (density*100).toFixed(2) + '%';
+                document.getElementById('animZeta').textContent = 'ζ(' + k + ') = ' + z.toFixed(6);
+                
+            } else if (animationType === 'modular') {
+                const m = currentValue;
+                const R = 30;
+                const scale = 350 / R;
+                
+                // Count points by residue class
+                const counts = new Array(m).fill(0);
+                let total = 0;
+                
+                for (let x = -R; x <= R; x++) {
+                    for (let y = -R; y <= R; y++) {
+                        if (x*x + y*y <= R*R && gcd(Math.abs(x), Math.abs(y)) === 1) {
+                            const residue = ((x + y) % m + m) % m;
+                            counts[residue]++;
+                            total++;
+                        }
+                    }
+                }
+                
+                // Draw circle with colored points
+                ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(cx, cy - 50, R * scale, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+                for (let x = -R; x <= R; x++) {
+                    for (let y = -R; y <= R; y++) {
+                        if (x*x + y*y <= R*R && gcd(Math.abs(x), Math.abs(y)) === 1) {
+                            const residue = ((x + y) % m + m) % m;
+                            const hue = (residue / m) * 360;
+                            ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+                            ctx.beginPath();
+                            ctx.arc(cx + x*scale, cy - 50 - y*scale, 3, 0, 2*Math.PI);
+                            ctx.fill();
+                        }
+                    }
+                }
+                
+                // Draw bar chart of residue distribution
+                const barWidth = Math.min(40, (canvas.width - 100) / m);
+                const maxBarHeight = 150;
+                const maxCount = Math.max(...counts);
+                const barBaseY = canvas.height - 50;
+                
+                for (let i = 0; i < m; i++) {
+                    const barHeight = (counts[i] / maxCount) * maxBarHeight;
+                    const x = 50 + i * barWidth;
+                    const hue = (i / m) * 360;
+                    
+                    ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+                    ctx.fillRect(x, barBaseY - barHeight, barWidth - 2, barHeight);
+                    
+                    if (barWidth > 15) {
+                        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                        ctx.font = '10px system-ui';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(i, x + barWidth/2 - 1, barBaseY + 15);
+                    }
+                }
+                
+                // Title
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text');
+                ctx.font = 'bold 24px system-ui';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Modulus m = ${m}`, cx, 40);
+                ctx.font = '16px system-ui';
+                ctx.fillText(`Distribution of (x+y) mod ${m} for primitive points`, cx, 70);
+                
+                // Update stats
+                document.getElementById('animParamLabel').textContent = 'Modulus m';
+                document.getElementById('animParamVal').textContent = m;
+                document.getElementById('animPrimCount').textContent = total.toLocaleString();
+                document.getElementById('animTotalCount').textContent = m + ' classes';
+                document.getElementById('animDensity').textContent = (total/m).toFixed(1) + ' avg/class';
+                document.getElementById('animZeta').textContent = 'φ(' + m + ') = ' + eulerPhi(m);
+            }
         }
         
         function continueAnimation() {
@@ -5823,11 +6888,31 @@ Shows error term growth
 as predicted by theory`;
             showTab('export');
         }
+        
+        function quickExportGrid2x2() {
+            document.getElementById('exportType').value = 'grid2x2';
+            updateExportType();
+            document.getElementById('exportTitle').value = 'Lattice Point Analysis - Multi-View';
+            document.getElementById('exportSubtitle').value = 'Comprehensive visualization suite';
+            showTab('export');
+            // Auto-export
+            setTimeout(() => export2x2Grid(), 500);
+        }
+        
+        function quickExportFullAnalysis() {
+            document.getElementById('exportType').value = 'fullAnalysis';
+            updateExportType();
+            document.getElementById('exportTitle').value = 'Complete Lattice Point Analysis';
+            document.getElementById('exportSubtitle').value = 'Full analysis panel with extended statistics';
+            showTab('export');
+            // Auto-export
+            setTimeout(() => exportFullAnalysisPanel(), 500);
+        }
 
         function setGCDHeatmapPreset(preset) {
-            const presets = { 'small': 15, 'medium': 30, 'large': 50 };
+            const presets = { 'small': 15, 'medium': 30, 'large': 50, 'xlarge': 100, 'huge': 200 };
             const R = presets[preset];
-            document.getElementById('heatmapR').value = R;
+            document.getElementById('heatmapR').value = Math.min(R, 100);
             document.getElementById('heatmapRinput').value = R;
             document.getElementById('heatmapRv').textContent = R;
             updateGCDHeatmap();
@@ -6475,6 +7560,9 @@ as predicted by theory`;
             tb.innerHTML += `<tr><td>${k}</td><td>${formatPrecise(z, precision)}</td><td>${formatPrecise(1/z, precision)}</td><td>${formatPrecise(v, precision)}</td></tr>`;
         }
         
+        // Display saved sessions
+        displaySavedSessions();
+        
         document.getElementById('helpModal').addEventListener('click', e => {
             if (e.target.id === 'helpModal') closeHelp();
         });
@@ -6549,53 +7637,136 @@ as predicted by theory`;
             if (clickedCell) {
                 const i = clickedCell.i;
                 const j = clickedCell.j;
-                const g = clickedCell.g;
-                
-                // Factor both numbers
-                const factorsI = primeFactors(i);
-                const factorsJ = primeFactors(j);
-                const factorsG = primeFactors(g);
-                
-                const fci = {};
-                factorsI.forEach(p => fci[p] = (fci[p]||0) + 1);
-                const fcj = {};
-                factorsJ.forEach(p => fcj[p] = (fcj[p]||0) + 1);
-                const fcg = {};
-                factorsG.forEach(p => fcg[p] = (fcg[p]||0) + 1);
-                
-                const strI = Object.entries(fci).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ') || '1';
-                const strJ = Object.entries(fcj).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ') || '1';
-                const strG = Object.entries(fcg).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ') || '1';
-                
-                const coprime = g === 1;
+                const val = clickedCell.val;
                 
                 const infoDiv = document.getElementById('gcdTableInfo');
                 infoDiv.classList.add('point-info-active');
                 setTimeout(() => infoDiv.classList.remove('point-info-active'), 500);
                 
-                infoDiv.innerHTML = `
-                    <h3 style="color:var(--blue); margin-bottom:15px;">GCD(${i}, ${j}) = ${g}</h3>
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
-                        <div>
-                            <p><b>${i} =</b> ${strI}</p>
-                            <p><b>${j} =</b> ${strJ}</p>
-                            <p><b>GCD =</b> ${strG}</p>
+                let content = '';
+                
+                if (gcdTableType === 'gcd') {
+                    const factorsI = primeFactors(i);
+                    const factorsJ = primeFactors(j);
+                    const factorsG = primeFactors(val);
+                    
+                    const fci = {};
+                    factorsI.forEach(p => fci[p] = (fci[p]||0) + 1);
+                    const fcj = {};
+                    factorsJ.forEach(p => fcj[p] = (fcj[p]||0) + 1);
+                    const fcg = {};
+                    factorsG.forEach(p => fcg[p] = (fcg[p]||0) + 1);
+                    
+                    const strI = Object.entries(fci).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ') || '1';
+                    const strJ = Object.entries(fcj).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ') || '1';
+                    const strG = Object.entries(fcg).map(([p,c]) => c>1 ? `${p}^${c}` : p).join(' × ') || '1';
+                    
+                    const coprime = val === 1;
+                    
+                    content = `
+                        <h3 style="color:var(--blue); margin-bottom:15px;">GCD(${i}, ${j}) = ${val}</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                            <div>
+                                <p><b>${i} =</b> ${strI}</p>
+                                <p><b>${j} =</b> ${strJ}</p>
+                                <p><b>GCD =</b> ${strG}</p>
+                            </div>
+                            <div>
+                                <p><b>Coprime:</b> <span style="color:${coprime ? 'var(--green)' : 'var(--red)'}">${coprime ? 'Yes' : 'No'}</span></p>
+                                <p><b>LCM(${i}, ${j}):</b> ${(i * j) / val}</p>
+                                ${!coprime ? `<p><b>Common factors:</b> Divisors of ${val}</p>` : ''}
+                            </div>
                         </div>
-                        <div>
-                            <p><b>Coprime:</b> <span style="color:${coprime ? 'var(--green)' : 'var(--red)'}">${coprime ? 'Yes' : 'No'}</span></p>
-                            <p><b>LCM(${i}, ${j}):</b> ${(i * j) / g}</p>
-                            ${!coprime ? `<p><b>Common factors:</b> Divisors of ${g}</p>` : ''}
+                    `;
+                } else if (gcdTableType === 'addition') {
+                    const size = parseInt(document.getElementById('gcdTableSizeInput').value);
+                    content = `
+                        <h3 style="color:var(--blue); margin-bottom:15px;">${i} + ${j} ≡ ${val} (mod ${size})</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                            <div>
+                                <p><b>Operation:</b> Addition mod ${size}</p>
+                                <p><b>Result:</b> (${i} + ${j}) mod ${size} = ${val}</p>
+                                <p><b>Commutative:</b> ${i} + ${j} = ${j} + ${i}</p>
+                            </div>
+                            <div>
+                                <p><b>Inverse of ${i}:</b> ${(size - i) % size}</p>
+                                <p><b>Identity:</b> 0</p>
+                                <p><b>Group:</b> (ℤ/${size}ℤ, +)</p>
+                            </div>
                         </div>
-                    </div>
-                    <div style="margin-top:15px; padding:10px; background:var(--bg); border-radius:6px;">
-                        <p style="font-size:0.9em; color:var(--text2);">
-                            ${coprime ? 
-                                `${i} and ${j} share no common prime factors.` :
-                                `${i} and ${j} share the common factor ${g}.`
-                            }
-                        </p>
-                    </div>
-                `;
+                    `;
+                } else if (gcdTableType === 'multiplication') {
+                    const size = parseInt(document.getElementById('gcdTableSizeInput').value);
+                    const isUnit = gcd(i, size) === 1 && gcd(j, size) === 1;
+                    content = `
+                        <h3 style="color:var(--blue); margin-bottom:15px;">${i} × ${j} ≡ ${val} (mod ${size})</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                            <div>
+                                <p><b>Operation:</b> Multiplication mod ${size}</p>
+                                <p><b>Result:</b> (${i} × ${j}) mod ${size} = ${val}</p>
+                                <p><b>Zero divisor:</b> ${val === 0 ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div>
+                                <p><b>${i} is unit:</b> ${gcd(i, size) === 1 ? 'Yes' : 'No'}</p>
+                                <p><b>${j} is unit:</b> ${gcd(j, size) === 1 ? 'Yes' : 'No'}</p>
+                                <p><b>Identity:</b> 1</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (gcdTableType === 'zerodivisors') {
+                    const size = parseInt(document.getElementById('gcdTableSizeInput').value);
+                    content = `
+                        <h3 style="color:var(--blue); margin-bottom:15px;">Zero Divisor Check: ${i} × ${j} mod ${size}</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                            <div>
+                                <p><b>Product:</b> ${i} × ${j} = ${i * j}</p>
+                                <p><b>Mod ${size}:</b> ${(i * j) % size}</p>
+                                <p><b>Is zero divisor pair:</b> <span style="color:${val ? 'var(--red)' : 'var(--green)'}">${val ? 'YES' : 'NO'}</span></p>
+                            </div>
+                            <div>
+                                <p><b>gcd(${i}, ${size}):</b> ${gcd(i, size)}</p>
+                                <p><b>gcd(${j}, ${size}):</b> ${gcd(j, size)}</p>
+                                ${val ? `<p style="color:var(--red);"><b>${i} and ${j} form a zero divisor pair</b></p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else if (gcdTableType === 'units') {
+                    const size = parseInt(document.getElementById('gcdTableSizeInput').value);
+                    content = `
+                        <h3 style="color:var(--blue); margin-bottom:15px;">Unit Check for ${i} in ℤ/${size}ℤ</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                            <div>
+                                <p><b>Element:</b> ${i}</p>
+                                <p><b>Modulus:</b> ${size}</p>
+                                <p><b>gcd(${i}, ${size}):</b> ${gcd(i, size)}</p>
+                            </div>
+                            <div>
+                                <p><b>Is unit:</b> <span style="color:${val ? 'var(--green)' : 'var(--red)'}">${val ? 'YES' : 'NO'}</span></p>
+                                <p><b>Invertible:</b> ${val ? 'Yes' : 'No'}</p>
+                                ${val ? `<p><b>Part of (ℤ/${size}ℤ)*</b></p>` : `<p><b>Not invertible</b></p>`}
+                            </div>
+                        </div>
+                    `;
+                } else if (gcdTableType === 'totient') {
+                    const g = gcd(i, j);
+                    content = `
+                        <h3 style="color:var(--blue); margin-bottom:15px;">φ(gcd(${i}, ${j})) = φ(${g}) = ${val}</h3>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                            <div>
+                                <p><b>gcd(${i}, ${j}):</b> ${g}</p>
+                                <p><b>φ(${g}):</b> ${val}</p>
+                                <p><b>Meaning:</b> ${val} numbers ≤ ${g} coprime to ${g}</p>
+                            </div>
+                            <div>
+                                <p><b>φ(${i}):</b> ${eulerPhi(i)}</p>
+                                <p><b>φ(${j}):</b> ${eulerPhi(j)}</p>
+                                <p><b>Euler's theorem:</b> a^φ(n) ≡ 1 (mod n)</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                infoDiv.innerHTML = content;
             }
         });
         
@@ -6669,4 +7840,4 @@ as predicted by theory`;
         });
     </script>
 </body>
-                                                                                                                                           </html>
+                                </html>
