@@ -127,7 +127,7 @@
         <div id="presets" class="panel">
             <div class="section">
                 <h2>Mathematical Presets <span class="help-icon tooltip" data-tip="Pre-configured significant cases">?</span></h2>
-                <p>Explore mathematically significant radii, dimensions, and configurations. Each preset demonstrates important number-theoretic properties.</p>
+                <p>Explore mathematically sit radii, dimensions, and configurations. Each preset demonstrates important number-theoretic properties.</p>
                 
                 <h3 style="color:var(--blue); margin-top:30px;">Classic Results</h3>
                 <div class="compare-grid">
@@ -2211,17 +2211,12 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
         }
 
         function sphereVolume(k, R) {
-            const pi = getPiHighPrecision();
-            
-            // Use exact formulas with high-precision π
             if (k % 2 === 0) {
                 // Even dimensions: V_k = π^(k/2) / (k/2)!
-                const halfK = k / 2;
-                return Math.pow(pi, halfK) / factorial(halfK) * Math.pow(R, k);
+                return Math.pow(Math.PI, k/2) / factorial(k/2) * Math.pow(R, k);
             } else {
-                // Odd dimensions: V_k = 2^k * π^((k-1)/2) * ((k-1)/2)! / k!
-                const halfKMinus = (k - 1) / 2;
-                return 2 * factorial(halfKMinus) * Math.pow(pi, halfKMinus) / factorial(k) * Math.pow(R, k);
+                // Odd dimensions: V_k = 2^((k+1)/2) * π^((k-1)/2) / k!!
+                return Math.pow(2, (k+1)/2) * Math.pow(Math.PI, (k-1)/2) / doubleFactorial(k) * Math.pow(R, k);
             }
         }
 
@@ -2229,6 +2224,13 @@ Density: 60.79%" style="width:100%; padding:10px; margin:5px 0; border-radius:6p
             if (n <= 1) return 1;
             let res = 1;
             for (let i = 2; i <= n; i++) res *= i;
+            return res;
+        }
+
+        function doubleFactorial(n) {
+            if (n <= 1) return 1;
+            let res = 1;
+            for (let i = n; i >= 1; i -= 2) res *= i;
             return res;
         }
 
@@ -7554,9 +7556,7 @@ as predicted by theory`;
         for (let k = 2; k <= 12; k++) {
             const z = zeta(k);
             const precision = k > 6 ? 17 : 6;
-            const v = k % 2 === 0 ? 
-                (Math.PI**(k/2) / factorial(k/2)) :
-                (2 * factorial((k-1)/2) * Math.PI**((k-1)/2) / factorial(k));
+            const v = sphereVolume(k, 1);
             tb.innerHTML += `<tr><td>${k}</td><td>${formatPrecise(z, precision)}</td><td>${formatPrecise(1/z, precision)}</td><td>${formatPrecise(v, precision)}</td></tr>`;
         }
         
@@ -7840,4 +7840,4 @@ as predicted by theory`;
         });
     </script>
 </body>
-                                </html>
+</html>
