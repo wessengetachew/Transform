@@ -3,846 +3,964 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Enhanced Modular Lifting Rings — Möbius Shell Sieve</title>
+<title>Enhanced Modular Lifting Rings - Complete</title>
 <style>
-:root{--bg:#0d1321;--bg2:#151b2d;--txt:#e0e6ed;--txt2:#a0aab8;--bord:#2a3a50;--acc:#00d9ff;--gold:#ffd700}
+:root{--bg:#0d1321;--bg2:#151b2d;--bg1:#0a0e14;--txt:#e0e6ed;--txt2:#a0aab8;--bord:#2a3a50;--acc:#00d9ff;--gold:#ffd700}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;min-height:100vh}
-body.light{--bg:#f5f5f5;--bg2:#fff;--txt:#1a1a2e;--txt2:#555;--bord:#ddd;--acc:#0066cc}
-header{background:linear-gradient(135deg,#151b2d 0%,#1a2540 100%);padding:1rem;border-bottom:2px solid var(--gold);text-align:center}
-header h1{font-size:1.5rem;background:linear-gradient(90deg,#ffd700,#00d9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-header p{font-size:.8rem;color:var(--txt2);margin-top:.25rem}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5}
+body.light{--bg:#f5f5f5;--bg2:#fff;--bg1:#eee;--txt:#1a1a2e;--txt2:#555;--bord:#ddd;--acc:#0066cc}
+header{background:linear-gradient(135deg,#151b2d,#1a2540);padding:.75rem;border-bottom:2px solid var(--gold);text-align:center}
+header h1{font-size:1.4rem;background:linear-gradient(90deg,#ffd700,#00d9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .container{max-width:1900px;margin:0 auto;padding:.75rem}
-.ctrl{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
-.cg{display:flex;flex-direction:column;gap:.15rem;min-width:90px}
+.ctrl{display:flex;flex-wrap:wrap;gap:.4rem;margin:.25rem 0;align-items:flex-end}
+.cg{display:flex;flex-direction:column;gap:.15rem}
 .cg label{font-size:.7rem;color:var(--txt2)}
-.cg input,.cg select{padding:4px 6px;border:1px solid var(--bord);border-radius:3px;background:var(--bg);color:var(--txt);font-size:.8rem}
-button{padding:5px 10px;border:1px solid var(--bord);border-radius:3px;background:var(--bg2);color:var(--txt);cursor:pointer;font-size:.75rem;transition:all .15s}
-button:hover{background:var(--acc);color:#000}
-canvas{border:1px solid var(--bord);border-radius:4px;background:#0a0e14;display:block}
-.panel{background:var(--bg2);border:1px solid var(--bord);border-radius:6px;padding:.6rem;margin-bottom:.75rem}
-.panel h4{color:var(--gold);margin-bottom:.4rem;font-size:.85rem;border-bottom:1px solid var(--bord);padding-bottom:.25rem}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.3rem;font-size:.75rem}
-.stat-item{background:rgba(0,217,255,.08);padding:.3rem .4rem;border-radius:3px;border-left:2px solid var(--acc)}
-.stat-item .label{font-size:.6rem;color:var(--txt2)}
-.stat-item .value{font-size:.85rem;color:var(--gold);font-weight:bold}
-.main-grid{display:grid;grid-template-columns:1fr 380px;gap:.75rem}
-.canvas-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
-.canvas-wrap h5{color:var(--acc);font-size:.8rem;margin-bottom:.25rem}
-.legend{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.25rem;font-size:.65rem}
-.legend span{padding:2px 5px;border-radius:2px;background:var(--bg);border:1px solid var(--bord)}
-.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:1000;padding:4px 8px;border-radius:15px;font-size:.7rem}
-.selected-box{background:rgba(0,255,136,.1);border:1px solid #00ff88;border-radius:4px;padding:.4rem;margin-top:.4rem;font-size:.75rem}
-.path-box{background:rgba(150,100,255,.1);border:1px solid #9664ff;border-radius:4px;padding:.4rem;margin-top:.4rem;font-size:.75rem}
-@media(max-width:1400px){.main-grid{grid-template-columns:1fr}.canvas-grid{grid-template-columns:1fr}}
+.cg input,.cg select{padding:4px 6px;border:1px solid var(--bord);border-radius:4px;background:var(--bg);color:var(--txt);font-size:.75rem}
+button{padding:5px 10px;border:1px solid var(--bord);border-radius:4px;background:var(--bg2);color:var(--txt);cursor:pointer;font-size:.75rem;transition:all .15s}
+button:hover{background:var(--acc);color:#000;border-color:var(--acc)}
+canvas{border:1px solid var(--bord);border-radius:4px;background:#000;display:block;cursor:crosshair}
+.section{background:var(--bg2);border:1px solid var(--bord);border-radius:6px;padding:.5rem;margin-bottom:.4rem}
+.section-header{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.section-header strong{font-size:.8rem}
+.section-content{display:none;padding-top:.4rem}
+.section-content.open{display:block}
+.canvas-panel{background:var(--bg2);border:1px solid var(--bord);border-radius:6px;padding:.5rem;margin-bottom:.5rem}
+.canvas-panel h3{font-size:.85rem;margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center}
+.canvas-wrap{position:relative;display:inline-block}
+.canvas-info{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.75);padding:3px 6px;border-radius:4px;font-size:.65rem;color:#00d9ff}
+.stats-panel{background:var(--bg1);border-radius:6px;padding:.5rem;font-size:.72rem;margin-top:.4rem}
+.legend-box{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem;font-size:.68rem}
+.legend-box span{padding:2px 6px;border-radius:3px;background:var(--bg);border:1px solid var(--bord)}
+.flex-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:.75rem}
+.theme-toggle{position:fixed;top:.4rem;right:.4rem;z-index:1000;padding:5px 8px;border-radius:12px;font-size:.7rem}
+.gap-tag{display:inline-flex;align-items:center;gap:2px;padding:2px 5px;border-radius:3px;font-size:.65rem}
+.filter-btns button{padding:3px 8px;font-size:.68rem}
+.filter-btns button.active{background:var(--acc);color:#000;border-color:var(--acc)}
 </style>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+<button class="theme-toggle" onclick="toggleTheme()">Theme</button>
 <header>
 <h1>Enhanced Modular Lifting Rings</h1>
-<p>Interactive ring visualization • Stern-Brocot tree • Cayley transform • Sector analysis</p>
 </header>
 <div class="container">
 
-<!-- Controls Panel -->
-<div class="panel">
+<!-- Quick Presets -->
+<div style="background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(0,255,136,.05));padding:.5rem;border-radius:6px;margin-bottom:.5rem;border-left:3px solid #ffd700">
 <div class="ctrl">
-<div class="cg"><label><strong style="color:#00d9ff">Mode</strong></label>
-<select id="enhMode" onchange="enhModeChange();drawAll()">
-<option value="range">Range M₁-M₂</option>
-<option value="power">Power aⁿ</option>
-<option value="custom">Custom</option>
-</select></div>
-<div id="enhRangeControls" class="ctrl">
-<div class="cg"><label>Min</label><input type="number" id="enhMin" value="1" min="1" max="200" onchange="drawAll()"></div>
-<div class="cg"><label>Max</label><input type="number" id="enhMax" value="30" min="1" max="200" onchange="drawAll()"></div>
+<span style="color:#ffd700;font-weight:bold;font-size:.75rem">Presets:</span>
+<button onclick="setRange(1,12)">M1-12</button>
+<button onclick="setRange(1,30)">M1-30</button>
+<button onclick="setRange(1,60)">M1-60</button>
+<button onclick="setPower(2,10)" style="background:#2a4a6a;color:#fff">2^n</button>
+<button onclick="setPower(3,8)" style="background:#4a2a6a;color:#fff">3^n</button>
+<button onclick="setPrimorials()" style="background:#1a472a;color:#fff">Primorials</button>
+<button onclick="setPrimes()" style="background:#4a1a2a;color:#fff">Primes</button>
+<span style="margin-left:auto"></span>
+<button onclick="expandAll()" style="border-color:#00d9ff;color:#00d9ff">Expand</button>
+<button onclick="collapseAll()" style="border-color:#ff6496;color:#ff6496">Collapse</button>
 </div>
-<div id="enhPowerControls" style="display:none" class="ctrl">
-<div class="cg"><label>Base</label><input type="number" id="enhBase" value="2" min="2" max="20" onchange="drawAll()"></div>
-<div class="cg"><label>MaxExp</label><input type="number" id="enhMaxExp" value="10" min="1" max="15" onchange="drawAll()"></div>
-</div>
-<div id="enhCustomControls" style="display:none" class="ctrl">
-<div class="cg" style="min-width:200px"><label>Custom</label><input type="text" id="enhCustomList" value="1,2,4,8,16,32" onchange="drawAll()"></div>
 </div>
 
-<div class="cg"><label>Color</label>
-<select id="enhColor" onchange="drawAll()">
+<!-- Modulus Selection -->
+<div class="section" style="background:rgba(0,217,255,.05)">
+<div class="section-header" onclick="toggleSec('secMod')">
+<strong style="color:#00d9ff">Modulus Selection</strong><span id="secModIcon">+</span>
+</div>
+<div id="secMod" class="section-content">
+<div class="ctrl">
+<div class="cg"><label>Mode</label><select id="modMode" onchange="modeChange();redrawAll()">
+<option value="range">Range (M1-M2)</option>
+<option value="power">Power (a^n)</option>
+<option value="custom">Custom List</option>
+</select></div>
+<div id="rangeCtrl" class="ctrl">
+<div class="cg"><label>Min</label><input type="number" id="modMin" value="1" min="1" max="500" onchange="redrawAll()"></div>
+<div class="cg"><label>Max</label><input type="number" id="modMax" value="30" min="1" max="500" onchange="redrawAll()"></div>
+</div>
+<div id="powerCtrl" style="display:none" class="ctrl">
+<div class="cg"><label>Base</label><input type="number" id="modBase" value="2" min="2" max="20" onchange="redrawAll()"></div>
+<div class="cg"><label>Max Exp</label><input type="number" id="modMaxExp" value="10" min="1" max="20" onchange="redrawAll()"></div>
+</div>
+<div id="customCtrl" style="display:none" class="ctrl">
+<div class="cg" style="flex:1"><label>List</label><input type="text" id="modCustom" value="1,2,6,30,210" onchange="redrawAll()" style="width:100%"></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Global Display Settings -->
+<div class="section">
+<div class="section-header" onclick="toggleSec('secDisp')">
+<strong style="color:#00ff88">Display Settings (All Canvases)</strong><span id="secDispIcon">+</span>
+</div>
+<div id="secDisp" class="section-content">
+<div class="ctrl">
+<div class="cg"><label>Canvas Size</label><select id="canvasSize" onchange="resizeAllCanvases()">
+<option value="500">500x500</option>
+<option value="600">600x600</option>
+<option value="700">700x700</option>
+<option value="800" selected>800x800</option>
+<option value="1000">1000x1000</option>
+<option value="1200">1200x1200</option>
+</select></div>
+<div class="cg"><label>Ring Spacing</label><select id="ringScale" onchange="redrawAll()">
+<option value="uniform">Uniform</option>
+<option value="linear">Linear</option>
+<option value="sqrt">Square Root</option>
+<option value="log">Logarithmic</option>
+<option value="phi">Totient</option>
+</select></div>
+<div class="cg"><label>Color Scheme</label><select id="colorScheme" onchange="redrawAll()">
+<option value="angular">Angular Rainbow</option>
+<option value="gcd">By GCD (Gold=1)</option>
+<option value="ring">By Ring Index</option>
+<option value="coprime">Coprime Classes</option>
+<option value="sector">Farey Sector</option>
+<option value="depth">SB Depth</option>
+<option value="quadres">Quadratic Res</option>
+<option value="fire">Fire</option>
+<option value="plasma">Plasma</option>
+<option value="viridis">Viridis</option>
+<option value="ocean">Ocean</option>
+</select></div>
+<div class="cg"><label>Point Size <span id="ptSzV">1.0</span></label>
+<input type="range" id="ptSz" min="0.2" max="3" step="0.1" value="1" oninput="document.getElementById('ptSzV').textContent=this.value;redrawAll()"></div>
+</div>
+<div class="ctrl">
+<div class="cg"><label>Filter Points</label>
+<div class="filter-btns" style="display:flex;gap:3px">
+<button id="filterAll" class="active" onclick="setFilter('all')">All</button>
+<button id="filterGcd1" onclick="setFilter('gcd1')">GCD=1 Only</button>
+<button id="filterNonGcd1" onclick="setFilter('nongcd1')">Non-GCD=1</button>
+</div></div>
+<div class="cg"><label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="showUnit" checked onchange="redrawAll()"> Unit Circle</label></div>
+<div class="cg"><label style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="invertRings" onchange="redrawAll()"> Invert Rings</label></div>
+</div>
+</div>
+</div>
+
+<!-- Labels -->
+<div class="section">
+<div class="section-header" onclick="toggleSec('secLbl')">
+<strong style="color:#ffd700">Labels</strong><span id="secLblIcon">+</span>
+</div>
+<div id="secLbl" class="section-content">
+<div class="ctrl">
+<div class="cg"><label>Format</label><select id="lblFmt" onchange="redrawAll()">
+<option value="none">None</option>
+<option value="number">Residue r</option>
+<option value="fraction">r/M</option>
+<option value="decimal">Decimal</option>
+<option value="farey">Farey Reduced</option>
+<option value="angle">Angle deg</option>
 <option value="gcd">GCD</option>
-<option value="angular">Angular</option>
-<option value="ring">Ring</option>
-<option value="sector">Sector</option>
+<option value="coprime">Y/N</option>
+<option value="index">Ring Index</option>
 </select></div>
-<div class="cg"><label>PtScale</label><input type="range" id="enhPtScale" min="0.3" max="2.5" step="0.1" value="1" oninput="drawAll()"></div>
-<div class="cg"><label>Rotation</label><input type="range" id="enhRot" min="0" max="360" value="0" oninput="drawAll()"></div>
-<div class="cg"><label>RingInc°</label><input type="number" id="enhRingInc" value="0" step="0.5" style="width:60px" onchange="drawAll()"></div>
+<div class="cg"><label>Which</label><select id="lblWhich" onchange="redrawAll()">
+<option value="all">All</option>
+<option value="gcd1">Coprime Only</option>
+<option value="outer">Outer Ring</option>
+<option value="inner">Inner Ring</option>
+</select></div>
+<div class="cg"><label>Size <span id="lblSzV">9</span>px</label>
+<input type="range" id="lblSz" min="6" max="18" value="9" oninput="document.getElementById('lblSzV').textContent=this.value;redrawAll()"></div>
+</div>
+</div>
 </div>
 
-<div class="ctrl" style="background:rgba(150,100,255,.1);border-radius:4px;padding:.4rem">
-<div class="cg"><label style="display:flex;align-items:center;gap:.3rem">
-<input type="checkbox" id="enhHighlightSector" onchange="drawAll()"> <strong style="color:#9664ff">Sector 1/a to 1/b</strong></label></div>
-<div class="cg"><label>From 1/</label><input type="number" id="enhSectorFrom" value="3" min="2" max="50" onchange="drawAll()"></div>
-<div class="cg"><label>To 1/</label><input type="number" id="enhSectorTo" value="2" min="1" max="50" onchange="drawAll()"></div>
-<div class="cg"><label>Tree Depth</label><input type="number" id="enhTreeDepth" value="6" min="2" max="10" onchange="drawAll()"></div>
-<div class="cg"><label>Cayley N</label><input type="number" id="caySectorN" value="12" min="3" max="30" onchange="drawAll()"></div>
+<!-- Rotation -->
+<div class="section" style="background:rgba(255,215,0,.05)">
+<div class="section-header" onclick="toggleSec('secRot')">
+<strong style="color:#ffd700">Rotation</strong><span id="secRotIcon">+</span>
 </div>
-
+<div id="secRot" class="section-content">
 <div class="ctrl">
-<button onclick="enhSetRange(1,12)">M≤12</button>
-<button onclick="enhSetRange(1,30)">M≤30</button>
-<button onclick="enhSetPower(2,10)" style="background:#2a4a6a;color:#fff">2ⁿ</button>
-<button onclick="enhSetPower(3,8)" style="background:#4a2a6a;color:#fff">3ⁿ</button>
-<button onclick="enhSetPrimorials()" style="background:#1a472a;color:#fff">Primorials</button>
-<button onclick="toggleAnim()" id="animBtn">▶ Animate</button>
-<button onclick="screenshotAll()">📷 Screenshot</button>
-<button onclick="csvExport()">CSV</button>
+<div class="cg"><label>Global <span id="rotV">0</span>deg</label>
+<input type="range" id="rot" min="0" max="360" value="0" oninput="document.getElementById('rotV').textContent=this.value;redrawAll()"></div>
+<div class="cg"><label>Ring Inc <span id="ringIncV">0</span>deg</label>
+<input type="range" id="ringInc" min="0" max="180" step="0.5" value="0" oninput="document.getElementById('ringIncV').textContent=this.value;redrawAll()"></div>
+<div class="cg"><label>Phase <span id="phaseV">0</span>deg</label>
+<input type="range" id="phase" min="0" max="360" value="0" oninput="document.getElementById('phaseV').textContent=this.value;redrawAll()"></div>
+</div>
+<div class="ctrl">
+<button onclick="setRingFrac(30)">30deg</button>
+<button onclick="setRingFrac(60)">60deg</button>
+<button onclick="setRingFrac(90)" style="border-color:#00d9ff">90deg</button>
+<button onclick="setRingFrac(120)">120deg</button>
+<button onclick="setRingFrac(137.5)" style="border-color:#ffd700;color:#ffd700">phi 137.5</button>
+</div>
 </div>
 </div>
 
-<!-- Main Content Grid -->
-<div class="main-grid">
-<div>
-<!-- Main Canvas -->
+<!-- Sector -->
+<div class="section" style="background:rgba(150,100,255,.05)">
+<div class="section-header" onclick="toggleSec('secSector')">
+<strong style="color:#9664ff">Farey Sector</strong><span id="secSectorIcon">+</span>
+</div>
+<div id="secSector" class="section-content">
+<div class="ctrl">
+<div class="cg"><label style="display:flex;gap:.3rem;align-items:center"><input type="checkbox" id="showSector" checked onchange="redrawAll()"> Highlight</label></div>
+<div class="cg"><label>From 1/</label><input type="number" id="sectorFrom" value="3" min="2" max="100" style="width:45px" onchange="redrawAll()"></div>
+<div class="cg"><label>To 1/</label><input type="number" id="sectorTo" value="2" min="1" max="99" style="width:45px" onchange="redrawAll()"></div>
+<div class="cg"><label>Mode</label><select id="sectorMode" onchange="redrawAll()">
+<option value="preserve">Preserve</option>
+<option value="dim">Dim Outside</option>
+<option value="inout">Gold/Gray</option>
+</select></div>
+</div>
+<div class="ctrl">
+<button onclick="setSector(2,1)" style="border-color:#ff6496;color:#ff6496">S1</button>
+<button onclick="setSector(3,2)" style="border-color:#ffd700;color:#ffd700">S2</button>
+<button onclick="setSector(4,3)" style="border-color:#00ff88;color:#00ff88">S3</button>
+<button onclick="setSector(5,4)" style="border-color:#00d9ff;color:#00d9ff">S4</button>
+<button onclick="setSector(6,5)">S5</button>
+</div>
+</div>
+</div>
+
+<!-- Gaps -->
+<div class="section" style="background:rgba(255,100,150,.05)">
+<div class="section-header" onclick="toggleSec('secGaps')">
+<strong style="color:#ff6496">Gap Analysis</strong><span id="secGapsIcon">+</span>
+</div>
+<div id="secGaps" class="section-content">
+<div class="ctrl">
+<label style="font-size:.7rem"><input type="checkbox" id="gap2" onchange="redrawAll()"> 2</label>
+<label style="font-size:.7rem"><input type="checkbox" id="gap4" onchange="redrawAll()"> 4</label>
+<label style="font-size:.7rem"><input type="checkbox" id="gap6" onchange="redrawAll()"> 6</label>
+<label style="font-size:.7rem"><input type="checkbox" id="gap8" onchange="redrawAll()"> 8</label>
+<label style="font-size:.7rem"><input type="checkbox" id="gap10" onchange="redrawAll()"> 10</label>
+<label style="font-size:.7rem"><input type="checkbox" id="gap12" onchange="redrawAll()"> 12</label>
+<input type="number" id="customGapIn" value="14" min="2" max="200" step="2" style="width:45px">
+<button onclick="addGap()" style="font-size:.65rem;padding:2px 5px">+Add</button>
+<button onclick="clearGaps()" style="font-size:.65rem;padding:2px 5px;border-color:#ff6496">Clear</button>
+</div>
+<div id="customGapList" style="min-height:18px;font-size:.68rem;color:var(--txt2)">None</div>
+</div>
+</div>
+
+<!-- Export -->
+<div class="section" style="background:rgba(0,255,136,.05)">
+<div class="section-header" onclick="toggleSec('secExport')">
+<strong style="color:#00ff88">Export</strong><span id="secExportIcon">+</span>
+</div>
+<div id="secExport" class="section-content">
+<div class="ctrl">
+<div class="cg"><label>Resolution</label><select id="exportRes">
+<option value="1">1K</option>
+<option value="2" selected>2K</option>
+<option value="3">3K</option>
+<option value="4">4K</option>
+</select></div>
+<div class="cg"><label>Legend Font</label><select id="exportFont">
+<option value="10">10px</option>
+<option value="12" selected>12px</option>
+<option value="14">14px</option>
+<option value="16">16px</option>
+</select></div>
+<button onclick="exportCanvas1()">Export Rings</button>
+<button onclick="exportCanvas2()">Export Polar</button>
+<button onclick="exportCanvas3()">Export Tree</button>
+<button onclick="exportAllCanvases()" style="border-color:#ffd700;color:#ffd700">Export All 3</button>
+<button onclick="csvExport()" style="border-color:#00ff88;color:#00ff88">CSV</button>
+</div>
+</div>
+</div>
+
+<!-- 3 Canvas Grid -->
+<div class="flex-grid">
+
+<!-- Canvas 1: Main Rings -->
+<div class="canvas-panel">
+<h3 style="color:#00d9ff">1. Modular Rings
+<span style="font-size:.7rem;font-weight:normal;color:var(--txt2)">Zoom: <span id="z1V">1.0</span>x</span>
+</h3>
 <div class="canvas-wrap">
-<h5>Modular Ring Visualization <span id="mainCanvasInfo" style="color:var(--txt2);font-size:.7rem"></span></h5>
-<canvas id="cenhanced" width="700" height="700"></canvas>
-<div id="alenhanced" class="legend"></div>
+<canvas id="c1" width="800" height="800"></canvas>
+<div class="canvas-info">Scroll zoom, drag pan, click point</div>
+</div>
+<div id="legend1" class="legend-box"></div>
+<div id="stats1" class="stats-panel"></div>
 </div>
 
-<!-- Secondary Canvases Grid -->
-<div class="canvas-grid" style="margin-top:.75rem">
+<!-- Canvas 2: Polar/Radial View -->
+<div class="canvas-panel">
+<h3 style="color:#00ff88">2. Polar Density View
+<span style="font-size:.7rem;font-weight:normal;color:var(--txt2)">Zoom: <span id="z2V">1.0</span>x</span>
+</h3>
 <div class="canvas-wrap">
-<h5 style="color:#00ff88">Stern-Brocot Tree <span id="treeInfo" style="color:var(--txt2);font-size:.65rem"></span></h5>
-<canvas id="cSternBrocot" width="500" height="350"></canvas>
-<div id="enhTreePath" class="path-box" style="display:none"></div>
+<canvas id="c2" width="800" height="800"></canvas>
+<div class="canvas-info">Scroll zoom, drag pan</div>
+</div>
+<div id="legend2" class="legend-box"></div>
+<div id="stats2" class="stats-panel"></div>
+</div>
+
+<!-- Canvas 3: Stern-Brocot Tree -->
+<div class="canvas-panel">
+<h3 style="color:#ffd700">3. Stern-Brocot Tree
+<span style="font-size:.7rem;font-weight:normal;color:var(--txt2)">Zoom: <span id="z3V">1.0</span>x</span>
+</h3>
+<div class="ctrl" style="margin-bottom:.3rem">
+<div class="cg"><label>Depth</label><input type="number" id="treeDepth" value="6" min="2" max="12" style="width:45px" onchange="drawC3()"></div>
+<div class="cg"><label>Node Size</label><input type="range" id="treeSz" min="4" max="20" value="8" oninput="drawC3()"></div>
+<label style="font-size:.68rem"><input type="checkbox" id="treeLabels" checked onchange="drawC3()"> Labels</label>
+<label style="font-size:.68rem"><input type="checkbox" id="treeEdges" checked onchange="drawC3()"> Edges</label>
+<div class="cg"><label>Format</label><select id="treeFmt" onchange="drawC3()" style="width:70px">
+<option value="fraction">p/q</option>
+<option value="decimal">Decimal</option>
+<option value="angle">Angle</option>
+</select></div>
 </div>
 <div class="canvas-wrap">
-<h5 style="color:#9664ff">Cayley Transform (Sector) <span id="cayInfo" style="color:var(--txt2);font-size:.65rem"></span></h5>
-<canvas id="cCayley" width="500" height="350"></canvas>
-<div class="legend"><span style="color:#ffd700">● Coprime</span><span style="color:#9664ff">● In Sector</span><span style="color:#00ff88">● Selected</span></div>
+<canvas id="c3" width="800" height="800"></canvas>
+<div class="canvas-info">Scroll zoom, click node</div>
 </div>
-</div>
-</div>
-
-<!-- Right Sidebar -->
-<div>
-<div class="panel">
-<h4> Statistics</h4>
-<div id="enhStats" class="stats-grid"></div>
+<div id="legend3" class="legend-box"></div>
+<div id="stats3" class="stats-panel"></div>
 </div>
 
-<div class="panel" id="sectorPanel" style="display:none">
-<h4 style="color:#9664ff"> Sector Analysis</h4>
-<div id="sectorStats"></div>
 </div>
 
-<div class="panel" id="selectedPanel" style="display:none">
-<h4 style="color:#00ff88">Selected Point</h4>
-<div id="selectedInfo"></div>
-</div>
-
-<div class="panel">
-<h4> Guide</h4>
-<div style="font-size:.7rem;color:var(--txt2)">
-<p>• <strong>Click</strong> points to select and see path in tree</p>
-<p>• <strong>Enable Sector</strong> to focus on 1/a to 1/b range</p>
-<p>• Tree shows mediant construction path</p>
-<p>• Cayley maps unit disk ↔ upper half-plane</p>
-</div>
-</div>
-</div>
+<!-- Point Info -->
+<div id="pointPanel" style="display:none;background:var(--bg2);border:1px solid var(--acc);border-radius:6px;padding:.5rem;margin-top:.5rem">
+<h4 style="color:#00d9ff;font-size:.85rem;margin-bottom:.3rem">Selected Point</h4>
+<div id="pointInfo" style="font-size:.75rem"></div>
 </div>
 
 </div>
 
 <script>
-// Theme
-function toggleTheme(){document.body.classList.toggle('light');drawAll();}
-function isDark(){return !document.body.classList.contains('light');}
-
-// Utilities
 const gcd=(a,b)=>{a=Math.abs(Math.round(a));b=Math.abs(Math.round(b));while(b)[a,b]=[b,a%b];return a||1;};
-function reduceFrac(a,b){const g=gcd(a,b);return{p:a/g,q:b/g,str:`${a/g}/${b/g}`};}
+const reduce=(a,b)=>{const g=gcd(a,b);return[a/g,b/g];};
+const isDark=()=>!document.body.classList.contains('light');
+const toggleTheme=()=>{document.body.classList.toggle('light');redrawAll();};
 
-// State
-let enhRingsData=[];
-let selectedPoint=null;
-let animating=false;
-let animFrame=0;
-let animId=null;
-window.enhSBTreeNodes=[];
-window.enhSBHighlightPath=[];
-window.enhSBSelectedNode=null;
-window.enhSBTreeBounds=null;
+let ringsData=[];
+let customGaps=[];
+let filterMode='all';
+let selectedPt=null;
+let z1=1,p1x=0,p1y=0,z2=1,p2x=0,p2y=0,z3=1,p3x=0,p3y=0;
+let treeNodes=[],treePath=[],treeSelected=null;
 
-// Mode controls
-function enhModeChange(){
-  const mode=document.getElementById('enhMode').value;
-  document.getElementById('enhRangeControls').style.display=mode==='range'?'flex':'none';
-  document.getElementById('enhPowerControls').style.display=mode==='power'?'flex':'none';
-  document.getElementById('enhCustomControls').style.display=mode==='custom'?'flex':'none';
+function toggleSec(id){
+  const el=document.getElementById(id);
+  const icon=document.getElementById(id+'Icon');
+  if(!el)return;
+  const open=el.classList.toggle('open');
+  if(icon)icon.textContent=open?'-':'+';
 }
+function expandAll(){['secMod','secDisp','secLbl','secRot','secSector','secGaps','secExport'].forEach(id=>{
+  const el=document.getElementById(id);if(el)el.classList.add('open');
+  const icon=document.getElementById(id+'Icon');if(icon)icon.textContent='-';
+});}
+function collapseAll(){['secMod','secDisp','secLbl','secRot','secSector','secGaps','secExport'].forEach(id=>{
+  const el=document.getElementById(id);if(el)el.classList.remove('open');
+  const icon=document.getElementById(id+'Icon');if(icon)icon.textContent='+';
+});}
 
-// Presets
-function enhSetRange(min,max){
-  document.getElementById('enhMode').value='range';
-  document.getElementById('enhMin').value=min;
-  document.getElementById('enhMax').value=max;
-  enhModeChange();drawAll();
+function modeChange(){
+  const m=document.getElementById('modMode').value;
+  document.getElementById('rangeCtrl').style.display=m==='range'?'flex':'none';
+  document.getElementById('powerCtrl').style.display=m==='power'?'flex':'none';
+  document.getElementById('customCtrl').style.display=m==='custom'?'flex':'none';
 }
-function enhSetPower(base,exp){
-  document.getElementById('enhMode').value='power';
-  document.getElementById('enhBase').value=base;
-  document.getElementById('enhMaxExp').value=exp;
-  enhModeChange();drawAll();
-}
-function enhSetPrimorials(){
-  document.getElementById('enhMode').value='custom';
-  document.getElementById('enhCustomList').value='1,2,6,30,210,2310';
-  enhModeChange();drawAll();
-}
+function setRange(a,b){document.getElementById('modMode').value='range';document.getElementById('modMin').value=a;document.getElementById('modMax').value=b;modeChange();redrawAll();}
+function setPower(b,e){document.getElementById('modMode').value='power';document.getElementById('modBase').value=b;document.getElementById('modMaxExp').value=e;modeChange();redrawAll();}
+function setPrimorials(){document.getElementById('modMode').value='custom';document.getElementById('modCustom').value='1,2,6,30,210,2310';modeChange();redrawAll();}
+function setPrimes(){document.getElementById('modMode').value='custom';document.getElementById('modCustom').value='2,3,5,7,11,13,17,19,23,29,31,37,41,43,47';modeChange();redrawAll();}
+function setRingFrac(d){document.getElementById('ringInc').value=d;document.getElementById('ringIncV').textContent=d;redrawAll();}
+function setSector(f,t){document.getElementById('sectorFrom').value=f;document.getElementById('sectorTo').value=t;redrawAll();}
+function setFilter(f){filterMode=f;['filterAll','filterGcd1','filterNonGcd1'].forEach(id=>document.getElementById(id).classList.remove('active'));document.getElementById(f==='all'?'filterAll':f==='gcd1'?'filterGcd1':'filterNonGcd1').classList.add('active');redrawAll();}
 
-// Get moduli
 function getModuli(){
-  const mode=document.getElementById('enhMode').value;
-  let moduli=[];
-  if(mode==='range'){
-    const min=+document.getElementById('enhMin').value||1;
-    const max=+document.getElementById('enhMax').value||30;
-    for(let m=min;m<=max;m++)moduli.push(m);
-  }else if(mode==='power'){
-    const base=+document.getElementById('enhBase').value||2;
-    const maxExp=+document.getElementById('enhMaxExp').value||10;
-    for(let e=0;e<=maxExp;e++)moduli.push(Math.pow(base,e));
-  }else{
-    moduli=document.getElementById('enhCustomList').value.split(',').map(s=>+s.trim()).filter(n=>n>0);
-  }
-  return moduli.filter(m=>m>=1);
+  const m=document.getElementById('modMode').value;
+  let arr=[];
+  if(m==='range'){const a=Math.max(1,+document.getElementById('modMin').value||1),b=Math.max(a,+document.getElementById('modMax').value||30);for(let i=a;i<=b;i++)arr.push(i);}
+  else if(m==='power'){const base=+document.getElementById('modBase').value||2,maxE=+document.getElementById('modMaxExp').value||10;for(let e=0;e<=maxE;e++)arr.push(Math.pow(base,e));}
+  else{arr=document.getElementById('modCustom').value.split(',').map(s=>parseInt(s.trim())).filter(n=>n>0&&!isNaN(n));arr.sort((a,b)=>a-b);}
+  return arr;
+}
+function getGaps(){
+  const g=[];
+  if(document.getElementById('gap2')?.checked)g.push(2);
+  if(document.getElementById('gap4')?.checked)g.push(4);
+  if(document.getElementById('gap6')?.checked)g.push(6);
+  if(document.getElementById('gap8')?.checked)g.push(8);
+  if(document.getElementById('gap10')?.checked)g.push(10);
+  if(document.getElementById('gap12')?.checked)g.push(12);
+  customGaps.forEach(x=>{if(!g.includes(x))g.push(x);});
+  return g.sort((a,b)=>a-b);
+}
+function addGap(v){
+  let gap=v||+document.getElementById('customGapIn')?.value||14;
+  if(gap%2)gap++;if(gap<2)gap=2;
+  if(!customGaps.includes(gap)&&![2,4,6,8,10,12].includes(gap)){customGaps.push(gap);customGaps.sort((a,b)=>a-b);updateGapList();redrawAll();}
+}
+function clearGaps(){customGaps=[];updateGapList();redrawAll();}
+function updateGapList(){
+  const el=document.getElementById('customGapList');
+  if(!el)return;
+  if(customGaps.length===0){el.innerHTML='<span style="color:var(--txt2)">None</span>';return;}
+  const cols=['#ff6496','#ffd700','#00ff88','#00d9ff','#9664ff'];
+  el.innerHTML=customGaps.map((g,i)=>`<span class="gap-tag" style="background:${cols[i%cols.length]}33;border:1px solid ${cols[i%cols.length]};color:${cols[i%cols.length]}">${g}<span onclick="customGaps=customGaps.filter(x=>x!=${g});updateGapList();redrawAll()" style="cursor:pointer;margin-left:2px">x</span></span>`).join(' ');
 }
 
-// Animation
-function toggleAnim(){
-  animating=!animating;
-  document.getElementById('animBtn').textContent=animating?'⏸ Pause':'▶ Animate';
-  if(animating)animate();
-  else if(animId)cancelAnimationFrame(animId);
-}
-function animate(){
-  if(!animating)return;
-  animFrame=(animFrame+0.5)%360;
-  drawAll();
-  animId=requestAnimationFrame(animate);
+function resizeAllCanvases(){
+  const sz=+document.getElementById('canvasSize').value||800;
+  ['c1','c2','c3'].forEach(id=>{const c=document.getElementById(id);if(c){c.width=sz;c.height=sz;}});
+  redrawAll();
 }
 
-// Draw all canvases
-function drawAll(){
-  drawMainCanvas();
-  drawSternBrocotTree();
-  drawCayleyCanvas();
-  updateStats();
-}
+function redrawAll(){drawC1();drawC2();drawC3();}
 
-// Main modular rings canvas
-function drawMainCanvas(){
-  const c=document.getElementById('cenhanced');
-  if(!c)return;
+// Canvas 1: Main Rings
+function drawC1(){
+  const c=document.getElementById('c1');if(!c)return;
   const ctx=c.getContext('2d');
-  const w=c.width,h=c.height;
-  const cx=w/2,cy=h/2;
+  const w=c.width,h=c.height,cx=w/2,cy=h/2;
   const dk=isDark();
+  ctx.fillStyle=dk?'#0a0e14':'#fff';ctx.fillRect(0,0,w,h);
   
-  ctx.fillStyle=dk?'#0a0e14':'#fff';
-  ctx.fillRect(0,0,w,h);
+  const moduli=getModuli();if(!moduli.length)return;
+  const maxMod=Math.max(...moduli);
   
-  const moduli=getModuli();
-  if(!moduli.length)return;
+  ringsData=moduli.map(m=>{const coprimes=[];for(let r=0;r<m;r++)if(gcd(r,m)===1)coprimes.push(r);return{mod:m,coprimes,phi:coprimes.length};});
   
-  // Build ring data
-  enhRingsData=moduli.map(m=>{
-    const allRes=[],coprimes=[];
-    for(let r=0;r<m;r++){
-      allRes.push(r);
-      if(gcd(r,m)===1)coprimes.push(r);
-    }
-    return{mod:m,allRes,coprimes};
-  });
+  const scale=document.getElementById('ringScale')?.value||'uniform';
+  const col=document.getElementById('colorScheme')?.value||'angular';
+  const ptSz=+document.getElementById('ptSz')?.value||1;
+  const rot=(+document.getElementById('rot')?.value||0)*Math.PI/180;
+  const ringInc=(+document.getElementById('ringInc')?.value||0)*Math.PI/180;
+  const phase=(+document.getElementById('phase')?.value||0)*Math.PI/180;
+  const invert=document.getElementById('invertRings')?.checked;
+  const showUnit=document.getElementById('showUnit')?.checked;
+  const showSector=document.getElementById('showSector')?.checked;
+  const sectorFrom=+document.getElementById('sectorFrom')?.value||3;
+  const sectorTo=+document.getElementById('sectorTo')?.value||2;
+  const sectorMode=document.getElementById('sectorMode')?.value||'preserve';
+  const lblFmt=document.getElementById('lblFmt')?.value||'none';
+  const lblWhich=document.getElementById('lblWhich')?.value||'all';
+  const lblSz=+document.getElementById('lblSz')?.value||9;
+  const gaps=getGaps();
+  const gapCols=['#ff6496','#00ff88','#ffd700','#00d9ff','#9664ff','#ff9933'];
   
-  // Settings
-  const colMode=document.getElementById('enhColor').value;
-  const ptScale=+document.getElementById('enhPtScale').value||1;
-  const rot=(+document.getElementById('enhRot').value+animFrame)*Math.PI/180;
-  const ringInc=+document.getElementById('enhRingInc').value*Math.PI/180;
-  const highlightSector=document.getElementById('enhHighlightSector').checked;
-  const sectorFrom=+document.getElementById('enhSectorFrom').value||3;
-  const sectorTo=+document.getElementById('enhSectorTo').value||2;
-  
-  const innerR=25,outerR=Math.min(cx,cy)-35;
-  const numRings=enhRingsData.length;
+  const outerR=(Math.min(cx,cy)-35)*z1;
+  const innerR=25*z1;
+  const numRings=ringsData.length;
   
   ctx.save();
-  ctx.translate(cx,cy);
+  ctx.translate(cx+p1x,cy+p1y);
   ctx.rotate(rot);
   
-  // Unit circle
-  ctx.beginPath();
-  ctx.arc(0,0,outerR,0,2*Math.PI);
-  ctx.strokeStyle=dk?'rgba(0,255,136,.25)':'rgba(0,170,85,.25)';
-  ctx.lineWidth=1.5;
-  ctx.stroke();
+  if(showUnit){ctx.beginPath();ctx.arc(0,0,outerR,0,2*Math.PI);ctx.strokeStyle=dk?'rgba(0,255,136,.2)':'rgba(0,170,85,.2)';ctx.lineWidth=1.5;ctx.stroke();}
   
-  // Sector highlight
-  if(highlightSector){
-    const fromAngle=2*Math.PI*(1-1/sectorFrom);
-    const toAngle=2*Math.PI*(1-1/sectorTo);
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.arc(0,0,outerR+8,fromAngle,toAngle);
-    ctx.closePath();
-    ctx.fillStyle='rgba(150,100,255,.12)';
-    ctx.fill();
-    ctx.strokeStyle='rgba(150,100,255,.4)';
-    ctx.lineWidth=1.5;
-    ctx.stroke();
-    
-    // Update tree bounds
-    window.enhSBTreeBounds={fromN:sectorFrom,toN:sectorTo};
+  if(showSector){
+    const fromA=-2*Math.PI/sectorFrom,toA=-2*Math.PI/sectorTo;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,outerR+8,fromA,toA);ctx.closePath();
+    ctx.fillStyle='rgba(150,100,255,.1)';ctx.fill();ctx.strokeStyle='rgba(150,100,255,.3)';ctx.lineWidth=1;ctx.stroke();
   }
   
-  // Draw rings
-  let totalPts=0,totalCop=0,sectorPts=0,sectorCop=0;
+  let total=0,coprime=0,secCo=0,secNon=0;
+  const gapPairs=[];
   
-  enhRingsData.forEach((ring,ringIdx)=>{
-    const radius=numRings>1?innerR+(outerR-innerR)*ringIdx/(numRings-1):outerR*0.6;
+  ringsData.forEach((ring,ri)=>{
+    const effIdx=invert?numRings-1-ri:ri;
+    let radius;
+    if(scale==='linear')radius=innerR+(outerR-innerR)*(ring.mod/maxMod);
+    else if(scale==='sqrt')radius=innerR+(outerR-innerR)*Math.sqrt(ring.mod)/Math.sqrt(maxMod);
+    else if(scale==='log')radius=innerR+(outerR-innerR)*Math.log(ring.mod+1)/Math.log(maxMod+1);
+    else if(scale==='phi')radius=innerR+(outerR-innerR)*(ring.phi/Math.max(1,...ringsData.map(r=>r.phi)));
+    else radius=innerR+(outerR-innerR)*effIdx/(numRings-1||1);
     ring.radius=radius;
-    const ringRotation=ringIdx*ringInc;
+    const ringRot=effIdx*ringInc+phase;
     
-    ring.allRes.forEach(r=>{
-      const gcd1=gcd(r,ring.mod)===1;
-      const angle=2*Math.PI*(ring.mod-r)/ring.mod+ringRotation;
-      const px=radius*Math.cos(angle);
-      const py=radius*Math.sin(angle);
+    const pts=[];
+    for(let r=0;r<ring.mod;r++){
+      const g=gcd(r,ring.mod);
+      const isCo=g===1;
+      if(filterMode==='gcd1'&&!isCo)continue;
+      if(filterMode==='nongcd1'&&isCo)continue;
       
+      const angle=-2*Math.PI*r/ring.mod+ringRot;
+      const px=radius*Math.cos(angle),py=radius*Math.sin(angle);
       const frac=r/ring.mod;
-      const inSector=highlightSector&&frac>1/sectorFrom&&frac<1/sectorTo;
+      const inSec=showSector&&frac>1/sectorFrom&&frac<1/sectorTo;
       
-      let ptSz=(ring.mod===1?6:radius>200?4:3.5)*ptScale;
-      if(inSector&&gcd1)ptSz*=1.25;
-      
-      // Color
       let clr;
-      if(colMode==='gcd')clr=gcd1?(dk?'#ffd700':'#cc8800'):(dk?'#444':'#ccc');
-      else if(colMode==='angular'){const hue=(r/ring.mod)*360;clr=`hsl(${hue},75%,55%)`;}
-      else if(colMode==='ring'){const hue=(ringIdx/numRings)*280;clr=`hsl(${hue},65%,50%)`;}
-      else if(colMode==='sector'){
-        if(inSector&&gcd1)clr='#9664ff';
-        else clr=gcd1?(dk?'#ffd700':'#cc8800'):(dk?'#333':'#ddd');
+      if(col==='angular'){const hue=(r/ring.mod)*360;clr=`hsl(${hue},75%,55%)`;}
+      else if(col==='gcd')clr=isCo?'#ffd700':'#555';
+      else if(col==='ring'){const hue=(ri/numRings)*300;clr=`hsl(${hue},65%,50%)`;}
+      else if(col==='coprime')clr=isCo?'#00ff88':'#ff4040';
+      else if(col==='sector')clr=inSec&&isCo?'#9664ff':isCo?'#ffd700':'#444';
+      else if(col==='depth'){const d=sbDepth(r,ring.mod);clr=`hsl(${d*30},70%,50%)`;}
+      else if(col==='quadres')clr=isQR(r,ring.mod)?'#00ff88':'#ff6496';
+      else if(col==='fire'){const t=r/ring.mod;clr=`rgb(255,${Math.floor(t*180)},${Math.floor(t*50)})`;}
+      else if(col==='plasma'){const t=r/ring.mod;clr=`hsl(${270-t*120},80%,${50+t*20}%)`;}
+      else if(col==='viridis'){const t=r/ring.mod;clr=`hsl(${80+t*200},70%,${30+t*40}%)`;}
+      else if(col==='ocean'){const t=r/ring.mod;clr=`hsl(${200+t*40},70%,${30+t*50}%)`;}
+      else clr=isCo?'#ffd700':'#555';
+      
+      if(sectorMode==='dim'&&showSector&&!inSec)clr=dk?'#222':'#ccc';
+      else if(sectorMode==='inout'&&showSector)clr=inSec?'#ffd700':'#444';
+      
+      let sz=(ring.mod===1?5:3.5)*ptSz;
+      if(inSec&&isCo)sz*=1.15;
+      
+      pts.push({r,px,py,sz,clr,isCo,inSec,angle,g});
+      total++;if(isCo)coprime++;
+      if(inSec){if(isCo)secCo++;else secNon++;}
+    }
+    ring.pts=pts;
+    
+    pts.forEach(pt=>{ctx.beginPath();ctx.arc(pt.px,pt.py,pt.sz,0,2*Math.PI);ctx.fillStyle=pt.clr;ctx.fill();});
+    
+    gaps.forEach((gap,gi)=>{
+      const co=ring.coprimes;
+      for(let i=0;i<co.length;i++){
+        const r1=co[i],r2=co[(i+1)%co.length];
+        const diff=r2>r1?r2-r1:r2+ring.mod-r1;
+        if(diff===gap){
+          const pt1=pts.find(p=>p.r===r1&&p.isCo);
+          const pt2=pts.find(p=>p.r===r2&&p.isCo);
+          if(pt1&&pt2)gapPairs.push({pt1,pt2,color:gapCols[gi%gapCols.length]});
+        }
       }
-      
-      // Highlight selected
-      const isSelected=selectedPoint&&selectedPoint.residue===r&&selectedPoint.mod===ring.mod;
-      if(isSelected){clr='#00ff88';ptSz*=1.5;}
-      
-      ctx.beginPath();
-      ctx.arc(px,py,ptSz,0,2*Math.PI);
-      ctx.fillStyle=clr;
-      ctx.fill();
-      
-      totalPts++;
-      if(gcd1)totalCop++;
-      if(inSector){sectorPts++;if(gcd1)sectorCop++;}
     });
+    
+    if(lblFmt!=='none'){
+      ctx.fillStyle=dk?'#fff':'#000';ctx.font=`${lblSz}px sans-serif`;ctx.textAlign='center';
+      pts.forEach(pt=>{
+        if(lblWhich==='gcd1'&&!pt.isCo)return;
+        if(lblWhich==='outer'&&ri!==numRings-1)return;
+        if(lblWhich==='inner'&&ri!==0)return;
+        let lbl='';
+        if(lblFmt==='number')lbl=pt.r;
+        else if(lblFmt==='fraction')lbl=`${pt.r}/${ring.mod}`;
+        else if(lblFmt==='decimal')lbl=(pt.r/ring.mod).toFixed(2);
+        else if(lblFmt==='farey'){const[p,q]=reduce(pt.r,ring.mod);lbl=`${p}/${q}`;}
+        else if(lblFmt==='angle')lbl=((pt.r/ring.mod)*360).toFixed(0);
+        else if(lblFmt==='gcd')lbl=pt.g;
+        else if(lblFmt==='coprime')lbl=pt.isCo?'Y':'N';
+        else if(lblFmt==='index')lbl=ri;
+        if(lbl!=='')ctx.fillText(lbl,pt.px,pt.py-pt.sz-2);
+      });
+    }
+  });
+  
+  gapPairs.forEach(gp=>{ctx.beginPath();ctx.moveTo(gp.pt1.px,gp.pt1.py);ctx.lineTo(gp.pt2.px,gp.pt2.py);ctx.strokeStyle=gp.color;ctx.lineWidth=1;ctx.stroke();});
+  
+  if(selectedPt){
+    const ring=ringsData.find(r=>r.mod===selectedPt.mod);
+    if(ring){const pt=ring.pts?.find(p=>p.r===selectedPt.r);if(pt){ctx.beginPath();ctx.arc(pt.px,pt.py,pt.sz+3,0,2*Math.PI);ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();}}
+  }
+  
+  ctx.restore();
+  
+  const density=total>0?(coprime/total*100).toFixed(1):'0';
+  const sumPhi=ringsData.reduce((s,r)=>s+r.phi,0);
+  document.getElementById('stats1').innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px"><span>Rings: <b style="color:#ffd700">${moduli.length}</b></span><span>Points: <b style="color:#00d9ff">${total}</b></span><span>Coprime: <b style="color:#00ff88">${coprime}</b></span><span>Density: <b style="color:#00ff88">${density}%</b></span><span>Max M: <b style="color:#ffd700">${maxMod}</b></span><span>Sum phi: <b style="color:#ffd700">${sumPhi}</b></span></div>${showSector?`<div style="margin-top:4px;color:#9664ff">Sector: coprime=${secCo}, other=${secNon}</div>`:''}`;
+  
+  const colName=document.getElementById('colorScheme')?.value||'angular';
+  document.getElementById('legend1').innerHTML=`<span style="color:#ffd700">* Coprime</span><span style="color:#555">o Non-coprime</span><span>Color: ${colName}</span>${showSector?'<span style="color:#9664ff"># Sector</span>':''}`;
+}
+
+// Canvas 2: Polar Density
+function drawC2(){
+  const c=document.getElementById('c2');if(!c)return;
+  const ctx=c.getContext('2d');
+  const w=c.width,h=c.height,cx=w/2,cy=h/2;
+  const dk=isDark();
+  ctx.fillStyle=dk?'#0a0e14':'#fff';ctx.fillRect(0,0,w,h);
+  
+  const moduli=getModuli();if(!moduli.length)return;
+  const maxMod=Math.max(...moduli);
+  
+  const col=document.getElementById('colorScheme')?.value||'angular';
+  const ptSz=+document.getElementById('ptSz')?.value||1;
+  const showSector=document.getElementById('showSector')?.checked;
+  const sectorFrom=+document.getElementById('sectorFrom')?.value||3;
+  const sectorTo=+document.getElementById('sectorTo')?.value||2;
+  
+  const outerR=(Math.min(cx,cy)-35)*z2;
+  
+  ctx.save();
+  ctx.translate(cx+p2x,cy+p2y);
+  
+  // Draw radial grid
+  ctx.strokeStyle=dk?'rgba(0,217,255,.1)':'rgba(0,102,204,.08)';
+  ctx.lineWidth=0.5;
+  for(let i=1;i<=10;i++){ctx.beginPath();ctx.arc(0,0,outerR*i/10,0,2*Math.PI);ctx.stroke();}
+  for(let a=0;a<360;a+=30){const rad=a*Math.PI/180;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(outerR*Math.cos(rad),outerR*Math.sin(rad));ctx.stroke();}
+  
+  // Sector
+  if(showSector){
+    const fromA=-2*Math.PI/sectorFrom,toA=-2*Math.PI/sectorTo;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,outerR,fromA,toA);ctx.closePath();
+    ctx.fillStyle='rgba(150,100,255,.08)';ctx.fill();
+  }
+  
+  // Plot all coprimes as density
+  let total=0,coprime=0;
+  moduli.forEach(m=>{
+    for(let r=0;r<m;r++){
+      const g=gcd(r,m);
+      const isCo=g===1;
+      if(filterMode==='gcd1'&&!isCo)continue;
+      if(filterMode==='nongcd1'&&isCo)continue;
+      
+      const frac=r/m;
+      const angle=-2*Math.PI*frac;
+      const radius=outerR*(m/maxMod);
+      const px=radius*Math.cos(angle),py=radius*Math.sin(angle);
+      
+      let clr;
+      if(col==='gcd')clr=isCo?'#ffd700':'#444';
+      else if(col==='angular'){const hue=frac*360;clr=`hsl(${hue},75%,55%)`;}
+      else if(col==='coprime')clr=isCo?'#00ff88':'#ff4040';
+      else clr=isCo?'#ffd700':'#444';
+      
+      const sz=2*ptSz*(isCo?1:0.6);
+      ctx.beginPath();ctx.arc(px,py,sz,0,2*Math.PI);ctx.fillStyle=clr;ctx.globalAlpha=isCo?0.8:0.3;ctx.fill();ctx.globalAlpha=1;
+      total++;if(isCo)coprime++;
+    }
   });
   
   ctx.restore();
   
-  // Store stats
-  window.enhTotalPts=totalPts;
-  window.enhTotalCop=totalCop;
-  window.enhSectorPts=sectorPts;
-  window.enhSectorCop=sectorCop;
-  
-  // Info
-  document.getElementById('mainCanvasInfo').textContent=`${moduli.length} rings, ${totalPts} pts`;
-  
-  // Legend
-  const leg=document.getElementById('alenhanced');
-  if(colMode==='gcd')leg.innerHTML='<span style="color:#ffd700">● Coprime</span><span style="color:#555">● Non-coprime</span>';
-  else if(colMode==='sector')leg.innerHTML='<span style="color:#9664ff">● In Sector</span><span style="color:#ffd700">● Coprime</span>';
-  else leg.innerHTML='<span>Color: '+colMode+'</span>';
+  document.getElementById('stats2').innerHTML=`<div>Points: <b style="color:#00d9ff">${total}</b> | Coprime: <b style="color:#00ff88">${coprime}</b> | Density: <b style="color:#00ff88">${(coprime/total*100).toFixed(1)}%</b></div>`;
+  document.getElementById('legend2').innerHTML=`<span style="color:#ffd700">* Coprime</span><span style="color:#444;opacity:.5">o Non-coprime (faded)</span>`;
 }
 
-// Stern-Brocot Tree
-function drawSternBrocotTree(){
-  const c=document.getElementById('cSternBrocot');
-  if(!c)return;
+// Canvas 3: Stern-Brocot Tree
+function drawC3(){
+  const c=document.getElementById('c3');if(!c)return;
   const ctx=c.getContext('2d');
   const w=c.width,h=c.height;
   const dk=isDark();
+  ctx.fillStyle=dk?'#0a0e18':'#f8f8f8';ctx.fillRect(0,0,w,h);
   
-  ctx.fillStyle=dk?'#0a0e14':'#fff';
-  ctx.fillRect(0,0,w,h);
+  const sectorFrom=+document.getElementById('sectorFrom')?.value||3;
+  const sectorTo=+document.getElementById('sectorTo')?.value||2;
+  const depth=+document.getElementById('treeDepth')?.value||6;
+  const nodeSz=+document.getElementById('treeSz')?.value||8;
+  const showLbl=document.getElementById('treeLabels')?.checked!==false;
+  const showEdge=document.getElementById('treeEdges')?.checked!==false;
+  const fmt=document.getElementById('treeFmt')?.value||'fraction';
   
-  const highlightSector=document.getElementById('enhHighlightSector').checked;
-  if(!highlightSector){
-    ctx.fillStyle=dk?'#555':'#999';
-    ctx.font='12px Segoe UI';
-    ctx.textAlign='center';
-    ctx.fillText('Enable Sector Highlight to view Stern-Brocot Tree',w/2,h/2);
-    document.getElementById('treeInfo').textContent='';
-    return;
+  const fromVal=1/sectorFrom,toVal=1/sectorTo;
+  treeNodes=[];const edges=[];
+  
+  function build(left,right,d,px,py){
+    if(d>depth)return;
+    const p=left.p+right.p,q=left.q+right.q;
+    const val=p/q;
+    if(val<=fromVal||val>=toVal)return;
+    const x=w*0.05+w*0.9*(val-fromVal)/(toVal-fromVal);
+    const y=30+d*(h-60)/depth;
+    treeNodes.push({p,q,x,y,depth:d});
+    if(px!==null)edges.push({x1:px,y1:py,x2:x,y2:y});
+    build(left,{p,q},d+1,x,y);
+    build({p,q},right,d+1,x,y);
+  }
+  build({p:0,q:1},{p:1,q:sectorFrom},1,null,null);
+  build({p:1,q:sectorTo},{p:1,q:1},1,null,null);
+  treeNodes.push({p:1,q:sectorFrom,x:w*0.05,y:20,depth:0,boundary:true});
+  treeNodes.push({p:1,q:sectorTo,x:w*0.95,y:20,depth:0,boundary:true});
+  
+  ctx.save();
+  ctx.translate(w/2*(1-z3)+p3x,p3y);
+  ctx.scale(z3,z3);
+  
+  if(showEdge){ctx.strokeStyle=dk?'rgba(0,217,255,.2)':'rgba(0,102,204,.12)';ctx.lineWidth=1;edges.forEach(e=>{ctx.beginPath();ctx.moveTo(e.x1,e.y1);ctx.lineTo(e.x2,e.y2);ctx.stroke();});}
+  
+  if(treePath.length>1){
+    ctx.strokeStyle='#00ff88';ctx.lineWidth=2.5;ctx.beginPath();
+    treePath.forEach((n,i)=>{const node=treeNodes.find(x=>x.p===n.p&&x.q===n.q);if(node){if(i===0)ctx.moveTo(node.x,node.y);else ctx.lineTo(node.x,node.y);}});
+    ctx.stroke();
   }
   
-  const fromN=+document.getElementById('enhSectorFrom').value||3;
-  const toN=+document.getElementById('enhSectorTo').value||2;
-  const maxDepth=+document.getElementById('enhTreeDepth').value||6;
-  
-  // Boundaries
-  const left={p:1,q:fromN};
-  const right={p:1,q:toN};
-  
-  // Build tree
-  const nodes=[];
-  const maxQ=Math.max(...getModuli(),60);
-  
-  function buildTree(l,r,depth,x,y,width){
-    if(depth>maxDepth)return;
-    const medP=l.p+r.p;
-    const medQ=l.q+r.q;
-    if(medQ>maxQ)return;
+  treeNodes.forEach(node=>{
+    const isSel=treeSelected&&treeSelected.p===node.p&&treeSelected.q===node.q;
+    const onPath=treePath.some(n=>n.p===node.p&&n.q===node.q);
+    ctx.beginPath();ctx.arc(node.x,node.y,nodeSz,0,2*Math.PI);
+    if(isSel){ctx.fillStyle='#ffd700';ctx.strokeStyle='#fff';ctx.lineWidth=2;}
+    else if(onPath){ctx.fillStyle='#00ff88';ctx.strokeStyle='#fff';ctx.lineWidth=1.5;}
+    else{ctx.fillStyle=node.boundary?'#9664ff':dk?'#00d9ff':'#0066cc';ctx.strokeStyle='transparent';}
+    ctx.fill();if(isSel||onPath)ctx.stroke();
     
-    nodes.push({p:medP,q:medQ,x,y,depth,left:l,right:r});
-    
-    const childY=y+Math.min(45,h/(maxDepth+2));
-    const childW=width/2;
-    buildTree(l,{p:medP,q:medQ},depth+1,x-childW,childY,childW);
-    buildTree({p:medP,q:medQ},r,depth+1,x+childW,childY,childW);
-  }
-  
-  buildTree(left,right,0,w/2,35,w/4);
-  window.enhSBTreeNodes=nodes;
-  
-  // Highlight path
-  const highlightPath=window.enhSBHighlightPath||[];
-  const isOnPath=node=>highlightPath.some(h=>h.p===node.p&&h.q===node.q);
-  
-  // Draw edges
-  nodes.forEach(node=>{
-    const children=nodes.filter(n=>n.depth===node.depth+1&&Math.abs(n.x-node.x)<w/Math.pow(2,node.depth+1.5));
-    children.forEach(child=>{
-      const onPath=isOnPath(node)&&isOnPath(child);
-      ctx.strokeStyle=onPath?'rgba(0,255,136,.8)':'rgba(150,100,255,.3)';
-      ctx.lineWidth=onPath?2.5:1;
-      ctx.beginPath();
-      ctx.moveTo(node.x,node.y+8);
-      ctx.lineTo(child.x,child.y-8);
-      ctx.stroke();
-    });
-  });
-  
-  // Draw nodes
-  nodes.forEach(node=>{
-    const isSelected=window.enhSBSelectedNode&&window.enhSBSelectedNode.p===node.p&&window.enhSBSelectedNode.q===node.q;
-    const onPath=isOnPath(node);
-    const r=node.depth===0?10:isSelected?9:8-node.depth*0.5;
-    
-    ctx.beginPath();
-    ctx.arc(node.x,node.y,Math.max(4,r),0,2*Math.PI);
-    ctx.fillStyle=isSelected?'#00ff88':onPath?'#00d9ff':node.depth===0?'#ffd700':`hsl(${node.depth*45},65%,50%)`;
-    ctx.fill();
-    
-    if(isSelected||onPath){
-      ctx.strokeStyle=isSelected?'#00ff88':'#00d9ff';
-      ctx.lineWidth=2;
-      ctx.stroke();
-    }
-    
-    // Label
-    if(r>5){
-      ctx.fillStyle='#fff';
-      ctx.font=`${node.depth===0?'bold ':''}${Math.max(7,9-node.depth)}px Segoe UI`;
-      ctx.textAlign='center';
-      ctx.fillText(`${node.p}/${node.q}`,node.x,node.y+3);
+    if(showLbl&&nodeSz>=5){
+      let lbl;
+      if(fmt==='decimal')lbl=(node.p/node.q).toFixed(3);
+      else if(fmt==='angle')lbl=((node.p/node.q)*360).toFixed(0);
+      else lbl=`${node.p}/${node.q}`;
+      ctx.fillStyle=dk?'#fff':'#000';ctx.font=`${Math.max(6,nodeSz-1)}px sans-serif`;ctx.textAlign='center';
+      ctx.fillText(lbl,node.x,node.y-nodeSz-2);
     }
   });
   
-  // Boundaries
-  ctx.fillStyle='#9664ff';
-  ctx.font='9px Segoe UI';
-  ctx.textAlign='left';
-  ctx.fillText(`1/${fromN}`,5,15);
-  ctx.textAlign='right';
-  ctx.fillText(`1/${toN}`,w-5,15);
+  ctx.restore();
   
-  document.getElementById('treeInfo').textContent=`depth ${maxDepth}, ${nodes.length} nodes`;
+  document.getElementById('stats3').innerHTML=`<div>Sector: 1/${sectorFrom} to 1/${sectorTo} | Depth: ${depth} | Nodes: ${treeNodes.length}</div>${treeSelected?`<div style="color:#ffd700">Selected: ${treeSelected.p}/${treeSelected.q}</div>`:''}`;
+  document.getElementById('legend3').innerHTML=`<span style="color:#00d9ff">* Interior</span><span style="color:#9664ff">* Boundary</span><span style="color:#00ff88">* Path</span><span style="color:#ffd700">* Selected</span>`;
 }
 
-// Find path in Stern-Brocot tree
-function findSBPath(p,q){
-  const path=[];
-  let left={p:0,q:1},right={p:1,q:1};
-  for(let i=0;i<50;i++){
-    const mp=left.p+right.p;
-    const mq=left.q+right.q;
-    path.push({p:mp,q:mq});
-    if(mp===p&&mq===q)return path;
-    if(p*mq<mp*q)right={p:mp,q:mq};
-    else left={p:mp,q:mq};
-  }
-  return path;
-}
+function sbDepth(p,q){if(q===0)return 0;const[rp,rq]=reduce(p,q);let d=0,left={p:0,q:1},right={p:1,q:1};for(let i=0;i<30;i++){const mp=left.p+right.p,mq=left.q+right.q;d++;if(mp===rp&&mq===rq)return d;if(rp*mq<mp*rq)right={p:mp,q:mq};else left={p:mp,q:mq};}return d;}
+function isQR(a,m){if(m<=1)return true;if(gcd(a,m)!==1)return false;for(let x=0;x<m;x++)if((x*x)%m===a%m)return true;return false;}
+function buildPath(p,q){const path=[];let left={p:0,q:1},right={p:1,q:1};for(let i=0;i<50;i++){const mp=left.p+right.p,mq=left.q+right.q;path.push({p:mp,q:mq});if(mp===p&&mq===q)return path;if(p*mq<mp*q)right={p:mp,q:mq};else left={p:mp,q:mq};}return path;}
 
-// Highlight in tree
-function highlightInSBTree(p,q){
-  const pathEl=document.getElementById('enhTreePath');
-  if(!window.enhSBTreeBounds){
-    pathEl.style.display='block';
-    pathEl.innerHTML='<span style="color:#888">Enable sector first</span>';
-    return;
-  }
-  
-  const{fromN,toN}=window.enhSBTreeBounds;
-  const frac=p/q;
-  
-  if(frac<=1/fromN||frac>=1/toN){
-    pathEl.style.display='block';
-    pathEl.innerHTML=`<span style="color:#ff8c00">${p}/${q} outside sector</span>`;
-    window.enhSBHighlightPath=[];
-    window.enhSBSelectedNode=null;
-    drawSternBrocotTree();
-    return;
-  }
-  
-  window.enhSBHighlightPath=findSBPath(p,q);
-  window.enhSBSelectedNode={p,q};
-  
-  pathEl.style.display='block';
-  const pathStr=window.enhSBHighlightPath.map(n=>`${n.p}/${n.q}`).join(' → ');
-  pathEl.innerHTML=`<strong style="color:#00ff88">Path to ${p}/${q}:</strong><br>${pathStr}`;
-  
-  drawSternBrocotTree();
-}
-
-// Cayley Transform Canvas
-function drawCayleyCanvas(){
-  const c=document.getElementById('cCayley');
-  if(!c)return;
-  const ctx=c.getContext('2d');
-  const w=c.width,h=c.height;
-  const dk=isDark();
-  
-  ctx.fillStyle=dk?'#0a0e14':'#fff';
-  ctx.fillRect(0,0,w,h);
-  
-  const highlightSector=document.getElementById('enhHighlightSector').checked;
-  if(!highlightSector){
-    ctx.fillStyle=dk?'#555':'#999';
-    ctx.font='12px Segoe UI';
-    ctx.textAlign='center';
-    ctx.fillText('Enable Sector Highlight to view Cayley Transform',w/2,h/2);
-    document.getElementById('cayInfo').textContent='';
-    return;
-  }
-  
-  const sectorFrom=+document.getElementById('enhSectorFrom').value||3;
-  const sectorTo=+document.getElementById('enhSectorTo').value||2;
-  const N=+document.getElementById('caySectorN').value||12;
-  
-  // Dual view: disk left, half-plane right
-  const diskCx=w*0.25,diskCy=h/2,diskR=Math.min(w*0.22,h*0.42);
-  const hpOx=w*0.75,hpOy=h-25;
-  const hpRange=2.5;
-  const hpScX=(w*0.4)/(2*hpRange),hpScY=(h-50)/hpRange;
-  
-  // Generate Farey points in sector
-  const points=[];
-  for(let q=1;q<=N;q++){
-    for(let p=0;p<=q;p++){
-      if(gcd(p,q)===1){
-        const frac=p/q;
-        if(frac>1/sectorFrom&&frac<1/sectorTo){
-          points.push({p,q,frac});
-        }
-      }
-    }
-  }
-  
-  // Cayley transform: w = i(1+z)/(1-z)
-  function cayley(z){
-    const numRe=1+z.re,numIm=z.im;
-    const denRe=1-z.re,denIm=-z.im;
-    const denMag=denRe*denRe+denIm*denIm;
-    if(denMag<1e-10)return{re:0,im:100};
-    const quotRe=(numRe*denRe+numIm*denIm)/denMag;
-    const quotIm=(numIm*denRe-numRe*denIm)/denMag;
-    return{re:-quotIm,im:quotRe};
-  }
-  
-  // Draw disk
-  ctx.strokeStyle=dk?'rgba(0,217,255,.3)':'rgba(0,102,204,.3)';
-  ctx.lineWidth=1;
-  ctx.beginPath();
-  ctx.arc(diskCx,diskCy,diskR,0,2*Math.PI);
-  ctx.stroke();
-  
-  // Draw half-plane axes
-  ctx.strokeStyle=dk?'rgba(255,255,255,.2)':'rgba(0,0,0,.15)';
-  ctx.beginPath();
-  ctx.moveTo(hpOx-hpScX*hpRange,hpOy);
-  ctx.lineTo(hpOx+hpScX*hpRange,hpOy);
-  ctx.stroke();
-  
-  // Sector arc on disk
-  const fromAngle=2*Math.PI*(1-1/sectorFrom);
-  const toAngle=2*Math.PI*(1-1/sectorTo);
-  ctx.beginPath();
-  ctx.arc(diskCx,diskCy,diskR,fromAngle,toAngle);
-  ctx.strokeStyle='rgba(150,100,255,.5)';
-  ctx.lineWidth=3;
-  ctx.stroke();
-  
-  // Draw points
-  points.forEach(pt=>{
-    const angle=2*Math.PI*pt.frac;
-    const zx=Math.cos(angle),zy=Math.sin(angle);
-    const wPt=cayley({re:zx,im:zy});
-    
-    const isSelected=selectedPoint&&selectedPoint.residue===pt.p&&selectedPoint.mod===pt.q;
-    const clr=isSelected?'#00ff88':'#9664ff';
-    const sz=isSelected?6:4;
-    
-    // On disk
-    ctx.beginPath();
-    ctx.arc(diskCx+zx*diskR*0.95,diskCy-zy*diskR*0.95,sz,0,2*Math.PI);
-    ctx.fillStyle=clr;
-    ctx.fill();
-    
-    // On half-plane
-    if(wPt.im>0&&wPt.im<hpRange&&Math.abs(wPt.re)<hpRange){
-      ctx.beginPath();
-      ctx.arc(hpOx+wPt.re*hpScX,hpOy-wPt.im*hpScY,sz,0,2*Math.PI);
-      ctx.fillStyle=clr;
-      ctx.fill();
-    }
-  });
-  
-  // Labels
-  ctx.fillStyle=dk?'#00d9ff':'#0066cc';
-  ctx.font='10px Segoe UI';
-  ctx.textAlign='center';
-  ctx.fillText('Unit Disk 𝔻',diskCx,h-8);
-  ctx.fillText('Upper Half-Plane ℍ',hpOx,h-8);
-  
-  document.getElementById('cayInfo').textContent=`N=${N}, ${points.length} pts in sector`;
-}
-
-// Update stats
-function updateStats(){
-  const stats=document.getElementById('enhStats');
-  const moduli=getModuli();
-  const totPhi=enhRingsData.reduce((s,r)=>s+r.coprimes.length,0);
-  
-  stats.innerHTML=`
-    <div class="stat-item"><div class="label">Rings</div><div class="value">${moduli.length}</div></div>
-    <div class="stat-item"><div class="label">Total Pts</div><div class="value">${(window.enhTotalPts||0).toLocaleString()}</div></div>
-    <div class="stat-item"><div class="label">Coprimes</div><div class="value">${(window.enhTotalCop||0).toLocaleString()}</div></div>
-    <div class="stat-item"><div class="label">Density</div><div class="value">${window.enhTotalPts?((window.enhTotalCop/window.enhTotalPts)*100).toFixed(1)+'%':'0%'}</div></div>
-    <div class="stat-item"><div class="label">Σφ(m)</div><div class="value">${totPhi.toLocaleString()}</div></div>
-    <div class="stat-item"><div class="label">Max M</div><div class="value">${Math.max(...moduli)}</div></div>
-  `;
-  
-  // Sector panel
-  const sectorPanel=document.getElementById('sectorPanel');
-  const sectorStats=document.getElementById('sectorStats');
-  if(document.getElementById('enhHighlightSector').checked){
-    const from=document.getElementById('enhSectorFrom').value;
-    const to=document.getElementById('enhSectorTo').value;
-    sectorPanel.style.display='block';
-    sectorStats.innerHTML=`
-      <div style="margin-bottom:.3rem"><strong>Sector:</strong> 1/${from} to 1/${to}</div>
-      <div>Points: <strong style="color:#9664ff">${window.enhSectorPts||0}</strong></div>
-      <div>Coprimes: <strong style="color:#00ff88">${window.enhSectorCop||0}</strong></div>
-      <div>Density: <strong>${window.enhSectorPts?((window.enhSectorCop/window.enhSectorPts)*100).toFixed(1)+'%':'0%'}</strong></div>
-    `;
-  }else{
-    sectorPanel.style.display='none';
-  }
+function highlightPath(p,q){
+  const[rp,rq]=reduce(p,q);
+  const sectorFrom=+document.getElementById('sectorFrom')?.value||3;
+  const sectorTo=+document.getElementById('sectorTo')?.value||2;
+  const val=rp/rq;
+  if(val<=1/sectorFrom||val>=1/sectorTo){treePath=[];treeSelected=null;drawC3();return;}
+  treePath=buildPath(rp,rq);
+  treeSelected={p:rp,q:rq};
+  drawC3();
 }
 
 // Click handlers
-document.getElementById('cenhanced')?.addEventListener('click',function(e){
-  const c=this;
-  const rect=c.getBoundingClientRect();
-  const clickX=(e.clientX-rect.left)*(c.width/rect.width);
-  const clickY=(e.clientY-rect.top)*(c.height/rect.height);
-  const cx=c.width/2,cy=c.height/2;
-  let x=clickX-cx,y=clickY-cy;
-  
-  const rot=(+document.getElementById('enhRot').value+animFrame)*Math.PI/180;
+document.getElementById('c1')?.addEventListener('click',function(e){
+  const rect=this.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(this.width/rect.width)-this.width/2-p1x;
+  const my=(e.clientY-rect.top)*(this.height/rect.height)-this.height/2-p1y;
+  const rot=(+document.getElementById('rot')?.value||0)*Math.PI/180;
   const cosR=Math.cos(-rot),sinR=Math.sin(-rot);
-  const ux=x*cosR-y*sinR,uy=x*sinR+y*cosR;
+  const ux=mx*cosR-my*sinR,uy=mx*sinR+my*cosR;
   
-  let closest=null,minDist=Infinity;
-  const numRings=enhRingsData.length;
-  const outerR=Math.min(cx,cy)-35,innerR=25;
-  const ringInc=+document.getElementById('enhRingInc').value*Math.PI/180;
-  
-  enhRingsData.forEach((ring,ringIdx)=>{
-    const radius=numRings>1?innerR+(outerR-innerR)*ringIdx/(numRings-1):outerR*0.6;
-    const ringRotation=ringIdx*ringInc;
-    
-    ring.allRes.forEach(r=>{
-      const angle=2*Math.PI*(ring.mod-r)/ring.mod+ringRotation;
-      const px=radius*Math.cos(angle),py=radius*Math.sin(angle);
-      const dist=Math.sqrt((ux-px)**2+(uy-py)**2);
-      if(dist<minDist&&dist<20){
-        minDist=dist;
-        closest={residue:r,mod:ring.mod,gcd:gcd(r,ring.mod),isCoprime:gcd(r,ring.mod)===1};
-      }
-    });
-  });
-  
+  let closest=null,minD=20;
+  ringsData.forEach(ring=>{(ring.pts||[]).forEach(pt=>{const d=Math.sqrt((ux-pt.px)**2+(uy-pt.py)**2);if(d<minD){minD=d;closest={r:pt.r,mod:ring.mod,g:pt.g,isCo:pt.isCo};}});});
   if(closest){
-    selectedPoint=closest;
-    showSelectedPoint(closest);
-    if(closest.isCoprime){
-      const red=reduceFrac(closest.residue,closest.mod);
-      highlightInSBTree(red.p,red.q);
-    }
-    drawAll();
+    selectedPt=closest;
+    const[rp,rq]=reduce(closest.r,closest.mod);
+    document.getElementById('pointPanel').style.display='block';
+    document.getElementById('pointInfo').innerHTML=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px"><span>Residue: <b>${closest.r} mod ${closest.mod}</b></span><span>Fraction: <b>${closest.r}/${closest.mod} = ${rp}/${rq}</b></span><span>GCD: <b>${closest.g}</b></span><span>Coprime: <b style="color:${closest.isCo?'#00ff88':'#ff6496'}">${closest.isCo?'Yes':'No'}</b></span><span>Decimal: <b>${(closest.r/closest.mod).toFixed(6)}</b></span><span>Angle: <b>${((closest.r/closest.mod)*360).toFixed(2)} deg</b></span></div>`;
+    if(closest.isCo)highlightPath(closest.r,closest.mod);
+    drawC1();
   }
 });
 
-document.getElementById('cSternBrocot')?.addEventListener('click',function(e){
-  const c=this;
-  const rect=c.getBoundingClientRect();
-  const mx=(e.clientX-rect.left)*(c.width/rect.width);
-  const my=(e.clientY-rect.top)*(c.height/rect.height);
-  
-  let closest=null,minDist=15;
-  (window.enhSBTreeNodes||[]).forEach(node=>{
-    const dist=Math.sqrt((node.x-mx)**2+(node.y-my)**2);
-    if(dist<minDist){minDist=dist;closest=node;}
-  });
-  
-  if(closest){
-    highlightInSBTree(closest.p,closest.q);
-    // Also update main selection
-    selectedPoint={residue:closest.p,mod:closest.q,gcd:1,isCoprime:true};
-    showSelectedPoint(selectedPoint);
-    drawMainCanvas();
-    drawCayleyCanvas();
-  }
+document.getElementById('c3')?.addEventListener('click',function(e){
+  const rect=this.getBoundingClientRect();
+  const mx=((e.clientX-rect.left)*(this.width/rect.width)-this.width/2*(1-z3)-p3x)/z3;
+  const my=((e.clientY-rect.top)*(this.height/rect.height)-p3y)/z3;
+  const nodeSz=+document.getElementById('treeSz')?.value||8;
+  let closest=null,minD=nodeSz*2;
+  treeNodes.forEach(n=>{const d=Math.sqrt((n.x-mx)**2+(n.y-my)**2);if(d<minD){minD=d;closest=n;}});
+  if(closest)highlightPath(closest.p,closest.q);
 });
 
-function showSelectedPoint(pt){
-  const panel=document.getElementById('selectedPanel');
-  const info=document.getElementById('selectedInfo');
-  panel.style.display='block';
-  const red=reduceFrac(pt.residue,pt.mod);
-  info.innerHTML=`
-    <div><strong>${pt.residue}/${pt.mod}</strong> = ${red.str}</div>
-    <div>Value: ${(pt.residue/pt.mod).toFixed(6)}</div>
-    <div>GCD: ${pt.gcd}</div>
-    <div>Coprime: ${pt.isCoprime?'<span style="color:#00ff88">Yes</span>':'<span style="color:#ff6060">No</span>'}</div>
-  `;
+// Zoom/pan
+function setupZoomPan(canvasId,zVar,pxVar,pyVar,zVId){
+  const c=document.getElementById(canvasId);if(!c)return;
+  c.addEventListener('wheel',function(e){
+    e.preventDefault();
+    const delta=e.deltaY>0?-0.1:0.1;
+    window[zVar]=Math.max(0.2,Math.min(5,window[zVar]+delta));
+    document.getElementById(zVId).textContent=window[zVar].toFixed(1);
+    redrawAll();
+  },{passive:false});
+  let drag=false,lx=0,ly=0;
+  c.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+  c.addEventListener('mousemove',e=>{if(!drag)return;window[pxVar]+=e.clientX-lx;window[pyVar]+=e.clientY-ly;lx=e.clientX;ly=e.clientY;redrawAll();});
+  c.addEventListener('mouseup',()=>drag=false);
+  c.addEventListener('mouseleave',()=>drag=false);
 }
+setupZoomPan('c1','z1','p1x','p1y','z1V');
+setupZoomPan('c2','z2','p2x','p2y','z2V');
+setupZoomPan('c3','z3','p3x','p3y','z3V');
 
-// Screenshot
-function screenshotAll(){
-  const c=document.getElementById('cenhanced');
-  if(!c)return;
+// Export functions
+function exportCanvas(canvasId,statsId,legendId,title,filename){
+  const c=document.getElementById(canvasId);if(!c)return;
+  const scale=+document.getElementById('exportRes')?.value||2;
+  const legFont=+document.getElementById('exportFont')?.value||12;
   const dk=isDark();
-  const scale=2;
-  const pad=30,titleH=50,footerH=30;
-  const totalW=(c.width+pad*2)*scale;
-  const totalH=(c.height+titleH+footerH+pad)*scale;
+  
+  const pad=35,titleH=50,footerH=30;
+  const canvW=c.width,canvH=c.height;
+  const statsW=320;
+  const totalW=canvW+statsW+pad*3;
+  const totalH=canvH+titleH+footerH+pad;
   
   const out=document.createElement('canvas');
-  out.width=totalW;out.height=totalH;
+  out.width=totalW*scale;out.height=totalH*scale;
   const ctx=out.getContext('2d');
+  ctx.scale(scale,scale);
   
-  ctx.fillStyle=dk?'#0d1321':'#fff';
-  ctx.fillRect(0,0,totalW,totalH);
+  ctx.fillStyle=dk?'#0d1321':'#fff';ctx.fillRect(0,0,totalW,totalH);
   
-  ctx.fillStyle=dk?'#00d9ff':'#0066cc';
-  ctx.font='bold 24px Segoe UI';
-  ctx.textAlign='center';
-  ctx.fillText('Enhanced Modular Lifting Rings',totalW/2,35);
+  // Title
+  const grad=ctx.createLinearGradient(0,0,totalW,0);
+  grad.addColorStop(0,dk?'#151b2d':'#e8e8e8');grad.addColorStop(1,dk?'#1a2540':'#f5f5f5');
+  ctx.fillStyle=grad;ctx.fillRect(0,0,totalW,titleH);
+  ctx.fillStyle=dk?'#00d9ff':'#0066cc';ctx.font='bold 18px Segoe UI';ctx.textAlign='center';
+  ctx.fillText(title,totalW/2,32);
   
-  ctx.drawImage(c,pad*scale,(titleH+10)*scale,c.width*scale,c.height*scale);
+  // Canvas on left
+  const canvX=pad,canvY=titleH+8;
+  ctx.strokeStyle=dk?'rgba(0,217,255,.3)':'rgba(0,102,204,.2)';ctx.lineWidth=2;
+  ctx.strokeRect(canvX-2,canvY-2,canvW+4,canvH+4);
+  ctx.drawImage(c,canvX,canvY,canvW,canvH);
   
-  // Path info
-  if(window.enhSBHighlightPath?.length>0&&window.enhSBSelectedNode){
-    ctx.fillStyle=dk?'rgba(13,19,33,.92)':'rgba(255,255,255,.92)';
-    const pathX=(pad+15)*scale,pathY=(titleH+25)*scale;
-    const pathW=180*scale,pathH=Math.min(180,40+window.enhSBHighlightPath.length*16)*scale;
-    ctx.fillRect(pathX,pathY,pathW,pathH);
-    ctx.strokeStyle='rgba(0,255,136,.6)';
-    ctx.lineWidth=2;
-    ctx.strokeRect(pathX,pathY,pathW,pathH);
-    ctx.fillStyle='#00ff88';
-    ctx.font='bold 14px Segoe UI';
-    ctx.textAlign='left';
-    ctx.fillText('STERN-BROCOT PATH',pathX+12,pathY+22);
-    ctx.fillStyle='#ffd700';
-    ctx.fillText(`→ ${window.enhSBSelectedNode.p}/${window.enhSBSelectedNode.q}`,pathX+12,pathY+42);
-    ctx.fillStyle='#00d9ff';
-    ctx.font='12px Segoe UI';
-    let py=pathY+62;
-    window.enhSBHighlightPath.slice(0,8).forEach((n,i)=>{
-      ctx.fillText(`${i===window.enhSBHighlightPath.length-1?'●':'→'} ${n.p}/${n.q}`,pathX+12,py);
-      py+=18;
-    });
-  }
+  // Legend overlay on canvas
+  ctx.save();
+  const legW=140,legH=legFont*6;
+  const legX=canvX+canvW-legW-10,legY=canvY+10;
+  ctx.fillStyle=dk?'rgba(13,19,33,.88)':'rgba(255,255,255,.88)';ctx.fillRect(legX,legY,legW,legH);
+  ctx.strokeStyle=dk?'rgba(0,217,255,.3)':'rgba(0,102,204,.3)';ctx.lineWidth=1;ctx.strokeRect(legX,legY,legW,legH);
+  ctx.fillStyle=dk?'#00d9ff':'#0066cc';ctx.font=`bold ${legFont}px Segoe UI`;ctx.textAlign='left';
+  ctx.fillText('LEGEND',legX+8,legY+legFont*1.2);
+  ctx.font=`${legFont}px Segoe UI`;
+  ctx.fillStyle='#ffd700';ctx.fillText('* Coprime (GCD=1)',legX+8,legY+legFont*2.4);
+  ctx.fillStyle='#666';ctx.fillText('o Non-coprime',legX+8,legY+legFont*3.6);
+  ctx.fillStyle='#9664ff';ctx.fillText('# Sector',legX+8,legY+legFont*4.8);
+  ctx.restore();
   
-  // Legend
-  const legX=(pad+c.width-160)*scale,legY=(titleH+25)*scale;
-  ctx.fillStyle=dk?'rgba(13,19,33,.92)':'rgba(255,255,255,.92)';
-  ctx.fillRect(legX,legY,150*scale,90*scale);
-  ctx.strokeStyle=dk?'rgba(0,217,255,.5)':'rgba(0,102,204,.5)';
-  ctx.strokeRect(legX,legY,150*scale,90*scale);
-  ctx.fillStyle=dk?'#00d9ff':'#0066cc';
-  ctx.font='bold 14px Segoe UI';
-  ctx.fillText('LEGEND',legX+12,legY+20);
-  ctx.font='12px Segoe UI';
-  ctx.fillStyle='#ffd700';ctx.fillText('● Coprime',legX+12,legY+40);
-  ctx.fillStyle='#555';ctx.fillText('● Non-coprime',legX+12,legY+58);
-  ctx.fillStyle='#9664ff';ctx.fillText('▰ Sector',legX+12,legY+76);
+  // Stats on right
+  const statsX=canvW+pad*2,statsY=titleH+8;
+  ctx.fillStyle=dk?'#151b2d':'#f5f5f5';ctx.fillRect(statsX,statsY,statsW,canvH);
+  ctx.strokeStyle=dk?'rgba(0,217,255,.2)':'rgba(0,102,204,.15)';ctx.strokeRect(statsX,statsY,statsW,canvH);
   
-  ctx.fillStyle=dk?'#506080':'#888';
-  ctx.font='12px Segoe UI';
-  ctx.textAlign='center';
-  ctx.fillText('Enhanced Modular Rings — @7dview',totalW/2,totalH-12);
+  ctx.fillStyle=dk?'#ffd700':'#cc8800';ctx.font='bold 13px Segoe UI';ctx.textAlign='left';
+  ctx.fillText('LIVE STATISTICS',statsX+10,statsY+20);
   
-  out.toBlob(b=>{
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(b);
-    a.download='enhanced_modular.png';
-    a.click();
-  },'image/png');
+  const moduli=getModuli();
+  const totalPts=ringsData.reduce((s,r)=>s+r.mod,0);
+  const totalCo=ringsData.reduce((s,r)=>s+r.phi,0);
+  const items=[
+    ['Rings',moduli.length,'#00d9ff'],
+    ['Points',totalPts,'#00d9ff'],
+    ['Coprime',totalCo,'#00ff88'],
+    ['Density',(totalCo/totalPts*100).toFixed(1)+'%','#00ff88'],
+    ['Max M',Math.max(...moduli),'#ffd700']
+  ];
+  let sy=statsY+45;
+  items.forEach(([lbl,val,col])=>{
+    ctx.fillStyle=dk?'rgba(0,217,255,.08)':'rgba(0,102,204,.05)';ctx.fillRect(statsX+10,sy,statsW-20,32);
+    ctx.fillStyle=col;ctx.fillRect(statsX+10,sy,3,32);
+    ctx.fillStyle=dk?'#888':'#666';ctx.font='10px Segoe UI';ctx.fillText(lbl,statsX+20,sy+12);
+    ctx.fillStyle=col;ctx.font='bold 14px Segoe UI';ctx.fillText(val.toString(),statsX+20,sy+27);
+    sy+=38;
+  });
+  
+  // Footer
+  ctx.fillStyle=dk?'#506080':'#888';ctx.font='10px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('Enhanced Modular Rings - @7dview',totalW/2,totalH-10);
+  ctx.textAlign='right';ctx.fillText(new Date().toISOString().slice(0,19).replace('T',' '),totalW-pad,totalH-10);
+  
+  out.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=filename;a.click();},'image/png');
 }
 
-// CSV
-function csvExport(){
-  let csv='Modulus,Residue,GCD,Coprime,Fraction,Decimal\n';
-  enhRingsData.forEach(ring=>{
-    ring.allRes.forEach(r=>{
-      const g=gcd(r,ring.mod);
-      csv+=`${ring.mod},${r},${g},${g===1?'Yes':'No'},${r}/${ring.mod},${(r/ring.mod).toFixed(6)}\n`;
-    });
+function exportCanvas1(){exportCanvas('c1','stats1','legend1','Modular Rings','rings.png');}
+function exportCanvas2(){exportCanvas('c2','stats2','legend2','Polar Density View','polar.png');}
+function exportCanvas3(){exportCanvas('c3','stats3','legend3','Stern-Brocot Tree','tree.png');}
+
+function exportAllCanvases(){
+  const c1=document.getElementById('c1'),c2=document.getElementById('c2'),c3=document.getElementById('c3');
+  if(!c1||!c2||!c3)return;
+  const scale=+document.getElementById('exportRes')?.value||2;
+  const legFont=+document.getElementById('exportFont')?.value||12;
+  const dk=isDark();
+  
+  const pad=30,titleH=50,footerH=30,canvSz=c1.width,gap=20;
+  const totalW=canvSz*3+gap*2+pad*2;
+  const statsH=200;
+  const totalH=canvSz+statsH+titleH+footerH+pad*2;
+  
+  const out=document.createElement('canvas');
+  out.width=totalW*scale;out.height=totalH*scale;
+  const ctx=out.getContext('2d');
+  ctx.scale(scale,scale);
+  
+  ctx.fillStyle=dk?'#0d1321':'#fff';ctx.fillRect(0,0,totalW,totalH);
+  
+  // Title
+  ctx.fillStyle=dk?'#151b2d':'#e8e8e8';ctx.fillRect(0,0,totalW,titleH);
+  ctx.fillStyle=dk?'#ffd700':'#cc8800';ctx.font='bold 20px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('Enhanced Modular Lifting Rings - Complete Export',totalW/2,32);
+  
+  // 3 canvases
+  const y=titleH+pad;
+  ctx.strokeStyle=dk?'rgba(0,217,255,.3)':'rgba(0,102,204,.2)';ctx.lineWidth=2;
+  
+  // Canvas 1
+  const x1=pad;
+  ctx.strokeRect(x1-2,y-2,canvSz+4,canvSz+4);ctx.drawImage(c1,x1,y,canvSz,canvSz);
+  ctx.fillStyle='#00d9ff';ctx.font='bold 12px Segoe UI';ctx.textAlign='left';ctx.fillText('1. Modular Rings',x1,y-8);
+  
+  // Canvas 2
+  const x2=pad+canvSz+gap;
+  ctx.strokeRect(x2-2,y-2,canvSz+4,canvSz+4);ctx.drawImage(c2,x2,y,canvSz,canvSz);
+  ctx.fillStyle='#00ff88';ctx.fillText('2. Polar Density',x2,y-8);
+  
+  // Canvas 3
+  const x3=pad+canvSz*2+gap*2;
+  ctx.strokeRect(x3-2,y-2,canvSz+4,canvSz+4);ctx.drawImage(c3,x3,y,canvSz,canvSz);
+  ctx.fillStyle='#ffd700';ctx.fillText('3. Stern-Brocot Tree',x3,y-8);
+  
+  // Legend overlays
+  const drawLegend=(lx,ly)=>{
+    ctx.save();
+    const lw=120,lh=legFont*5;
+    ctx.fillStyle=dk?'rgba(13,19,33,.85)':'rgba(255,255,255,.85)';ctx.fillRect(lx,ly,lw,lh);
+    ctx.strokeStyle=dk?'rgba(0,217,255,.3)':'rgba(0,102,204,.3)';ctx.lineWidth=1;ctx.strokeRect(lx,ly,lw,lh);
+    ctx.fillStyle=dk?'#00d9ff':'#0066cc';ctx.font=`bold ${legFont-1}px Segoe UI`;ctx.textAlign='left';
+    ctx.fillText('LEGEND',lx+6,ly+legFont);
+    ctx.font=`${legFont-1}px Segoe UI`;
+    ctx.fillStyle='#ffd700';ctx.fillText('* Coprime',lx+6,ly+legFont*2);
+    ctx.fillStyle='#666';ctx.fillText('o Non-coprime',lx+6,ly+legFont*3);
+    ctx.fillStyle='#9664ff';ctx.fillText('# Sector',lx+6,ly+legFont*4);
+    ctx.restore();
+  };
+  drawLegend(x1+canvSz-130,y+10);
+  drawLegend(x2+canvSz-130,y+10);
+  drawLegend(x3+canvSz-130,y+10);
+  
+  // Stats bar
+  const statsY=y+canvSz+pad;
+  ctx.fillStyle=dk?'#151b2d':'#f5f5f5';ctx.fillRect(pad,statsY,totalW-pad*2,statsH-pad);
+  
+  const moduli=getModuli();
+  const totalPts=ringsData.reduce((s,r)=>s+r.mod,0);
+  const totalCo=ringsData.reduce((s,r)=>s+r.phi,0);
+  
+  ctx.fillStyle=dk?'#ffd700':'#cc8800';ctx.font='bold 14px Segoe UI';ctx.textAlign='left';
+  ctx.fillText('STATISTICS',pad+15,statsY+20);
+  
+  const items=[
+    ['Rings',moduli.length],['Points',totalPts],['Coprime',totalCo],
+    ['Density',(totalCo/totalPts*100).toFixed(1)+'%'],['Max M',Math.max(...moduli)],
+    ['Sector',`1/${document.getElementById('sectorFrom')?.value||3} to 1/${document.getElementById('sectorTo')?.value||2}`]
+  ];
+  let sx=pad+15,ssy=statsY+45;
+  items.forEach(([lbl,val],i)=>{
+    if(i%6===0&&i>0){sx+=180;ssy=statsY+45;}
+    ctx.fillStyle=dk?'#888':'#666';ctx.font='10px Segoe UI';ctx.fillText(lbl+':',sx,ssy);
+    ctx.fillStyle='#00d9ff';ctx.font='bold 12px Segoe UI';ctx.fillText(val.toString(),sx+60,ssy);
+    ssy+=22;
   });
+  
+  // Footer
+  ctx.fillStyle=dk?'#506080':'#888';ctx.font='10px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('Enhanced Modular Rings - @7dview',totalW/2,totalH-10);
+  ctx.textAlign='right';ctx.fillText(new Date().toISOString().slice(0,19).replace('T',' '),totalW-pad,totalH-10);
+  
+  out.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='all_canvases.png';a.click();},'image/png');
+}
+
+function csvExport(){
+  let csv='modulus,residue,angle_deg,is_coprime,gcd,phi\n';
+  ringsData.forEach(r=>{for(let i=0;i<r.mod;i++){const g=gcd(i,r.mod);csv+=`${r.mod},${i},${(360*i/r.mod).toFixed(2)},${g===1},${g},${r.phi}\n`;}});
   const blob=new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='enhanced_modular.csv';
-  a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='modular_data.csv';a.click();
 }
 
 // Init
-document.addEventListener('DOMContentLoaded',()=>{
-  enhModeChange();
-  drawAll();
-});
+document.addEventListener('DOMContentLoaded',()=>{modeChange();updateGapList();redrawAll();});
 </script>
 </body>
 </html>
