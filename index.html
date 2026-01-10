@@ -65,7 +65,7 @@ canvas{border:1px solid var(--bord);border-radius:4px;background:#000;display:bl
 <div id="s2" class="section-content"><div class="ctrl">
 <div class="cg"><label>Canvas Size</label><select id="canvSz" onchange="resizeAll()"><option value="500">500</option><option value="600">600</option><option value="800" selected>800</option><option value="1000">1000</option><option value="1200">1200</option></select></div>
 <div class="cg"><label>Spacing</label><select id="scale" onchange="draw()"><option value="uniform">Uniform</option><option value="linear">Linear</option><option value="sqrt">Sqrt</option><option value="log">Log</option></select></div>
-<div class="cg"><label>Color</label><select id="colMode" onchange="draw()"><option value="angular">Angular</option><option value="gcd">GCD</option><option value="ring">Ring</option><option value="coprime">Coprime</option><option value="sector">Sector</option><option value="fire">Fire</option><option value="plasma">Plasma</option></select></div>
+<div class="cg"><label>Color</label><select id="colMode" onchange="draw()"><option value="angular">Angular</option><option value="gcd">GCD</option><option value="ring">Ring</option><option value="coprime">Coprime</option><option value="harmonic">Harmonic</option><option value="sector">Sector</option><option value="fire">Fire</option><option value="plasma">Plasma</option></select></div>
 <div class="cg"><label>Zoom <span id="zV">1</span></label><input type="range" id="zoom" min="0.3" max="4" step="0.1" value="1" oninput="G('zV').textContent=this.value;draw()"></div>
 <div class="cg"><label>Pt Size <span id="pV">1</span></label><input type="range" id="ptSz" min="0.3" max="3" step="0.1" value="1" oninput="G('pV').textContent=this.value;draw()"></div>
 <div class="cg"><label>Rot <span id="rV">0</span></label><input type="range" id="rot" min="0" max="360" value="0" oninput="G('rV').textContent=this.value;draw()"></div>
@@ -110,11 +110,31 @@ canvas{border:1px solid var(--bord);border-radius:4px;background:#000;display:bl
 <label style="font-size:.65rem"><input type="checkbox" id="treeGcd1" onchange="drawTree()">GCD=1</label>
 </div></div></div>
 
-<div class="section" style="background:rgba(0,255,136,.03)"><div class="section-header" onclick="tog('s8')"><strong style="color:#00ff88">Export</strong><span id="s8i">+</span></div>
+<div class="section" style="background:rgba(0,217,255,.03)"><div class="section-header" onclick="tog('s7')"><strong style="color:#00d9ff">Audio & Frequency</strong><span id="s7i">+</span></div>
+<div id="s7" class="section-content"><div class="ctrl">
+<div class="cg"><label>Base Freq</label><input type="number" id="baseFreq" value="440" min="20" max="2000" onchange="draw()" style="width:60px"></div>
+<button onclick="playFrequency(freqFromRatio(3,2))">♪ Fifth</button>
+<button onclick="playFrequency(freqFromRatio(4,3))">♪ Fourth</button>
+<button onclick="playFrequency(freqFromRatio(5,4))">♪ Major 3</button>
+<button onclick="playFrequency(freqFromRatio(5,8))">♪ Minor 6</button>
+<div style="font-size:.6rem;color:#00d9ff;margin-top:.2rem">Click points on rings canvas to play their frequency</div>
+</div></div></div>
+
+<div class="section" style="background:rgba(0,217,255,.03)"><div class="section-header" onclick="tog('s9')"><strong style="color:#00d9ff">Frequency Distribution</strong><span id="s9i">+</span></div>
+<div id="s9" class="section-content"><div class="ctrl">
+<label style="font-size:.65rem"><input type="checkbox" id="freqScale" onchange="drawFreqDist()"> Log scale</label>
+<label style="font-size:.65rem"><input type="checkbox" id="freqShow" checked onchange="drawFreqDist()"> Show</label>
+</div>
+<div class="canvas-wrap"><canvas id="c3" width="800" height="300"></canvas></div>
+<div style="font-size:.6rem;color:#00d9ff">X-axis: frequency ratio (Hz) | Y-axis: count of occurrences</div>
+</div></div>
+
+<div class="section"><div class="section-header" onclick="tog('s8')"><strong style="color:#00ff88">Export</strong><span id="s8i">+</span></div>
 <div id="s8" class="section-content"><div class="ctrl">
 <div class="cg"><label>Res</label><select id="expRes"><option value="1">1x</option><option value="2" selected>2x</option><option value="3">3x</option><option value="4">4x</option></select></div>
 <button onclick="expC(1)">Rings</button><button onclick="expC(2)">Tree</button>
 <button onclick="expAll()" style="border-color:#ffd700;color:#ffd700">Both</button><button onclick="csvExp()" style="border-color:#00ff88">CSV</button>
+<button onclick="csvExpFreq()" style="border-color:#00d9ff">Freq</button>
 </div></div></div>
 
 <div class="grid-2">
@@ -196,11 +216,13 @@ function draw(){
       if(!isCo&&!showNonGcd1)continue;if(isCo&&!showGcd1)continue;
       const angle=-2*Math.PI*r/ring.mod+ringRot,px=radius*Math.cos(angle),py=radius*Math.sin(angle);
       const frac=r/ring.mod,inSec=hlSector&&frac>1/secFrom&&frac<1/secTo;
+      const[p,q]=isCo?reduce(r,ring.mod):[r,ring.mod];freqDistData.push({p,q,freq:freqFromRatio(p,q),harmonic:q,m:ring.mod});
       let clr;
       if(colMode==='angular')clr='hsl('+(r/ring.mod*360)+',75%,55%)';
       else if(colMode==='gcd')clr=isCo?'#ffd700':'#555';
       else if(colMode==='ring')clr='hsl('+(ri/numRings*300)+',65%,50%)';
       else if(colMode==='coprime')clr=isCo?'#00ff88':'#ff4040';
+      else if(colMode==='harmonic')clr=isCo?getHarmonicColor(q,dk):(dk?'#333':'#bbb');
       else if(colMode==='sector')clr=inSec&&isCo?'#9664ff':(isCo?'#ffd700':'#444');
       else if(colMode==='fire'){const t=r/ring.mod;clr='rgb(255,'+Math.floor(t*180)+','+Math.floor(t*50)+')';}
       else if(colMode==='plasma'){const t=r/ring.mod;clr='hsl('+(270-t*120)+',80%,'+(50+t*20)+'%)';}
@@ -208,7 +230,7 @@ function draw(){
       if(secColMode==='dim'&&hlSector&&!inSec)clr=dk?'#222':'#ccc';
       else if(secColMode==='inout'&&hlSector)clr=inSec?'#ffd700':'#444';
       let sz=(ring.mod===1?4:2.5)*ptSz;if(inSec&&isCo)sz*=1.1;
-      pts.push({r,px,py,sz,clr,isCo,inSec,g});totalPts++;if(isCo)totalCo++;if(inSec&&isCo)secCo++;
+      pts.push({r,px,py,sz,clr,isCo,inSec,g,p,q,freq:freqFromRatio(p,q)});totalPts++;if(isCo)totalCo++;if(inSec&&isCo)secCo++;
     }
     ring.pts=pts;pts.forEach(pt=>{ctx.beginPath();ctx.arc(pt.px,pt.py,pt.sz,0,2*Math.PI);ctx.fillStyle=pt.clr;ctx.fill();});
     if(lblFmt!=='none'){ctx.fillStyle=dk?'#fff':'#000';ctx.font=lblSz+'px sans-serif';ctx.textAlign='center';
@@ -235,8 +257,14 @@ function buildPath(p,q){const path=[];let l={p:0,q:1},r={p:1,q:1};for(let i=0;i<
 function hlPath(p,q){const[rp,rq]=reduce(p,q),secFrom=+G('secFrom')?.value||3,secTo=+G('secTo')?.value||2,val=rp/rq,info=G('pathInfo');if(val<=1/secFrom||val>=1/secTo){treePath=[];treeSel=null;if(info){info.style.display='block';info.textContent=rp+'/'+rq+' outside sector';}drawTree();return;}treePath=buildPath(rp,rq);treeSel={p:rp,q:rq};if(info){info.style.display='block';info.textContent='Path: '+treePath.map(n=>n.p+'/'+n.q).join(' -> ');}drawTree();}
 
 const musicalIntervals={'1,2':'Octave','2,3':'Fifth','3,4':'Fourth','4,5':'Major 3rd','5,6':'Minor 3rd','3,5':'Major 6th','5,8':'Minor 6th','8,9':'Major 2nd','9,10':'Minor 2nd','15,16':'Semitone','1,3':'12th','1,4':'Double Oct'};
-function getMusicalName(p,q){const[rp,rq]=reduce(p,q);for(const[k,v]of Object.entries(musicalIntervals)){const[a,b]=k.split(',').map(Number);if(rp===a&&rq===b)return v;}if(rq<=8)return rp+':'+rq+' ratio';return null;}
-function showMusicalInterval(p,q){const[rp,rq]=reduce(p,q);const name=getMusicalName(rp,rq);const info=G('pathInfo'),mus=G('musicalInfo');if(info){info.style.display='block';info.textContent='Selected: '+rp+'/'+rq+' (GCD='+(gcd(p,q)===1?'1 coprime':gcd(p,q))+')';}if(mus){if(name){mus.style.display='block';mus.textContent='♪ '+name+' — stability∝1/'+rq+'²';}else{mus.style.display='none';}}}
+let audioCtx=null,oscPlaying=null,gainPlaying=null,freqDistData=[];
+function initAudio(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}}
+function playFrequency(freq,dur=0.3){initAudio();if(oscPlaying){try{oscPlaying.stop()}catch(e){}}if(gainPlaying)gainPlaying.gain.cancelScheduledValues(audioCtx.currentTime);const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.frequency.value=Math.max(20,Math.min(20000,freq));osc.type='sine';osc.connect(gain);gain.connect(audioCtx.destination);gain.gain.setValueAtTime(0.12,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);osc.start(audioCtx.currentTime);osc.stop(audioCtx.currentTime+dur);oscPlaying=osc;gainPlaying=gain;}
+function freqFromRatio(p,q,baseFreq=440){return baseFreq*(p/q);}
+function harmonicComplexity(q){return Math.log2(q);}
+function getHarmonicColor(q,dk){if(q===1)return'#ffd700';const comp=harmonicComplexity(q);if(comp<=1)return dk?'#00ff88':'#00cc44';if(comp<=2)return dk?'#00d9ff':'#0099ff';if(comp<=3)return dk?'#00d9ff':'#0066ff';if(comp<=4)return dk?'#9664ff':'#7733ff';if(comp<=5)return dk?'#ff6496':'#ff3366';return dk?'#ff8800':'#ff6600';}
+function getMusicalName(p,q){const[rp,rq]=reduce(p,q);for(const[k,v]of Object.entries(musicalIntervals)){const[a,b]=k.split(',').map(Number);if(rp===a&&rq===b)return v;}if(rq<=8)return rp+':'+rq;return null;}
+function showMusicalInterval(p,q){const[rp,rq]=reduce(p,q);const name=getMusicalName(rp,rq);const freq=freqFromRatio(rp,rq);const info=G('pathInfo'),mus=G('musicalInfo');if(info){info.style.display='block';info.textContent='Selected: '+rp+'/'+rq+' (GCD='+(gcd(p,q)===1?'1':''+gcd(p,q))+', '+freq.toFixed(1)+'Hz, Q='+rq+')';}if(mus){if(name){mus.style.display='block';mus.textContent='♪ '+name+' ('+freq.toFixed(1)+'Hz) — consonance∝1/'+rq;}else{mus.style.display='none';}}}
 function findFareyNeighbors(p,q){const[rp,rq]=reduce(p,q);fareyNeighbors=[];ringsData.forEach(ring=>{for(let r=0;r<ring.mod;r++){if(gcd(r,ring.mod)!==1)continue;const[np,nq]=reduce(r,ring.mod);if(Math.abs(rp*nq-np*rq)===1){fareyNeighbors.push({r,mod:ring.mod,p:np,q:nq});}}});}
 function getOrd(a,m){if(gcd(a,m)!==1)return 0;let x=a%m,ord=1;while(x!==1&&ord<m){x=(x*a)%m;ord++;}return ord;}
 
@@ -248,15 +276,20 @@ function expAll(){const c1=G('c1'),c2=G('c2');if(!c1||!c2)return;const scale=+G(
 
 function csvExp(){let csv='modulus,residue,angle_deg,is_coprime,gcd,phi\n';ringsData.forEach(ring=>{for(let r=0;r<ring.mod;r++){const g=gcd(r,ring.mod);csv+=ring.mod+','+r+','+(360*r/ring.mod).toFixed(2)+','+(g===1)+','+g+','+ring.phi+'\n';}});const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='modular_data.csv';a.click();}
 
+function csvExpFreq(){let csv='p,q,frequency_hz,harmonic_q,occurrences,moduli\n';const freqMap=new Map();freqDistData.forEach(f=>{const key=f.p+'/'+f.q;if(!freqMap.has(key)){freqMap.set(key,{p:f.p,q:f.q,freq:f.freq,count:0,mods:new Set()});}const entry=freqMap.get(key);entry.count++;entry.mods.add(f.m);});freqMap.forEach((entry,key)=>{csv+=entry.p+','+entry.q+','+entry.freq.toFixed(2)+','+entry.q+','+entry.count+',"'+Array.from(entry.mods).join(',')+'"\n';});const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='frequency_data.csv';a.click();}
+
+function drawFreqDist(){const c=G('c3');if(!c||!G('freqShow')?.checked)return;const ctx=c.getContext('2d'),w=c.width,h=c.height,dk=isDark();ctx.fillStyle=dk?'#0a0e18':'#f8f8f8';ctx.fillRect(0,0,w,h);if(!freqDistData.length){ctx.fillStyle=dk?'#888':'#999';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.fillText('No frequency data. Click on points to populate.',w/2,h/2);return;}const freqMap=new Map();freqDistData.forEach(f=>{const key=f.freq.toFixed(1);freqMap.set(key,(freqMap.get(key)||0)+1);});const freqs=Array.from(freqMap.keys()).map(Number).sort((a,b)=>a-b),counts=freqs.map(f=>freqMap.get(f.toFixed(1)));const maxCount=Math.max(...counts),minFreq=Math.min(...freqs),maxFreq=Math.max(...freqs);const useLog=G('freqScale')?.checked;const pad=40,graphW=w-pad*2,graphH=h-pad*2;ctx.strokeStyle=dk?'#444':'#ddd';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad,pad);ctx.lineTo(pad,h-pad);ctx.lineTo(w-pad,h-pad);ctx.stroke();ctx.fillStyle=dk?'#888':'#666';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText('Frequency (Hz)',w/2,h-8);ctx.save();ctx.translate(15,h/2);ctx.rotate(-Math.PI/2);ctx.fillText('Count',0,0);ctx.restore();freqs.forEach((freq,i)=>{const x=pad+graphW*(useLog?Math.log(freq)-Math.log(minFreq):freq-minFreq)/(useLog?Math.log(maxFreq)-Math.log(minFreq):maxFreq-minFreq),y=h-pad-graphH*counts[i]/maxCount;ctx.fillStyle=getHarmonicColor(Math.round(freqDistData.find(f=>f.freq.toFixed(1)==freq.toFixed(1))?.q||2),dk);ctx.beginPath();ctx.arc(x,y,3,0,2*Math.PI);ctx.fill();});ctx.fillStyle=dk?'#666':'#999';ctx.font='8px sans-serif';ctx.textAlign='right';[minFreq,maxFreq].forEach(freq=>{const x=pad+graphW*(useLog?Math.log(freq)-Math.log(minFreq):freq-minFreq)/(useLog?Math.log(maxFreq)-Math.log(minFreq):maxFreq-minFreq);ctx.fillText(freq.toFixed(0),x,h-pad+12);});}
+
 document.addEventListener('DOMContentLoaded',()=>{
 modeChg();
 setupCanvas('c1',pan1,draw,'zoom');
 setupCanvas('c2',pan2,drawTree,'treeZoom');
-G('c1').addEventListener('click',function(e){const c=this,rect=c.getBoundingClientRect();const mx=(e.clientX-rect.left)*(c.width/rect.width),my=(e.clientY-rect.top)*(c.height/rect.height);const cx=c.width/2,cy=c.height/2;const rot=(+G('rot')?.value||0)*Math.PI/180;let dx=mx-cx-pan1.x,dy=my-cy-pan1.y;const cosR=Math.cos(-rot),sinR=Math.sin(-rot);const ux=dx*cosR-dy*sinR,uy=dx*sinR+dy*cosR;let closest=null,minD=20;ringsData.forEach(ring=>{(ring.pts||[]).forEach(pt=>{const d=Math.sqrt((ux-pt.px)**2+(uy-pt.py)**2);if(d<minD){minD=d;closest={r:pt.r,mod:ring.mod,isCo:pt.isCo,g:pt.g};}});});if(closest){selectedPt=closest;findFareyNeighbors(closest.r,closest.mod);if(closest.isCo)hlPath(closest.r,closest.mod);draw();drawTree();showMusicalInterval(closest.r,closest.mod);}});
+G('c1').addEventListener('click',function(e){const c=this,rect=c.getBoundingClientRect();const mx=(e.clientX-rect.left)*(c.width/rect.width),my=(e.clientY-rect.top)*(c.height/rect.height);const cx=c.width/2,cy=c.height/2;const rot=(+G('rot')?.value||0)*Math.PI/180;let dx=mx-cx-pan1.x,dy=my-cy-pan1.y;const cosR=Math.cos(-rot),sinR=Math.sin(-rot);const ux=dx*cosR-dy*sinR,uy=dx*sinR+dy*cosR;let closest=null,minD=20;ringsData.forEach(ring=>{(ring.pts||[]).forEach(pt=>{const d=Math.sqrt((ux-pt.px)**2+(uy-pt.py)**2);if(d<minD){minD=d;closest={r:pt.r,mod:ring.mod,isCo:pt.isCo,g:pt.g,p:pt.p,q:pt.q,freq:pt.freq};}});});if(closest){selectedPt=closest;findFareyNeighbors(closest.r,closest.mod);if(closest.isCo){hlPath(closest.r,closest.mod);if(closest.freq)playFrequency(closest.freq);}draw();drawTree();drawFreqDist();showMusicalInterval(closest.r,closest.mod);}});
 G('c2').addEventListener('click',function(e){const c=this,rect=c.getBoundingClientRect(),zoom=+G('treeZoom')?.value||1;const mx=((e.clientX-rect.left)*(c.width/rect.width)-c.width/2*(1-zoom)-pan2.x)/zoom;const my=(e.clientY-rect.top)*(c.height/rect.height);const nodeSz=+G('treeSz')?.value||9;let closest=null,minD=nodeSz*2;treeNodes.forEach(n=>{const d=Math.sqrt((n.x-mx)**2+(n.y-my)**2);if(d<minD){minD=d;closest=n;}});if(closest)hlPath(closest.p,closest.q);});
 draw();
 drawTree();
+drawFreqDist();
 });
 </script>
 </body>
-  </html>
+</html>
