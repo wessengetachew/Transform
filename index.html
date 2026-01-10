@@ -4,217 +4,178 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Enhanced Modular Lifting Rings — Möbius Shell Sieve</title>
-<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
 :root{--bg:#0d1321;--bg2:#151b2d;--txt:#e0e6ed;--txt2:#a0aab8;--bord:#2a3a50;--acc:#00d9ff;--gold:#ffd700}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;min-height:100vh}
 body.light{--bg:#f5f5f5;--bg2:#fff;--txt:#1a1a2e;--txt2:#555;--bord:#ddd;--acc:#0066cc}
 header{background:linear-gradient(135deg,#151b2d 0%,#1a2540 100%);padding:1rem;border-bottom:2px solid var(--gold);text-align:center}
-header h1{font-size:1.6rem;background:linear-gradient(90deg,#ffd700,#00d9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-header p{font-size:.85rem;color:var(--txt2);margin-top:.3rem}
-.container{max-width:1600px;margin:0 auto;padding:1rem}
-.ctrl{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0}
-.cg{display:flex;flex-direction:column;gap:.2rem;min-width:120px}
-.cg label{font-size:.75rem;color:var(--txt2)}
-.cg input,.cg select{padding:6px 10px;border:1px solid var(--bord);border-radius:4px;background:var(--bg);color:var(--txt);font-size:.85rem}
-.cg input:focus,.cg select:focus{outline:none;border-color:var(--acc)}
-.cg input[type="checkbox"]{width:auto}
-button{padding:8px 16px;border:1px solid var(--bord);border-radius:4px;background:var(--bg2);color:var(--txt);cursor:pointer;font-size:.85rem;transition:all .2s}
-button:hover{background:var(--acc);color:#000;border-color:var(--acc)}
-.bg{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0}
-.bg button.s{background:rgba(0,217,255,.15);border-color:#00d9ff;color:#00d9ff;font-size:.75rem}
-canvas{border:1px solid var(--bord);border-radius:4px;background:#000;display:block;max-width:100%}
-.viz{margin:1rem 0}
-.viz h3{color:var(--acc);font-size:1rem;margin-bottom:.5rem}
-.stats{background:var(--bg2);border:1px solid var(--bord);border-radius:8px;padding:1rem;font-size:.8rem}
-.stats h4{color:var(--gold);margin-bottom:.5rem;font-size:.9rem}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.5rem}
-.stat-item{background:rgba(0,217,255,.08);padding:.5rem;border-radius:4px;border-left:3px solid var(--acc)}
-.stat-item .label{font-size:.7rem;color:var(--txt2)}
-.stat-item .value{font-size:1rem;color:var(--gold);font-weight:bold}
-.legend{display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0;font-size:.75rem}
-.legend span{padding:3px 8px;border-radius:4px;background:var(--bg2);border:1px solid var(--bord)}
-.flex-row{display:flex;gap:1rem;flex-wrap:wrap}
-.flex-row>*{flex:1;min-width:300px}
-.collapsible{cursor:pointer;user-select:none}
-.theme-toggle{position:fixed;top:1rem;right:1rem;z-index:1000;padding:8px 12px;border-radius:20px;background:var(--bg2);border:1px solid var(--bord);color:var(--txt);cursor:pointer}
-@media(max-width:768px){.flex-row>*{min-width:100%}}
+header h1{font-size:1.5rem;background:linear-gradient(90deg,#ffd700,#00d9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{font-size:.8rem;color:var(--txt2);margin-top:.25rem}
+.container{max-width:1900px;margin:0 auto;padding:.75rem}
+.ctrl{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.cg{display:flex;flex-direction:column;gap:.15rem;min-width:90px}
+.cg label{font-size:.7rem;color:var(--txt2)}
+.cg input,.cg select{padding:4px 6px;border:1px solid var(--bord);border-radius:3px;background:var(--bg);color:var(--txt);font-size:.8rem}
+button{padding:5px 10px;border:1px solid var(--bord);border-radius:3px;background:var(--bg2);color:var(--txt);cursor:pointer;font-size:.75rem;transition:all .15s}
+button:hover{background:var(--acc);color:#000}
+canvas{border:1px solid var(--bord);border-radius:4px;background:#0a0e14;display:block}
+.panel{background:var(--bg2);border:1px solid var(--bord);border-radius:6px;padding:.6rem;margin-bottom:.75rem}
+.panel h4{color:var(--gold);margin-bottom:.4rem;font-size:.85rem;border-bottom:1px solid var(--bord);padding-bottom:.25rem}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.3rem;font-size:.75rem}
+.stat-item{background:rgba(0,217,255,.08);padding:.3rem .4rem;border-radius:3px;border-left:2px solid var(--acc)}
+.stat-item .label{font-size:.6rem;color:var(--txt2)}
+.stat-item .value{font-size:.85rem;color:var(--gold);font-weight:bold}
+.main-grid{display:grid;grid-template-columns:1fr 380px;gap:.75rem}
+.canvas-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.canvas-wrap h5{color:var(--acc);font-size:.8rem;margin-bottom:.25rem}
+.legend{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.25rem;font-size:.65rem}
+.legend span{padding:2px 5px;border-radius:2px;background:var(--bg);border:1px solid var(--bord)}
+.theme-toggle{position:fixed;top:.5rem;right:.5rem;z-index:1000;padding:4px 8px;border-radius:15px;font-size:.7rem}
+.selected-box{background:rgba(0,255,136,.1);border:1px solid #00ff88;border-radius:4px;padding:.4rem;margin-top:.4rem;font-size:.75rem}
+.path-box{background:rgba(150,100,255,.1);border:1px solid #9664ff;border-radius:4px;padding:.4rem;margin-top:.4rem;font-size:.75rem}
+@media(max-width:1400px){.main-grid{grid-template-columns:1fr}.canvas-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌓</button>
 <header>
 <h1>Enhanced Modular Lifting Rings</h1>
-<p>Interactive ring visualization with gap analysis, power families, lift dynamics, Smith Chart transform & Stern-Brocot tree</p>
+<p>Interactive ring visualization • Stern-Brocot tree • Cayley transform • Sector analysis</p>
 </header>
 <div class="container">
 
-<div style="background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(72,187,120,.1));padding:1rem;border-radius:8px;margin-bottom:1rem;border-left:4px solid #ffd700">
-<h3 style="color:#ffd700;margin-bottom:.5rem">Quick Presets</h3>
-<div style="display:flex;flex-wrap:wrap;gap:.5rem">
+<!-- Controls Panel -->
+<div class="panel">
+<div class="ctrl">
+<div class="cg"><label><strong style="color:#00d9ff">Mode</strong></label>
+<select id="enhMode" onchange="enhModeChange();drawAll()">
+<option value="range">Range M₁-M₂</option>
+<option value="power">Power aⁿ</option>
+<option value="custom">Custom</option>
+</select></div>
+<div id="enhRangeControls" class="ctrl">
+<div class="cg"><label>Min</label><input type="number" id="enhMin" value="1" min="1" max="200" onchange="drawAll()"></div>
+<div class="cg"><label>Max</label><input type="number" id="enhMax" value="30" min="1" max="200" onchange="drawAll()"></div>
+</div>
+<div id="enhPowerControls" style="display:none" class="ctrl">
+<div class="cg"><label>Base</label><input type="number" id="enhBase" value="2" min="2" max="20" onchange="drawAll()"></div>
+<div class="cg"><label>MaxExp</label><input type="number" id="enhMaxExp" value="10" min="1" max="15" onchange="drawAll()"></div>
+</div>
+<div id="enhCustomControls" style="display:none" class="ctrl">
+<div class="cg" style="min-width:200px"><label>Custom</label><input type="text" id="enhCustomList" value="1,2,4,8,16,32" onchange="drawAll()"></div>
+</div>
+
+<div class="cg"><label>Color</label>
+<select id="enhColor" onchange="drawAll()">
+<option value="gcd">GCD</option>
+<option value="angular">Angular</option>
+<option value="ring">Ring</option>
+<option value="sector">Sector</option>
+</select></div>
+<div class="cg"><label>PtScale</label><input type="range" id="enhPtScale" min="0.3" max="2.5" step="0.1" value="1" oninput="drawAll()"></div>
+<div class="cg"><label>Rotation</label><input type="range" id="enhRot" min="0" max="360" value="0" oninput="drawAll()"></div>
+<div class="cg"><label>RingInc°</label><input type="number" id="enhRingInc" value="0" step="0.5" style="width:60px" onchange="drawAll()"></div>
+</div>
+
+<div class="ctrl" style="background:rgba(150,100,255,.1);border-radius:4px;padding:.4rem">
+<div class="cg"><label style="display:flex;align-items:center;gap:.3rem">
+<input type="checkbox" id="enhHighlightSector" onchange="drawAll()"> <strong style="color:#9664ff">Sector 1/a to 1/b</strong></label></div>
+<div class="cg"><label>From 1/</label><input type="number" id="enhSectorFrom" value="3" min="2" max="50" onchange="drawAll()"></div>
+<div class="cg"><label>To 1/</label><input type="number" id="enhSectorTo" value="2" min="1" max="50" onchange="drawAll()"></div>
+<div class="cg"><label>Tree Depth</label><input type="number" id="enhTreeDepth" value="6" min="2" max="10" onchange="drawAll()"></div>
+<div class="cg"><label>Cayley N</label><input type="number" id="caySectorN" value="12" min="3" max="30" onchange="drawAll()"></div>
+</div>
+
+<div class="ctrl">
 <button onclick="enhSetRange(1,12)">M≤12</button>
 <button onclick="enhSetRange(1,30)">M≤30</button>
-<button onclick="enhSetRange(1,60)">M≤60</button>
-<button onclick="enhSetPower(2,10)" style="background:#2a4a6a;color:#fff">2^n (n≤10)</button>
-<button onclick="enhSetPower(3,8)" style="background:#4a2a6a;color:#fff">3^n (n≤8)</button>
+<button onclick="enhSetPower(2,10)" style="background:#2a4a6a;color:#fff">2ⁿ</button>
+<button onclick="enhSetPower(3,8)" style="background:#4a2a6a;color:#fff">3ⁿ</button>
 <button onclick="enhSetPrimorials()" style="background:#1a472a;color:#fff">Primorials</button>
+<button onclick="toggleAnim()" id="animBtn">▶ Animate</button>
+<button onclick="screenshotAll()">📷 Screenshot</button>
+<button onclick="csvExport()">CSV</button>
 </div>
 </div>
 
-<!-- Controls -->
-<div style="background:var(--bg2);border:1px solid var(--bord);border-radius:8px;padding:1rem;margin-bottom:1rem">
-
-<!-- Modulus Selection -->
-<div class="ctrl" style="background:rgba(0,217,255,.08);border-radius:6px;padding:.75rem;margin-bottom:.5rem">
-<div class="cg"><label><strong style="color:#00d9ff">Mode</strong></label>
-<select id="enhMode" onchange="enhModeChange();drawEnhanced()">
-<option value="range">Consecutive Range (M₁ to M₂)</option>
-<option value="power">Power Family (aᵇ for b=0..n)</option>
-<option value="custom">Custom List</option>
-</select></div>
-</div>
-
-<div id="enhRangeControls" class="ctrl">
-<div class="cg"><label>Min Modulus</label><input type="number" id="enhMin" value="1" min="1" max="500" onchange="drawEnhanced()"></div>
-<div class="cg"><label>Max Modulus</label><input type="number" id="enhMax" value="30" min="1" max="500" onchange="drawEnhanced()"></div>
-</div>
-
-<div id="enhPowerControls" style="display:none" class="ctrl">
-<div class="cg"><label>Base a</label><input type="number" id="enhBase" value="2" min="2" max="20" onchange="drawEnhanced()"></div>
-<div class="cg"><label>Max Exponent n</label><input type="number" id="enhMaxExp" value="10" min="1" max="20" onchange="drawEnhanced()"></div>
-<div class="cg"><label>Start Exponent</label><input type="number" id="enhMinExp" value="0" min="0" max="10" onchange="drawEnhanced()"></div>
-</div>
-
-<div id="enhCustomControls" style="display:none" class="ctrl">
-<div class="cg" style="flex:1"><label>Custom Moduli (comma-separated)</label>
-<input type="text" id="enhCustomList" value="1,2,4,8,16,32" onchange="drawEnhanced()" style="width:100%"></div>
-</div>
-
-<!-- Visual Controls -->
-<div class="ctrl" style="background:rgba(255,215,0,.08);border-radius:6px;padding:.75rem;margin-bottom:.5rem">
-<div class="cg"><label><strong style="color:#ffd700">Color Mode</strong></label>
-<select id="enhColor" onchange="drawEnhanced()">
-<option value="angular">Angular (by position)</option>
-<option value="gcd">GCD (gold=coprime)</option>
-<option value="ring">Ring Index</option>
-<option value="coprime">Coprime Highlight</option>
-<option value="spectrum">Totient Spectrum</option>
-<option value="sector">Sector Focus</option>
-</select></div>
-<div class="cg"><label>Point Scale</label>
-<input type="range" id="enhPtScale" min="0.3" max="3" step="0.1" value="1" oninput="drawEnhanced()"></div>
-<div class="cg"><label>Rotation</label>
-<div style="display:flex;gap:.3rem;align-items:center">
-<input type="range" id="enhRot" min="0" max="360" step="1" value="0" oninput="document.getElementById('enhRotNum').value=this.value;drawEnhanced()" style="flex:1">
-<input type="number" id="enhRotNum" value="0" min="0" max="360" style="width:50px" onchange="document.getElementById('enhRot').value=this.value;drawEnhanced()">
-</div></div>
-</div>
-
-<!-- Ring Rotation -->
-<div class="ctrl">
-<div class="cg"><label>Ring Increment (°)</label><input type="number" id="enhRingInc" value="0" step="0.5" onchange="drawEnhanced()"></div>
-<div class="cg"><label>Phase Offset (°)</label><input type="number" id="enhPhase" value="0" step="1" onchange="drawEnhanced()"></div>
-<div class="cg"><label style="display:flex;gap:.5rem;align-items:center">
-<input type="checkbox" id="enhInvertRings" onchange="drawEnhanced()"> Invert Ring Order</label></div>
-</div>
-
-<!-- Sector Highlight -->
-<div class="ctrl" style="background:rgba(150,100,255,.1);border-radius:6px;padding:.75rem">
-<div class="cg"><label style="display:flex;gap:.5rem;align-items:center">
-<input type="checkbox" id="enhHighlightSector" onchange="drawEnhanced()"> <strong style="color:#9664ff">Highlight Sector 1/a to 1/b</strong></label></div>
-<div class="cg"><label>From 1/</label><input type="number" id="enhSectorFrom" value="3" min="2" max="100" onchange="drawEnhanced()"></div>
-<div class="cg"><label>To 1/</label><input type="number" id="enhSectorTo" value="2" min="1" max="100" onchange="drawEnhanced()"></div>
-<div class="cg"><label>Sector Color Mode</label>
-<select id="enhSectorColorMode" onchange="drawEnhanced()">
-<option value="preserve">Preserve Original</option>
-<option value="highlight">Purple Highlight</option>
-<option value="isolate">Isolate (dim others)</option>
-</select></div>
-</div>
-
-<!-- Features -->
-<div class="ctrl">
-<div class="cg"><label style="display:flex;gap:.5rem;align-items:center">
-<input type="checkbox" id="enhShowLabels" onchange="drawEnhanced()"> Show Labels</label></div>
-<div class="cg"><label style="display:flex;gap:.5rem;align-items:center">
-<input type="checkbox" id="enhShowUnit" checked onchange="drawEnhanced()"> Show Unit Circle</label></div>
-<div class="cg"><label style="display:flex;gap:.5rem;align-items:center">
-<input type="checkbox" id="enhSmith" onchange="drawEnhanced()"> Smith Chart Transform</label></div>
-<div class="cg"><label>Smith α</label><input type="range" id="enhSmithAlpha" min="0.1" max="2" step="0.1" value="1" oninput="drawEnhanced()"></div>
-</div>
-
-</div>
-
-<!-- Action Buttons -->
-<div class="bg">
-<button onclick="drawEnhanced()">Redraw</button>
-<button onclick="toggleEnhRotation()" id="enhRotBtn">▶ Animate</button>
-<button onclick="screenshotEnhanced()">📷 Screenshot</button>
-<button onclick="exportAllEnhanced()" style="background:#1a472a">📦 Export All</button>
-<button class="s" onclick="csvEnhanced()">CSV Export</button>
-</div>
-
-<!-- Main Visualization Area -->
-<div class="flex-row">
-<div class="viz" style="flex:2;min-width:500px">
-<h3>Modular Ring Visualization</h3>
+<!-- Main Content Grid -->
+<div class="main-grid">
+<div>
+<!-- Main Canvas -->
+<div class="canvas-wrap">
+<h5>Modular Ring Visualization <span id="mainCanvasInfo" style="color:var(--txt2);font-size:.7rem"></span></h5>
 <canvas id="cenhanced" width="700" height="700"></canvas>
 <div id="alenhanced" class="legend"></div>
 </div>
-<div style="flex:1;min-width:300px">
-<div id="enhLiveStats" class="stats">
-<h4>📊 Live Statistics</h4>
-<div id="enhStatsContent" class="stats-grid"></div>
+
+<!-- Secondary Canvases Grid -->
+<div class="canvas-grid" style="margin-top:.75rem">
+<div class="canvas-wrap">
+<h5 style="color:#00ff88">Stern-Brocot Tree <span id="treeInfo" style="color:var(--txt2);font-size:.65rem"></span></h5>
+<canvas id="cSternBrocot" width="500" height="350"></canvas>
+<div id="enhTreePath" class="path-box" style="display:none"></div>
 </div>
-<div id="enhPointInfo" style="margin-top:1rem;background:var(--bg2);border:1px solid var(--bord);border-radius:8px;padding:1rem;display:none">
-<h4 style="color:#00ff88;margin-bottom:.5rem">Selected Point</h4>
-<div id="enhPointDetails"></div>
-</div>
-<div id="enhSectorStats" style="margin-top:1rem;background:var(--bg2);border:1px solid var(--bord);border-radius:8px;padding:1rem;display:none">
-<h4 style="color:#9664ff;margin-bottom:.5rem">Sector Analysis</h4>
-<div id="enhSectorContent"></div>
+<div class="canvas-wrap">
+<h5 style="color:#9664ff">Cayley Transform (Sector) <span id="cayInfo" style="color:var(--txt2);font-size:.65rem"></span></h5>
+<canvas id="cCayley" width="500" height="350"></canvas>
+<div class="legend"><span style="color:#ffd700">● Coprime</span><span style="color:#9664ff">● In Sector</span><span style="color:#00ff88">● Selected</span></div>
 </div>
 </div>
 </div>
 
-<!-- Stern-Brocot Tree -->
-<div class="viz" style="margin-top:1.5rem">
-<h3 style="color:#00ff88">Stern-Brocot Tree <span style="font-size:.8rem;color:var(--txt2)">(for sector fractions)</span></h3>
-<div class="ctrl" style="margin-bottom:.5rem">
-<div class="cg"><label>Tree Depth</label><input type="number" id="enhTreeDepth" value="5" min="2" max="10" onchange="updateSBTree()"></div>
-<div class="cg"><label>Node Size</label><input type="range" id="enhTreeSz" min="4" max="20" value="10" oninput="updateSBTree()"></div>
-<div class="cg"><label>Label Format</label>
-<select id="enhTreeLblFmt" onchange="updateSBTree()">
-<option value="fraction">Fraction (p/q)</option>
-<option value="decimal">Decimal</option>
-<option value="angle">Angle (°)</option>
-</select></div>
+<!-- Right Sidebar -->
+<div>
+<div class="panel">
+<h4> Statistics</h4>
+<div id="enhStats" class="stats-grid"></div>
 </div>
-<canvas id="cSternBrocot" width="800" height="400"></canvas>
-<div id="enhTreePath" style="margin-top:.5rem;padding:.5rem;background:var(--bg2);border-radius:4px;font-size:.85rem;display:none"></div>
+
+<div class="panel" id="sectorPanel" style="display:none">
+<h4 style="color:#9664ff"> Sector Analysis</h4>
+<div id="sectorStats"></div>
+</div>
+
+<div class="panel" id="selectedPanel" style="display:none">
+<h4 style="color:#00ff88">Selected Point</h4>
+<div id="selectedInfo"></div>
+</div>
+
+<div class="panel">
+<h4> Guide</h4>
+<div style="font-size:.7rem;color:var(--txt2)">
+<p>• <strong>Click</strong> points to select and see path in tree</p>
+<p>• <strong>Enable Sector</strong> to focus on 1/a to 1/b range</p>
+<p>• Tree shows mediant construction path</p>
+<p>• Cayley maps unit disk ↔ upper half-plane</p>
+</div>
+</div>
+</div>
 </div>
 
 </div>
 
 <script>
-// Theme toggle
-function toggleTheme(){document.body.classList.toggle('light');drawEnhanced();}
+// Theme
+function toggleTheme(){document.body.classList.toggle('light');drawAll();}
 function isDark(){return !document.body.classList.contains('light');}
 
 // Utilities
 const gcd=(a,b)=>{a=Math.abs(Math.round(a));b=Math.abs(Math.round(b));while(b)[a,b]=[b,a%b];return a||1;};
-function reduceFraction(a,b){const g=gcd(a,b);return `${a/g}/${b/g}`;}
+function reduceFrac(a,b){const g=gcd(a,b);return{p:a/g,q:b/g,str:`${a/g}/${b/g}`};}
 
-// Global state
+// State
 let enhRingsData=[];
-let enhSelectedPoint=null;
-let enhAnimFrame=0;
-let enhAnimating=false;
-let enhAnimId=null;
-let treeZoom=1, treePanX=0, treePanY=0;
+let selectedPoint=null;
+let animating=false;
+let animFrame=0;
+let animId=null;
+window.enhSBTreeNodes=[];
+window.enhSBHighlightPath=[];
+window.enhSBSelectedNode=null;
+window.enhSBTreeBounds=null;
 
-// Mode change
+// Mode controls
 function enhModeChange(){
   const mode=document.getElementById('enhMode').value;
   document.getElementById('enhRangeControls').style.display=mode==='range'?'flex':'none';
@@ -227,26 +188,22 @@ function enhSetRange(min,max){
   document.getElementById('enhMode').value='range';
   document.getElementById('enhMin').value=min;
   document.getElementById('enhMax').value=max;
-  enhModeChange();
-  drawEnhanced();
+  enhModeChange();drawAll();
 }
-function enhSetPower(base,maxExp){
+function enhSetPower(base,exp){
   document.getElementById('enhMode').value='power';
   document.getElementById('enhBase').value=base;
-  document.getElementById('enhMaxExp').value=maxExp;
-  document.getElementById('enhMinExp').value=0;
-  enhModeChange();
-  drawEnhanced();
+  document.getElementById('enhMaxExp').value=exp;
+  enhModeChange();drawAll();
 }
 function enhSetPrimorials(){
   document.getElementById('enhMode').value='custom';
   document.getElementById('enhCustomList').value='1,2,6,30,210,2310';
-  enhModeChange();
-  drawEnhanced();
+  enhModeChange();drawAll();
 }
 
-// Get moduli based on mode
-function enhGetModuli(){
+// Get moduli
+function getModuli(){
   const mode=document.getElementById('enhMode').value;
   let moduli=[];
   if(mode==='range'){
@@ -256,454 +213,290 @@ function enhGetModuli(){
   }else if(mode==='power'){
     const base=+document.getElementById('enhBase').value||2;
     const maxExp=+document.getElementById('enhMaxExp').value||10;
-    const minExp=+document.getElementById('enhMinExp').value||0;
-    for(let e=minExp;e<=maxExp;e++)moduli.push(Math.pow(base,e));
+    for(let e=0;e<=maxExp;e++)moduli.push(Math.pow(base,e));
   }else{
-    const list=document.getElementById('enhCustomList').value||'';
-    moduli=list.split(',').map(s=>+s.trim()).filter(n=>n>0&&!isNaN(n));
+    moduli=document.getElementById('enhCustomList').value.split(',').map(s=>+s.trim()).filter(n=>n>0);
   }
   return moduli.filter(m=>m>=1);
 }
 
-// Main draw function
-function drawEnhanced(){
+// Animation
+function toggleAnim(){
+  animating=!animating;
+  document.getElementById('animBtn').textContent=animating?'⏸ Pause':'▶ Animate';
+  if(animating)animate();
+  else if(animId)cancelAnimationFrame(animId);
+}
+function animate(){
+  if(!animating)return;
+  animFrame=(animFrame+0.5)%360;
+  drawAll();
+  animId=requestAnimationFrame(animate);
+}
+
+// Draw all canvases
+function drawAll(){
+  drawMainCanvas();
+  drawSternBrocotTree();
+  drawCayleyCanvas();
+  updateStats();
+}
+
+// Main modular rings canvas
+function drawMainCanvas(){
   const c=document.getElementById('cenhanced');
   if(!c)return;
   const ctx=c.getContext('2d');
-  const w=c.width, h=c.height;
-  const cx=w/2, cy=h/2;
-  const isDk=isDark();
+  const w=c.width,h=c.height;
+  const cx=w/2,cy=h/2;
+  const dk=isDark();
   
-  // Clear
-  ctx.fillStyle=isDk?'#0a0e14':'#fff';
+  ctx.fillStyle=dk?'#0a0e14':'#fff';
   ctx.fillRect(0,0,w,h);
   
-  // Get moduli
-  const moduli=enhGetModuli();
-  if(moduli.length===0)return;
+  const moduli=getModuli();
+  if(!moduli.length)return;
   
   // Build ring data
   enhRingsData=moduli.map(m=>{
-    const allRes=[];
-    const coprimes=[];
+    const allRes=[],coprimes=[];
     for(let r=0;r<m;r++){
       allRes.push(r);
       if(gcd(r,m)===1)coprimes.push(r);
     }
-    return {mod:m, allRes, coprimes, isUnit:m===1};
+    return{mod:m,allRes,coprimes};
   });
   
-  // Visual params
-  const colMode=document.getElementById('enhColor')?.value||'angular';
-  const ptScale=+document.getElementById('enhPtScale')?.value||1;
-  const rot=((+document.getElementById('enhRot')?.value||0)+enhAnimFrame)*Math.PI/180;
-  const ringInc=(+document.getElementById('enhRingInc')?.value||0)*Math.PI/180;
-  const phase=(+document.getElementById('enhPhase')?.value||0)*Math.PI/180;
-  const invertRings=document.getElementById('enhInvertRings')?.checked;
-  const showLabels=document.getElementById('enhShowLabels')?.checked;
-  const showUnit=document.getElementById('enhShowUnit')?.checked;
-  const smithEnabled=document.getElementById('enhSmith')?.checked;
-  const smithAlpha=+document.getElementById('enhSmithAlpha')?.value||1;
-  const highlightSector=document.getElementById('enhHighlightSector')?.checked;
-  const sectorFrom=+document.getElementById('enhSectorFrom')?.value||3;
-  const sectorTo=+document.getElementById('enhSectorTo')?.value||2;
-  const sectorColorMode=document.getElementById('enhSectorColorMode')?.value||'preserve';
+  // Settings
+  const colMode=document.getElementById('enhColor').value;
+  const ptScale=+document.getElementById('enhPtScale').value||1;
+  const rot=(+document.getElementById('enhRot').value+animFrame)*Math.PI/180;
+  const ringInc=+document.getElementById('enhRingInc').value*Math.PI/180;
+  const highlightSector=document.getElementById('enhHighlightSector').checked;
+  const sectorFrom=+document.getElementById('enhSectorFrom').value||3;
+  const sectorTo=+document.getElementById('enhSectorTo').value||2;
   
-  // Calculate radii
-  const innerR=30;
-  const outerR=Math.min(cx,cy)-40;
+  const innerR=25,outerR=Math.min(cx,cy)-35;
   const numRings=enhRingsData.length;
   
-  // Apply global rotation
   ctx.save();
   ctx.translate(cx,cy);
   ctx.rotate(rot);
   
-  // Draw unit circle
-  if(showUnit){
-    ctx.beginPath();
-    ctx.arc(0,0,outerR,0,2*Math.PI);
-    ctx.strokeStyle=isDk?'rgba(0,255,136,.3)':'rgba(0,170,85,.3)';
-    ctx.lineWidth=2;
-    ctx.stroke();
-  }
+  // Unit circle
+  ctx.beginPath();
+  ctx.arc(0,0,outerR,0,2*Math.PI);
+  ctx.strokeStyle=dk?'rgba(0,255,136,.25)':'rgba(0,170,85,.25)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
   
-  // Draw sector highlight
+  // Sector highlight
   if(highlightSector){
     const fromAngle=2*Math.PI*(1-1/sectorFrom);
     const toAngle=2*Math.PI*(1-1/sectorTo);
     ctx.beginPath();
     ctx.moveTo(0,0);
-    ctx.arc(0,0,outerR+10,fromAngle,toAngle);
+    ctx.arc(0,0,outerR+8,fromAngle,toAngle);
     ctx.closePath();
-    ctx.fillStyle='rgba(150,100,255,.15)';
+    ctx.fillStyle='rgba(150,100,255,.12)';
     ctx.fill();
-    ctx.strokeStyle='rgba(150,100,255,.5)';
-    ctx.lineWidth=2;
+    ctx.strokeStyle='rgba(150,100,255,.4)';
+    ctx.lineWidth=1.5;
     ctx.stroke();
     
-    // Update Stern-Brocot tree
+    // Update tree bounds
     window.enhSBTreeBounds={fromN:sectorFrom,toN:sectorTo};
-    updateSBTree();
   }
   
-  // Stats
-  let totalPoints=0, totalCoprimes=0;
+  // Draw rings
+  let totalPts=0,totalCop=0,sectorPts=0,sectorCop=0;
   
-  // Draw each ring
   enhRingsData.forEach((ring,ringIdx)=>{
-    const radius=innerR+(outerR-innerR)*ringIdx/(numRings-1||1);
+    const radius=numRings>1?innerR+(outerR-innerR)*ringIdx/(numRings-1):outerR*0.6;
     ring.radius=radius;
-    const actualRingIdx=invertRings?(numRings-1-ringIdx):ringIdx;
-    const ringRotation=actualRingIdx*ringInc+phase;
+    const ringRotation=ringIdx*ringInc;
     
     ring.allRes.forEach(r=>{
       const gcd1=gcd(r,ring.mod)===1;
       const angle=2*Math.PI*(ring.mod-r)/ring.mod+ringRotation;
-      let px=radius*Math.cos(angle);
-      let py=radius*Math.sin(angle);
+      const px=radius*Math.cos(angle);
+      const py=radius*Math.sin(angle);
       
-      // Smith transform
-      if(smithEnabled){
-        const dist=radius/outerR;
-        const z_re=0.5+dist*1.5*Math.cos(angle);
-        const z_im=dist*1.5*Math.sin(angle);
-        const denom=(1-z_re)**2+z_im**2;
-        if(denom>0.001){
-          const w_re=((1-z_re**2-z_im**2)/denom)*smithAlpha;
-          const w_im=(2*z_im/denom)*smithAlpha;
-          px=w_re*outerR*0.4;
-          py=-w_im*outerR*0.4;
-        }
-      }
-      
-      // Check sector
       const frac=r/ring.mod;
       const inSector=highlightSector&&frac>1/sectorFrom&&frac<1/sectorTo;
       
-      // Size
-      let ptSz=(ring.isUnit?7:(radius>200?5:4))*ptScale*(smithEnabled?0.7:1);
-      if(inSector&&gcd1)ptSz*=1.3;
+      let ptSz=(ring.mod===1?6:radius>200?4:3.5)*ptScale;
+      if(inSector&&gcd1)ptSz*=1.25;
       
       // Color
       let clr;
-      if(colMode==='angular'){const hue=(r/ring.mod)*360;clr=`hsl(${hue},80%,60%)`;}
-      else if(colMode==='gcd'){clr=gcd1?'#ffd700':'#555';}
-      else if(colMode==='ring'){const hue=(ringIdx/numRings)*300;clr=`hsl(${hue},70%,55%)`;}
-      else if(colMode==='coprime'){clr=gcd1?'#00ff88':'#ff4040';}
-      else if(colMode==='spectrum'){clr=gcd1?`hsl(${(ring.coprimes.length/ring.mod)*240},80%,60%)`:'#333';}
+      if(colMode==='gcd')clr=gcd1?(dk?'#ffd700':'#cc8800'):(dk?'#444':'#ccc');
+      else if(colMode==='angular'){const hue=(r/ring.mod)*360;clr=`hsl(${hue},75%,55%)`;}
+      else if(colMode==='ring'){const hue=(ringIdx/numRings)*280;clr=`hsl(${hue},65%,50%)`;}
       else if(colMode==='sector'){
         if(inSector&&gcd1)clr='#9664ff';
-        else clr=gcd1?'#ffd700':'#444';
+        else clr=gcd1?(dk?'#ffd700':'#cc8800'):(dk?'#333':'#ddd');
       }
       
-      // Dim non-sector if isolate mode
-      if(sectorColorMode==='isolate'&&highlightSector&&!inSector){
-        clr=isDk?'#222':'#ddd';
-        ptSz*=0.6;
-      }
+      // Highlight selected
+      const isSelected=selectedPoint&&selectedPoint.residue===r&&selectedPoint.mod===ring.mod;
+      if(isSelected){clr='#00ff88';ptSz*=1.5;}
       
-      // Draw point
       ctx.beginPath();
       ctx.arc(px,py,ptSz,0,2*Math.PI);
       ctx.fillStyle=clr;
       ctx.fill();
       
-      // Label
-      if(showLabels&&ring.mod<=12&&gcd1){
-        ctx.fillStyle=isDk?'#fff':'#000';
-        ctx.font='9px sans-serif';
-        ctx.textAlign='center';
-        ctx.fillText(`${r}`,px,py-ptSz-3);
-      }
-      
-      totalPoints++;
-      if(gcd1)totalCoprimes++;
+      totalPts++;
+      if(gcd1)totalCop++;
+      if(inSector){sectorPts++;if(gcd1)sectorCop++;}
     });
   });
   
   ctx.restore();
   
-  // Update stats
-  updateEnhStats(totalPoints,totalCoprimes);
-  updateEnhLegend();
+  // Store stats
+  window.enhTotalPts=totalPts;
+  window.enhTotalCop=totalCop;
+  window.enhSectorPts=sectorPts;
+  window.enhSectorCop=sectorCop;
   
-  // Update sector stats
-  if(highlightSector)updateSectorStats(sectorFrom,sectorTo);
-}
-
-// Update statistics display
-function updateEnhStats(total,coprimes){
-  const content=document.getElementById('enhStatsContent');
-  if(!content)return;
-  const moduli=enhGetModuli();
-  const density=total>0?(coprimes/total*100).toFixed(1):'0';
+  // Info
+  document.getElementById('mainCanvasInfo').textContent=`${moduli.length} rings, ${totalPts} pts`;
   
-  content.innerHTML=`
-    <div class="stat-item"><div class="label">Total Rings</div><div class="value">${moduli.length}</div></div>
-    <div class="stat-item"><div class="label">Total Points</div><div class="value">${total.toLocaleString()}</div></div>
-    <div class="stat-item"><div class="label">Coprime Points</div><div class="value">${coprimes.toLocaleString()}</div></div>
-    <div class="stat-item"><div class="label">Coprime Density</div><div class="value">${density}%</div></div>
-    <div class="stat-item"><div class="label">Max Modulus</div><div class="value">${Math.max(...moduli)}</div></div>
-    <div class="stat-item"><div class="label">Σφ(m)</div><div class="value">${enhRingsData.reduce((s,r)=>s+r.coprimes.length,0).toLocaleString()}</div></div>
-  `;
-}
-
-// Update legend
-function updateEnhLegend(){
-  const el=document.getElementById('alenhanced');
-  if(!el)return;
-  const colMode=document.getElementById('enhColor')?.value||'angular';
-  let html='';
-  if(colMode==='gcd')html='<span style="color:#ffd700">● Coprime (GCD=1)</span><span style="color:#555">● Non-coprime</span>';
-  else if(colMode==='coprime')html='<span style="color:#00ff88">● Coprime</span><span style="color:#ff4040">● Non-coprime</span>';
-  else if(colMode==='sector')html='<span style="color:#9664ff">● In Sector</span><span style="color:#ffd700">● Coprime</span><span style="color:#444">● Other</span>';
-  else html='<span>Color by '+colMode+'</span>';
-  el.innerHTML=html;
-}
-
-// Sector stats
-function updateSectorStats(from,to){
-  const el=document.getElementById('enhSectorStats');
-  const content=document.getElementById('enhSectorContent');
-  if(!el||!content)return;
-  
-  let inSector=0, inSectorCoprime=0;
-  enhRingsData.forEach(ring=>{
-    ring.allRes.forEach(r=>{
-      const frac=r/ring.mod;
-      if(frac>1/from&&frac<1/to){
-        inSector++;
-        if(gcd(r,ring.mod)===1)inSectorCoprime++;
-      }
-    });
-  });
-  
-  el.style.display='block';
-  content.innerHTML=`
-    <div style="margin-bottom:.5rem"><strong>Sector:</strong> 1/${from} to 1/${to}</div>
-    <div style="margin-bottom:.3rem">Points in sector: <strong style="color:#9664ff">${inSector}</strong></div>
-    <div style="margin-bottom:.3rem">Coprimes in sector: <strong style="color:#00ff88">${inSectorCoprime}</strong></div>
-    <div>Sector density: <strong>${inSector>0?(inSectorCoprime/inSector*100).toFixed(1):0}%</strong></div>
-  `;
-}
-
-// Animation
-function toggleEnhRotation(){
-  enhAnimating=!enhAnimating;
-  const btn=document.getElementById('enhRotBtn');
-  if(enhAnimating){
-    btn.textContent='⏸ Pause';
-    animateEnhanced();
-  }else{
-    btn.textContent='▶ Animate';
-    if(enhAnimId)cancelAnimationFrame(enhAnimId);
-  }
-}
-
-function animateEnhanced(){
-  if(!enhAnimating)return;
-  enhAnimFrame=(enhAnimFrame+0.5)%360;
-  drawEnhanced();
-  enhAnimId=requestAnimationFrame(animateEnhanced);
-}
-
-// Click handler
-document.getElementById('cenhanced')?.addEventListener('click',function(e){
-  const c=this;
-  const rect=c.getBoundingClientRect();
-  const clickX=(e.clientX-rect.left)*(c.width/rect.width);
-  const clickY=(e.clientY-rect.top)*(c.height/rect.height);
-  const cx=c.width/2, cy=c.height/2;
-  let x=clickX-cx, y=clickY-cy;
-  
-  const rot=((+document.getElementById('enhRot')?.value||0)+enhAnimFrame)*Math.PI/180;
-  const cosR=Math.cos(-rot), sinR=Math.sin(-rot);
-  const ux=x*cosR-y*sinR, uy=x*sinR+y*cosR;
-  
-  let closest=null, minDist=Infinity;
-  const numRings=enhRingsData.length;
-  const outerR=Math.min(cx,cy)-40, innerR=30;
-  const ringInc=(+document.getElementById('enhRingInc')?.value||0)*Math.PI/180;
-  const phase=(+document.getElementById('enhPhase')?.value||0)*Math.PI/180;
-  const invertRings=document.getElementById('enhInvertRings')?.checked;
-  
-  enhRingsData.forEach((ring,ringIdx)=>{
-    const radius=innerR+(outerR-innerR)*ringIdx/(numRings-1||1);
-    const actualRingIdx=invertRings?(numRings-1-ringIdx):ringIdx;
-    const ringRotation=actualRingIdx*ringInc+phase;
-    
-    ring.allRes.forEach(r=>{
-      const angle=2*Math.PI*(ring.mod-r)/ring.mod+ringRotation;
-      const px=radius*Math.cos(angle), py=radius*Math.sin(angle);
-      const dist=Math.sqrt((ux-px)**2+(uy-py)**2);
-      if(dist<minDist&&dist<25){
-        minDist=dist;
-        closest={residue:r,mod:ring.mod,gcd:gcd(r,ring.mod),isCoprime:gcd(r,ring.mod)===1,fraction:`${r}/${ring.mod}`,reduced:reduceFraction(r,ring.mod)};
-      }
-    });
-  });
-  
-  if(closest){
-    enhSelectedPoint=closest;
-    showPointDetails(closest);
-    if(closest.isCoprime)highlightInSBTree(closest.residue,closest.mod);
-    drawEnhanced();
-  }
-});
-
-function showPointDetails(pt){
-  const el=document.getElementById('enhPointInfo');
-  const details=document.getElementById('enhPointDetails');
-  if(!el||!details)return;
-  el.style.display='block';
-  details.innerHTML=`
-    <div><strong>Residue:</strong> ${pt.residue} mod ${pt.mod}</div>
-    <div><strong>Fraction:</strong> ${pt.fraction} = ${pt.reduced}</div>
-    <div><strong>GCD:</strong> ${pt.gcd}</div>
-    <div><strong>Coprime:</strong> ${pt.isCoprime?'<span style="color:#00ff88">Yes</span>':'<span style="color:#ff4040">No</span>'}</div>
-    <div><strong>Value:</strong> ${(pt.residue/pt.mod).toFixed(6)}</div>
-  `;
+  // Legend
+  const leg=document.getElementById('alenhanced');
+  if(colMode==='gcd')leg.innerHTML='<span style="color:#ffd700">● Coprime</span><span style="color:#555">● Non-coprime</span>';
+  else if(colMode==='sector')leg.innerHTML='<span style="color:#9664ff">● In Sector</span><span style="color:#ffd700">● Coprime</span>';
+  else leg.innerHTML='<span>Color: '+colMode+'</span>';
 }
 
 // Stern-Brocot Tree
-window.enhSBTreeNodes=[];
-window.enhSBHighlightPath=[];
-window.enhSBSelectedNode=null;
-
-function updateSBTree(){
-  if(!window.enhSBTreeBounds)return;
-  const{fromN,toN}=window.enhSBTreeBounds;
-  drawSternBrocotTree(fromN,toN);
-}
-
-function drawSternBrocotTree(fromN,toN){
+function drawSternBrocotTree(){
   const c=document.getElementById('cSternBrocot');
   if(!c)return;
   const ctx=c.getContext('2d');
-  const w=c.width, h=c.height;
-  const isDk=isDark();
+  const w=c.width,h=c.height;
+  const dk=isDark();
   
-  ctx.fillStyle=isDk?'#0a0e14':'#fff';
+  ctx.fillStyle=dk?'#0a0e14':'#fff';
   ctx.fillRect(0,0,w,h);
   
-  const depth=+document.getElementById('enhTreeDepth')?.value||5;
-  const nodeSz=+document.getElementById('enhTreeSz')?.value||10;
-  const lblFmt=document.getElementById('enhTreeLblFmt')?.value||'fraction';
-  
-  const nodes=[];
-  const edges=[];
-  
-  // Build tree for sector 1/fromN to 1/toN
-  function buildTree(left,right,d,parentX,parentY,dir){
-    if(d>depth)return;
-    const p=left.p+right.p;
-    const q=left.q+right.q;
-    const val=p/q;
-    if(val<=1/fromN||val>=1/toN)return;
-    
-    const x=w*(val-1/fromN)/(1/toN-1/fromN);
-    const y=30+d*(h-60)/depth;
-    
-    nodes.push({p,q,x,y,depth:d});
-    if(parentX!==null)edges.push({x1:parentX,y1:parentY,x2:x,y2:y});
-    
-    buildTree(left,{p,q},d+1,x,y,'L');
-    buildTree({p,q},right,d+1,x,y,'R');
+  const highlightSector=document.getElementById('enhHighlightSector').checked;
+  if(!highlightSector){
+    ctx.fillStyle=dk?'#555':'#999';
+    ctx.font='12px Segoe UI';
+    ctx.textAlign='center';
+    ctx.fillText('Enable Sector Highlight to view Stern-Brocot Tree',w/2,h/2);
+    document.getElementById('treeInfo').textContent='';
+    return;
   }
   
-  buildTree({p:0,q:1},{p:1,q:fromN},1,null,null,null);
-  buildTree({p:1,q:toN},{p:1,q:1},1,null,null,null);
+  const fromN=+document.getElementById('enhSectorFrom').value||3;
+  const toN=+document.getElementById('enhSectorTo').value||2;
+  const maxDepth=+document.getElementById('enhTreeDepth').value||6;
   
-  // Add boundary nodes
-  nodes.push({p:1,q:fromN,x:0,y:15,depth:0,boundary:true});
-  nodes.push({p:1,q:toN,x:w,y:15,depth:0,boundary:true});
+  // Boundaries
+  const left={p:1,q:fromN};
+  const right={p:1,q:toN};
   
+  // Build tree
+  const nodes=[];
+  const maxQ=Math.max(...getModuli(),60);
+  
+  function buildTree(l,r,depth,x,y,width){
+    if(depth>maxDepth)return;
+    const medP=l.p+r.p;
+    const medQ=l.q+r.q;
+    if(medQ>maxQ)return;
+    
+    nodes.push({p:medP,q:medQ,x,y,depth,left:l,right:r});
+    
+    const childY=y+Math.min(45,h/(maxDepth+2));
+    const childW=width/2;
+    buildTree(l,{p:medP,q:medQ},depth+1,x-childW,childY,childW);
+    buildTree({p:medP,q:medQ},r,depth+1,x+childW,childY,childW);
+  }
+  
+  buildTree(left,right,0,w/2,35,w/4);
   window.enhSBTreeNodes=nodes;
   
-  // Draw edges
-  ctx.strokeStyle=isDk?'rgba(0,217,255,.3)':'rgba(0,102,204,.2)';
-  ctx.lineWidth=1;
-  edges.forEach(e=>{
-    ctx.beginPath();
-    ctx.moveTo(e.x1,e.y1);
-    ctx.lineTo(e.x2,e.y2);
-    ctx.stroke();
-  });
-  
-  // Draw highlight path
+  // Highlight path
   const highlightPath=window.enhSBHighlightPath||[];
-  if(highlightPath.length>1){
-    ctx.strokeStyle='#00ff88';
-    ctx.lineWidth=3;
-    ctx.beginPath();
-    for(let i=0;i<highlightPath.length;i++){
-      const node=nodes.find(n=>n.p===highlightPath[i].p&&n.q===highlightPath[i].q);
-      if(node){
-        if(i===0)ctx.moveTo(node.x,node.y);
-        else ctx.lineTo(node.x,node.y);
-      }
-    }
-    ctx.stroke();
-  }
+  const isOnPath=node=>highlightPath.some(h=>h.p===node.p&&h.q===node.q);
+  
+  // Draw edges
+  nodes.forEach(node=>{
+    const children=nodes.filter(n=>n.depth===node.depth+1&&Math.abs(n.x-node.x)<w/Math.pow(2,node.depth+1.5));
+    children.forEach(child=>{
+      const onPath=isOnPath(node)&&isOnPath(child);
+      ctx.strokeStyle=onPath?'rgba(0,255,136,.8)':'rgba(150,100,255,.3)';
+      ctx.lineWidth=onPath?2.5:1;
+      ctx.beginPath();
+      ctx.moveTo(node.x,node.y+8);
+      ctx.lineTo(child.x,child.y-8);
+      ctx.stroke();
+    });
+  });
   
   // Draw nodes
   nodes.forEach(node=>{
     const isSelected=window.enhSBSelectedNode&&window.enhSBSelectedNode.p===node.p&&window.enhSBSelectedNode.q===node.q;
-    const isOnPath=highlightPath.some(n=>n.p===node.p&&n.q===node.q);
+    const onPath=isOnPath(node);
+    const r=node.depth===0?10:isSelected?9:8-node.depth*0.5;
     
     ctx.beginPath();
-    ctx.arc(node.x,node.y,nodeSz,0,2*Math.PI);
-    if(isSelected){
-      ctx.fillStyle='#ffd700';
-      ctx.strokeStyle='#fff';
-      ctx.lineWidth=2;
-    }else if(isOnPath){
-      ctx.fillStyle='#00ff88';
-      ctx.strokeStyle='#fff';
-      ctx.lineWidth=1;
-    }else{
-      ctx.fillStyle=node.boundary?'#9664ff':(isDk?'#00d9ff':'#0066cc');
-      ctx.strokeStyle='transparent';
-    }
+    ctx.arc(node.x,node.y,Math.max(4,r),0,2*Math.PI);
+    ctx.fillStyle=isSelected?'#00ff88':onPath?'#00d9ff':node.depth===0?'#ffd700':`hsl(${node.depth*45},65%,50%)`;
     ctx.fill();
-    if(isSelected||isOnPath)ctx.stroke();
+    
+    if(isSelected||onPath){
+      ctx.strokeStyle=isSelected?'#00ff88':'#00d9ff';
+      ctx.lineWidth=2;
+      ctx.stroke();
+    }
     
     // Label
-    if(nodeSz>=8){
-      let lbl;
-      if(lblFmt==='decimal')lbl=(node.p/node.q).toFixed(3);
-      else if(lblFmt==='angle')lbl=((node.p/node.q)*360).toFixed(0)+'°';
-      else lbl=`${node.p}/${node.q}`;
-      ctx.fillStyle=isDk?'#fff':'#000';
-      ctx.font=`${Math.max(8,nodeSz-2)}px sans-serif`;
+    if(r>5){
+      ctx.fillStyle='#fff';
+      ctx.font=`${node.depth===0?'bold ':''}${Math.max(7,9-node.depth)}px Segoe UI`;
       ctx.textAlign='center';
-      ctx.fillText(lbl,node.x,node.y-nodeSz-4);
+      ctx.fillText(`${node.p}/${node.q}`,node.x,node.y+3);
     }
   });
+  
+  // Boundaries
+  ctx.fillStyle='#9664ff';
+  ctx.font='9px Segoe UI';
+  ctx.textAlign='left';
+  ctx.fillText(`1/${fromN}`,5,15);
+  ctx.textAlign='right';
+  ctx.fillText(`1/${toN}`,w-5,15);
+  
+  document.getElementById('treeInfo').textContent=`depth ${maxDepth}, ${nodes.length} nodes`;
 }
 
-function findSBTreePath(p,q,fromN,toN){
+// Find path in Stern-Brocot tree
+function findSBPath(p,q){
   const path=[];
-  let left={p:0,q:1}, right={p:1,q:1};
-  
+  let left={p:0,q:1},right={p:1,q:1};
   for(let i=0;i<50;i++){
     const mp=left.p+right.p;
     const mq=left.q+right.q;
     path.push({p:mp,q:mq});
-    
     if(mp===p&&mq===q)return path;
-    
     if(p*mq<mp*q)right={p:mp,q:mq};
     else left={p:mp,q:mq};
   }
   return path;
 }
 
+// Highlight in tree
 function highlightInSBTree(p,q){
   const pathEl=document.getElementById('enhTreePath');
   if(!window.enhSBTreeBounds){
-    if(pathEl){pathEl.style.display='block';pathEl.innerHTML='<span style="color:#888">Enable sector highlight first</span>';}
+    pathEl.style.display='block';
+    pathEl.innerHTML='<span style="color:#888">Enable sector first</span>';
     return;
   }
   
@@ -711,147 +504,313 @@ function highlightInSBTree(p,q){
   const frac=p/q;
   
   if(frac<=1/fromN||frac>=1/toN){
-    if(pathEl){pathEl.style.display='block';pathEl.innerHTML=`<span style="color:#ff8c00">${p}/${q} is outside sector</span>`;}
+    pathEl.style.display='block';
+    pathEl.innerHTML=`<span style="color:#ff8c00">${p}/${q} outside sector</span>`;
     window.enhSBHighlightPath=[];
     window.enhSBSelectedNode=null;
-    updateSBTree();
+    drawSternBrocotTree();
     return;
   }
   
-  window.enhSBHighlightPath=findSBTreePath(p,q,fromN,toN);
+  window.enhSBHighlightPath=findSBPath(p,q);
   window.enhSBSelectedNode={p,q};
   
-  if(pathEl){
-    pathEl.style.display='block';
-    const pathStr=window.enhSBHighlightPath.map(n=>`${n.p}/${n.q}`).join(' → ');
-    pathEl.innerHTML=`<strong style="color:#00ff88">Path to ${p}/${q}:</strong> ${pathStr}`;
-  }
+  pathEl.style.display='block';
+  const pathStr=window.enhSBHighlightPath.map(n=>`${n.p}/${n.q}`).join(' → ');
+  pathEl.innerHTML=`<strong style="color:#00ff88">Path to ${p}/${q}:</strong><br>${pathStr}`;
   
-  updateSBTree();
+  drawSternBrocotTree();
 }
 
-// Tree click handler
+// Cayley Transform Canvas
+function drawCayleyCanvas(){
+  const c=document.getElementById('cCayley');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  const w=c.width,h=c.height;
+  const dk=isDark();
+  
+  ctx.fillStyle=dk?'#0a0e14':'#fff';
+  ctx.fillRect(0,0,w,h);
+  
+  const highlightSector=document.getElementById('enhHighlightSector').checked;
+  if(!highlightSector){
+    ctx.fillStyle=dk?'#555':'#999';
+    ctx.font='12px Segoe UI';
+    ctx.textAlign='center';
+    ctx.fillText('Enable Sector Highlight to view Cayley Transform',w/2,h/2);
+    document.getElementById('cayInfo').textContent='';
+    return;
+  }
+  
+  const sectorFrom=+document.getElementById('enhSectorFrom').value||3;
+  const sectorTo=+document.getElementById('enhSectorTo').value||2;
+  const N=+document.getElementById('caySectorN').value||12;
+  
+  // Dual view: disk left, half-plane right
+  const diskCx=w*0.25,diskCy=h/2,diskR=Math.min(w*0.22,h*0.42);
+  const hpOx=w*0.75,hpOy=h-25;
+  const hpRange=2.5;
+  const hpScX=(w*0.4)/(2*hpRange),hpScY=(h-50)/hpRange;
+  
+  // Generate Farey points in sector
+  const points=[];
+  for(let q=1;q<=N;q++){
+    for(let p=0;p<=q;p++){
+      if(gcd(p,q)===1){
+        const frac=p/q;
+        if(frac>1/sectorFrom&&frac<1/sectorTo){
+          points.push({p,q,frac});
+        }
+      }
+    }
+  }
+  
+  // Cayley transform: w = i(1+z)/(1-z)
+  function cayley(z){
+    const numRe=1+z.re,numIm=z.im;
+    const denRe=1-z.re,denIm=-z.im;
+    const denMag=denRe*denRe+denIm*denIm;
+    if(denMag<1e-10)return{re:0,im:100};
+    const quotRe=(numRe*denRe+numIm*denIm)/denMag;
+    const quotIm=(numIm*denRe-numRe*denIm)/denMag;
+    return{re:-quotIm,im:quotRe};
+  }
+  
+  // Draw disk
+  ctx.strokeStyle=dk?'rgba(0,217,255,.3)':'rgba(0,102,204,.3)';
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.arc(diskCx,diskCy,diskR,0,2*Math.PI);
+  ctx.stroke();
+  
+  // Draw half-plane axes
+  ctx.strokeStyle=dk?'rgba(255,255,255,.2)':'rgba(0,0,0,.15)';
+  ctx.beginPath();
+  ctx.moveTo(hpOx-hpScX*hpRange,hpOy);
+  ctx.lineTo(hpOx+hpScX*hpRange,hpOy);
+  ctx.stroke();
+  
+  // Sector arc on disk
+  const fromAngle=2*Math.PI*(1-1/sectorFrom);
+  const toAngle=2*Math.PI*(1-1/sectorTo);
+  ctx.beginPath();
+  ctx.arc(diskCx,diskCy,diskR,fromAngle,toAngle);
+  ctx.strokeStyle='rgba(150,100,255,.5)';
+  ctx.lineWidth=3;
+  ctx.stroke();
+  
+  // Draw points
+  points.forEach(pt=>{
+    const angle=2*Math.PI*pt.frac;
+    const zx=Math.cos(angle),zy=Math.sin(angle);
+    const wPt=cayley({re:zx,im:zy});
+    
+    const isSelected=selectedPoint&&selectedPoint.residue===pt.p&&selectedPoint.mod===pt.q;
+    const clr=isSelected?'#00ff88':'#9664ff';
+    const sz=isSelected?6:4;
+    
+    // On disk
+    ctx.beginPath();
+    ctx.arc(diskCx+zx*diskR*0.95,diskCy-zy*diskR*0.95,sz,0,2*Math.PI);
+    ctx.fillStyle=clr;
+    ctx.fill();
+    
+    // On half-plane
+    if(wPt.im>0&&wPt.im<hpRange&&Math.abs(wPt.re)<hpRange){
+      ctx.beginPath();
+      ctx.arc(hpOx+wPt.re*hpScX,hpOy-wPt.im*hpScY,sz,0,2*Math.PI);
+      ctx.fillStyle=clr;
+      ctx.fill();
+    }
+  });
+  
+  // Labels
+  ctx.fillStyle=dk?'#00d9ff':'#0066cc';
+  ctx.font='10px Segoe UI';
+  ctx.textAlign='center';
+  ctx.fillText('Unit Disk 𝔻',diskCx,h-8);
+  ctx.fillText('Upper Half-Plane ℍ',hpOx,h-8);
+  
+  document.getElementById('cayInfo').textContent=`N=${N}, ${points.length} pts in sector`;
+}
+
+// Update stats
+function updateStats(){
+  const stats=document.getElementById('enhStats');
+  const moduli=getModuli();
+  const totPhi=enhRingsData.reduce((s,r)=>s+r.coprimes.length,0);
+  
+  stats.innerHTML=`
+    <div class="stat-item"><div class="label">Rings</div><div class="value">${moduli.length}</div></div>
+    <div class="stat-item"><div class="label">Total Pts</div><div class="value">${(window.enhTotalPts||0).toLocaleString()}</div></div>
+    <div class="stat-item"><div class="label">Coprimes</div><div class="value">${(window.enhTotalCop||0).toLocaleString()}</div></div>
+    <div class="stat-item"><div class="label">Density</div><div class="value">${window.enhTotalPts?((window.enhTotalCop/window.enhTotalPts)*100).toFixed(1)+'%':'0%'}</div></div>
+    <div class="stat-item"><div class="label">Σφ(m)</div><div class="value">${totPhi.toLocaleString()}</div></div>
+    <div class="stat-item"><div class="label">Max M</div><div class="value">${Math.max(...moduli)}</div></div>
+  `;
+  
+  // Sector panel
+  const sectorPanel=document.getElementById('sectorPanel');
+  const sectorStats=document.getElementById('sectorStats');
+  if(document.getElementById('enhHighlightSector').checked){
+    const from=document.getElementById('enhSectorFrom').value;
+    const to=document.getElementById('enhSectorTo').value;
+    sectorPanel.style.display='block';
+    sectorStats.innerHTML=`
+      <div style="margin-bottom:.3rem"><strong>Sector:</strong> 1/${from} to 1/${to}</div>
+      <div>Points: <strong style="color:#9664ff">${window.enhSectorPts||0}</strong></div>
+      <div>Coprimes: <strong style="color:#00ff88">${window.enhSectorCop||0}</strong></div>
+      <div>Density: <strong>${window.enhSectorPts?((window.enhSectorCop/window.enhSectorPts)*100).toFixed(1)+'%':'0%'}</strong></div>
+    `;
+  }else{
+    sectorPanel.style.display='none';
+  }
+}
+
+// Click handlers
+document.getElementById('cenhanced')?.addEventListener('click',function(e){
+  const c=this;
+  const rect=c.getBoundingClientRect();
+  const clickX=(e.clientX-rect.left)*(c.width/rect.width);
+  const clickY=(e.clientY-rect.top)*(c.height/rect.height);
+  const cx=c.width/2,cy=c.height/2;
+  let x=clickX-cx,y=clickY-cy;
+  
+  const rot=(+document.getElementById('enhRot').value+animFrame)*Math.PI/180;
+  const cosR=Math.cos(-rot),sinR=Math.sin(-rot);
+  const ux=x*cosR-y*sinR,uy=x*sinR+y*cosR;
+  
+  let closest=null,minDist=Infinity;
+  const numRings=enhRingsData.length;
+  const outerR=Math.min(cx,cy)-35,innerR=25;
+  const ringInc=+document.getElementById('enhRingInc').value*Math.PI/180;
+  
+  enhRingsData.forEach((ring,ringIdx)=>{
+    const radius=numRings>1?innerR+(outerR-innerR)*ringIdx/(numRings-1):outerR*0.6;
+    const ringRotation=ringIdx*ringInc;
+    
+    ring.allRes.forEach(r=>{
+      const angle=2*Math.PI*(ring.mod-r)/ring.mod+ringRotation;
+      const px=radius*Math.cos(angle),py=radius*Math.sin(angle);
+      const dist=Math.sqrt((ux-px)**2+(uy-py)**2);
+      if(dist<minDist&&dist<20){
+        minDist=dist;
+        closest={residue:r,mod:ring.mod,gcd:gcd(r,ring.mod),isCoprime:gcd(r,ring.mod)===1};
+      }
+    });
+  });
+  
+  if(closest){
+    selectedPoint=closest;
+    showSelectedPoint(closest);
+    if(closest.isCoprime){
+      const red=reduceFrac(closest.residue,closest.mod);
+      highlightInSBTree(red.p,red.q);
+    }
+    drawAll();
+  }
+});
+
 document.getElementById('cSternBrocot')?.addEventListener('click',function(e){
   const c=this;
   const rect=c.getBoundingClientRect();
   const mx=(e.clientX-rect.left)*(c.width/rect.width);
   const my=(e.clientY-rect.top)*(c.height/rect.height);
   
-  const nodeSz=+document.getElementById('enhTreeSz')?.value||10;
-  let closest=null, minDist=nodeSz*2;
-  
+  let closest=null,minDist=15;
   (window.enhSBTreeNodes||[]).forEach(node=>{
     const dist=Math.sqrt((node.x-mx)**2+(node.y-my)**2);
     if(dist<minDist){minDist=dist;closest=node;}
   });
   
-  if(closest)highlightInSBTree(closest.p,closest.q);
+  if(closest){
+    highlightInSBTree(closest.p,closest.q);
+    // Also update main selection
+    selectedPoint={residue:closest.p,mod:closest.q,gcd:1,isCoprime:true};
+    showSelectedPoint(selectedPoint);
+    drawMainCanvas();
+    drawCayleyCanvas();
+  }
 });
 
+function showSelectedPoint(pt){
+  const panel=document.getElementById('selectedPanel');
+  const info=document.getElementById('selectedInfo');
+  panel.style.display='block';
+  const red=reduceFrac(pt.residue,pt.mod);
+  info.innerHTML=`
+    <div><strong>${pt.residue}/${pt.mod}</strong> = ${red.str}</div>
+    <div>Value: ${(pt.residue/pt.mod).toFixed(6)}</div>
+    <div>GCD: ${pt.gcd}</div>
+    <div>Coprime: ${pt.isCoprime?'<span style="color:#00ff88">Yes</span>':'<span style="color:#ff6060">No</span>'}</div>
+  `;
+}
+
 // Screenshot
-async function screenshotEnhanced(){
+function screenshotAll(){
   const c=document.getElementById('cenhanced');
   if(!c)return;
-  
+  const dk=isDark();
   const scale=2;
-  const isDk=isDark();
-  const mode=document.getElementById('enhMode')?.value||'range';
-  let title='Enhanced Modular Rings';
-  if(mode==='range'){
-    const min=document.getElementById('enhMin')?.value||'1';
-    const max=document.getElementById('enhMax')?.value||'30';
-    title=`Enhanced Modular Rings (M${min}-M${max})`;
-  }else if(mode==='power'){
-    const base=document.getElementById('enhBase')?.value||'2';
-    title=`Enhanced Modular Rings (${base}^n family)`;
-  }
-  
-  const pad=40, titleH=55, footerH=35;
-  const canvW=c.width, canvH=c.height;
-  const totalW=canvW+pad*2;
-  const totalH=canvH+titleH+footerH+pad;
+  const pad=30,titleH=50,footerH=30;
+  const totalW=(c.width+pad*2)*scale;
+  const totalH=(c.height+titleH+footerH+pad)*scale;
   
   const out=document.createElement('canvas');
-  out.width=totalW*scale;
-  out.height=totalH*scale;
+  out.width=totalW;out.height=totalH;
   const ctx=out.getContext('2d');
-  ctx.scale(scale,scale);
   
-  ctx.fillStyle=isDk?'#0d1321':'#fff';
+  ctx.fillStyle=dk?'#0d1321':'#fff';
   ctx.fillRect(0,0,totalW,totalH);
   
-  const grad=ctx.createLinearGradient(0,0,totalW,0);
-  grad.addColorStop(0,isDk?'#151b2d':'#e8e8e8');
-  grad.addColorStop(1,isDk?'#1a2540':'#f5f5f5');
-  ctx.fillStyle=grad;
-  ctx.fillRect(0,0,totalW,titleH);
-  ctx.fillStyle=isDk?'#00d9ff':'#0066cc';
-  ctx.font='bold 20px Segoe UI';
+  ctx.fillStyle=dk?'#00d9ff':'#0066cc';
+  ctx.font='bold 24px Segoe UI';
   ctx.textAlign='center';
-  ctx.fillText(title,totalW/2,35);
+  ctx.fillText('Enhanced Modular Lifting Rings',totalW/2,35);
   
-  const canvX=pad, canvY=titleH+10;
-  ctx.strokeStyle=isDk?'rgba(0,217,255,.4)':'rgba(0,102,204,.3)';
-  ctx.lineWidth=2;
-  ctx.strokeRect(canvX-2,canvY-2,canvW+4,canvH+4);
-  ctx.drawImage(c,canvX,canvY,canvW,canvH);
+  ctx.drawImage(c,pad*scale,(titleH+10)*scale,c.width*scale,c.height*scale);
   
   // Path info
-  if(window.enhSBHighlightPath&&window.enhSBHighlightPath.length>0&&window.enhSBSelectedNode){
-    ctx.save();
-    const pathW=180, pathH=Math.min(200,40+window.enhSBHighlightPath.length*18);
-    const pathX=canvX+15, pathY=canvY+15;
-    ctx.fillStyle=isDk?'rgba(13,19,33,.95)':'rgba(255,255,255,.95)';
+  if(window.enhSBHighlightPath?.length>0&&window.enhSBSelectedNode){
+    ctx.fillStyle=dk?'rgba(13,19,33,.92)':'rgba(255,255,255,.92)';
+    const pathX=(pad+15)*scale,pathY=(titleH+25)*scale;
+    const pathW=180*scale,pathH=Math.min(180,40+window.enhSBHighlightPath.length*16)*scale;
     ctx.fillRect(pathX,pathY,pathW,pathH);
     ctx.strokeStyle='rgba(0,255,136,.6)';
     ctx.lineWidth=2;
     ctx.strokeRect(pathX,pathY,pathW,pathH);
     ctx.fillStyle='#00ff88';
-    ctx.font='bold 11px Segoe UI';
+    ctx.font='bold 14px Segoe UI';
     ctx.textAlign='left';
-    ctx.fillText('STERN-BROCOT PATH',pathX+10,pathY+18);
+    ctx.fillText('STERN-BROCOT PATH',pathX+12,pathY+22);
     ctx.fillStyle='#ffd700';
-    ctx.font='bold 12px Segoe UI';
-    ctx.fillText(`→ ${window.enhSBSelectedNode.p}/${window.enhSBSelectedNode.q}`,pathX+10,pathY+36);
+    ctx.fillText(`→ ${window.enhSBSelectedNode.p}/${window.enhSBSelectedNode.q}`,pathX+12,pathY+42);
     ctx.fillStyle='#00d9ff';
-    ctx.font='10px Segoe UI';
-    let py=pathY+54;
-    window.enhSBHighlightPath.forEach((node,i)=>{
-      if(py<pathY+pathH-10){
-        const arrow=i===window.enhSBHighlightPath.length-1?'●':'→';
-        ctx.fillText(`${arrow} ${node.p}/${node.q}`,pathX+10,py);
-        py+=16;
-      }
+    ctx.font='12px Segoe UI';
+    let py=pathY+62;
+    window.enhSBHighlightPath.slice(0,8).forEach((n,i)=>{
+      ctx.fillText(`${i===window.enhSBHighlightPath.length-1?'●':'→'} ${n.p}/${n.q}`,pathX+12,py);
+      py+=18;
     });
-    ctx.restore();
   }
   
   // Legend
-  ctx.save();
-  const legW=160, legH=100;
-  const legX=canvX+canvW-legW-15, legY=canvY+15;
-  ctx.fillStyle=isDk?'rgba(13,19,33,.92)':'rgba(255,255,255,.92)';
-  ctx.fillRect(legX,legY,legW,legH);
-  ctx.strokeStyle=isDk?'rgba(0,217,255,.5)':'rgba(0,102,204,.5)';
-  ctx.lineWidth=1;
-  ctx.strokeRect(legX,legY,legW,legH);
-  ctx.fillStyle=isDk?'#00d9ff':'#0066cc';
-  ctx.font='bold 12px Segoe UI';
-  ctx.textAlign='left';
-  ctx.fillText('LEGEND',legX+10,legY+17);
+  const legX=(pad+c.width-160)*scale,legY=(titleH+25)*scale;
+  ctx.fillStyle=dk?'rgba(13,19,33,.92)':'rgba(255,255,255,.92)';
+  ctx.fillRect(legX,legY,150*scale,90*scale);
+  ctx.strokeStyle=dk?'rgba(0,217,255,.5)':'rgba(0,102,204,.5)';
+  ctx.strokeRect(legX,legY,150*scale,90*scale);
+  ctx.fillStyle=dk?'#00d9ff':'#0066cc';
+  ctx.font='bold 14px Segoe UI';
+  ctx.fillText('LEGEND',legX+12,legY+20);
   ctx.font='12px Segoe UI';
-  ctx.fillStyle=isDk?'#ffd700':'#cc8800';
-  ctx.fillText('● Coprime (GCD=1)',legX+10,legY+34);
-  ctx.fillStyle=isDk?'#666':'#999';
-  ctx.fillText('○ Non-coprime',legX+10,legY+50);
-  ctx.fillStyle=isDk?'#9664ff':'#7744dd';
-  ctx.fillText('▰ Highlighted sector',legX+10,legY+67);
-  ctx.fillStyle=isDk?'#00ff88':'#00aa55';
-  ctx.fillText('◯ Unit circle',legX+10,legY+84);
-  ctx.restore();
+  ctx.fillStyle='#ffd700';ctx.fillText('● Coprime',legX+12,legY+40);
+  ctx.fillStyle='#555';ctx.fillText('● Non-coprime',legX+12,legY+58);
+  ctx.fillStyle='#9664ff';ctx.fillText('▰ Sector',legX+12,legY+76);
   
-  ctx.fillStyle=isDk?'#506080':'#888';
-  ctx.font='11px Segoe UI';
+  ctx.fillStyle=dk?'#506080':'#888';
+  ctx.font='12px Segoe UI';
   ctx.textAlign='center';
   ctx.fillText('Enhanced Modular Rings — @7dview',totalW/2,totalH-12);
   
@@ -860,16 +819,11 @@ async function screenshotEnhanced(){
     a.href=URL.createObjectURL(b);
     a.download='enhanced_modular.png';
     a.click();
-  },'image/png',1.0);
+  },'image/png');
 }
 
-function exportAllEnhanced(){
-  screenshotEnhanced();
-  csvEnhanced();
-}
-
-// CSV export
-function csvEnhanced(){
+// CSV
+function csvExport(){
   let csv='Modulus,Residue,GCD,Coprime,Fraction,Decimal\n';
   enhRingsData.forEach(ring=>{
     ring.allRes.forEach(r=>{
@@ -880,14 +834,14 @@ function csvEnhanced(){
   const blob=new Blob([csv],{type:'text/csv'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='enhanced_modular_data.csv';
+  a.download='enhanced_modular.csv';
   a.click();
 }
 
-// Initialize
+// Init
 document.addEventListener('DOMContentLoaded',()=>{
   enhModeChange();
-  drawEnhanced();
+  drawAll();
 });
 </script>
 </body>
